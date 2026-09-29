@@ -1,0 +1,19 @@
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.day-cell {
+    aspect-ratio: 1;
+    border: 1px solid #ddd;
+    padding: 4px;
+    cursor: pointer;
+}
+.day-cell.empty {
+    border: none;
+    cursor: default;
+}
+
+h1 {
+    color: rgb(171, 1, 1);
+}
