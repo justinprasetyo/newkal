@@ -1,7 +1,15 @@
-const userSubject = document.getElementById('daily-subject')
-const userSubjectBtn = document.getElementById('daily-subject-btn')
+const userSubject = document.getElementById('daily-subject');
+const userSubjectBtn = document.getElementById('daily-subject-btn');
 
-const allTopicsBtn = document.getElementById('all-topics-btn')
+const allTopicsBtn = document.getElementById('all-topics-btn');
+
+const monthLabel = document.getElementById('month-label');
+const prevMonthBtn = document.getElementById('prev-month-btn');
+const nextMonthBtn = document.getElementById('next-month-btn');
+
+let thisYear = 2026;
+let thisMonth = 8;
+renderCalendar(2026, thisMonth, {});
 
 async function getInput(input) {
     const response = await fetch('/api/topics', {
@@ -16,7 +24,7 @@ async function getInput(input) {
 
     const result = await response.json()
     console.log(result)
-}
+};
 
 function getMonthGrid(year, month) {  //0 = January
     const firstDay = new Date(year, month, 1).getDay(); //0 = Sunday
@@ -26,12 +34,15 @@ function getMonthGrid(year, month) {  //0 = January
     for (let i = 0; i < firstDay; i++) cells.push(null); // skipping w/ blank padding before first actual day (if 0, no padding cuz calendar starts at sunday anyway)
     for (let day = 1; day <= daysInMonth; day++) cells.push(day);
     return cells;
-}
+};
 
 function renderCalendar(year, month, reviewsByDate) {
     const grid = getMonthGrid(year, month);
     const container = document.getElementById("calendar");
     container.innerHTML = "";
+    const date = new Date(year, month);
+    const monthName = date.toLocaleString('default', { month: 'long' });
+    monthLabel.textContent = monthName
 
     for (const day of grid) {
         const cell = document.createElement("div");
@@ -48,19 +59,29 @@ function renderCalendar(year, month, reviewsByDate) {
         }
         container.appendChild(cell);
     }
-}
-
-renderCalendar(2026,10,{})
+};
 
 userSubjectBtn.addEventListener('click', async () => {
         getInput(userSubject.value)
 
     }
-) 
+);
 
 allTopicsBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const result = await response.json()
         console.log(result)
     }
-) 
+);
+
+prevMonthBtn.addEventListener('click', () => {
+        thisMonth -= 1
+        renderCalendar(thisYear, thisMonth, {})
+    }
+);
+
+nextMonthBtn.addEventListener('click', () => {
+        thisMonth += 1
+        renderCalendar(thisYear, thisMonth, {})
+    }
+);

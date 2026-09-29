@@ -1,6 +1,9 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+levels = ['Washed', 'Mastered']
+intervals = [1, 3, 7, 16, 35] # then multiply based on performance
+
 def get_db():
     conn = psycopg2.connect(
         dbname="newkal",
