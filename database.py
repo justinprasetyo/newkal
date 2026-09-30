@@ -31,6 +31,13 @@ def init_db(): #initialize table on startup
     cur.close()
     conn.close()
 
+def formatDates(obj):
+    if obj['created_at']:
+        obj['created_at'] = obj['created_at'].isoformat()
+
+    if obj['next_review']:
+        obj['next_review'] = obj['next_review'].isoformat()
+
 def create_topic(topic_obj):
     conn = get_db()
     cur = conn.cursor()
@@ -49,7 +56,7 @@ def get_alltopics():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT name, progress, created_at, interval_step, next_review, level
+        SELECT id, name, progress, created_at, interval_step, next_review, level
         FROM topics
         ORDER BY created_at
     """)
@@ -63,6 +70,16 @@ def get_alltopics():
         arr.append(dict(row))
     return arr
 
+def load_topics():
+    arr = get_alltopics()
+    all_reviews = {}
+    for obj in arr:
+        if obj['next_review'] in all_reviews:
+            all_reviews[obj['next_review']].append(obj)
+        else:
+            all_reviews[obj['next_review']] = [obj]
+    return all_reviews
+
 def delete_alltopics():
     conn = get_db()
     cur = conn.cursor()
@@ -70,11 +87,4 @@ def delete_alltopics():
     conn.commit()
     cur.close()
     conn.close()
-
-def formatDates(obj):
-    if obj['created_at']:
-        obj['created_at'] = obj['created_at'].isoformat()
-
-    if obj['next_review']:
-        obj['next_review'] = obj['next_review'].isoformat()
 

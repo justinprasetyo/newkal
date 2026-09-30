@@ -1,10 +1,10 @@
--get calendar to render skills
--get calendar to be dynamic and change years if u go past Dec.
 -make pop-up for clicking skills and its UI
+-get calendar to render skills
+
+-get calendar to be able to switch beetween day, week, month, maybe even year
+
 -repeat a skill for each interval
 -come up with a formula to calculate retention %
 -come up with a formula to calculate next interval based on retention level
 -make openStatsPanel func
-
--sort {objs} into date: {obj} with for loop of arr of {objs} and bigObj[arr[i][next_interval]] = arr[i]
 

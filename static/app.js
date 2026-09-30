@@ -11,6 +11,9 @@ const skillsPanel = document.getElementById('skills-list');
 const skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
 const skillsTable = document.getElementById('skills-table');
 
+const statsPanel = document.getElementById('stats');
+const statsPanelCloseBtn = document.getElementById('stats-close-btn');
+
 let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
 'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
 'progress': 0}
@@ -27,7 +30,7 @@ let exampleReviews = {'2026-09-29': [exampleObj, exampleObj2, exampleObj3]}
 
 let currentYear = 2026; //dont hardcode, make this dynamic later
 let currentMonth = 8;
-renderCalendar(currentYear, currentMonth, exampleReviews);
+loadReviews()
 
 async function getInput(input) {
     const response = await fetch('/api/topics', {
@@ -44,9 +47,14 @@ async function getInput(input) {
 
     const result = await response.json() // skills list array
     console.log(result[result.length - 1])
-    formatSkills(result)
-    renderCalendar(currentYear, currentMonth, exampleReviews)
-    console.log(exampleReviews)
+    loadReviews()
+};
+
+async function loadReviews() {
+    const response = await fetch('/api/topics')
+    const reviewsList = await response.json()
+    console.log(reviewsList)
+    renderCalendar(currentYear, currentMonth, reviewsList)
 };
 
 function formatSkills(list) {
@@ -74,8 +82,7 @@ function renderCalendar(year, month, reviewsByDate) {
     const container = document.getElementById("calendar");
     container.innerHTML = "";
     const date = new Date(year, month);
-    const monthName = date.toLocaleString('default', { month: 'long' });
-    monthLabel.textContent = monthName;
+    monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric' })
 
     for (const day of grid) {
         const cell = document.createElement("div");
@@ -99,7 +106,13 @@ function openSkillsPanel(skills_list) {
     skillsTable.innerHTML = ""
 
     for (skill of skills_list) {
+        //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
         const newRow = document.createElement("tr")
+        newRow.id = skill['id'] // make a forEach like in Overstimulated that makes each skill section clickable
+        newRow.classList.add('skill-row-btn')
+        newRow.role = 'button'
+        newRow.tabIndex = '0'
+
         const name_col = document.createElement("th")
         const mastery_col = document.createElement("th")
         name_col.textContent = skill["name"]
@@ -107,11 +120,14 @@ function openSkillsPanel(skills_list) {
         newRow.append(name_col)
         newRow.append(mastery_col)
         skillsTable.append(newRow)
+        console.log(newRow)
     }
+
+    reviewButtons()
 }
 
-function openStatsPanel(skill) {
-
+function openStatsPanel(skill_id) {
+    
 }
 
 userSubjectBtn.addEventListener('click', async () => {
@@ -127,15 +143,19 @@ allTopicsBtn.addEventListener('click', async () => {
     }
 );
 
-prevMonthBtn.addEventListener('click', () => {
+prevMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
         currentMonth -= 1
-        renderCalendar(currentYear, currentMonth, exampleReviews)
+        renderCalendar(currentYear, currentMonth, reviewsList)
     }
 );
 
-nextMonthBtn.addEventListener('click', () => {
+nextMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
         currentMonth += 1
-        renderCalendar(currentYear, currentMonth, exampleReviews)
+        renderCalendar(currentYear, currentMonth, reviewsList)
     }
 );
 
@@ -143,3 +163,23 @@ skillsPanelCloseBtn.addEventListener('click', () => {
         skillsPanel.classList.remove('active')
     }
 );
+
+statsPanelCloseBtn.addEventListener('click', () => {
+        statsPanel.classList.remove('active')
+    }
+);
+
+function reviewButtons() { // make skills clickable
+    const buttons = document.querySelectorAll('.skill-row-btn');
+
+    buttons.forEach((btn, index) => {
+        if (!btn.classList.value.includes('button')) {
+            btn.addEventListener('click', () => {
+                console.log(btn.id)
+                btn.classList.add('button')
+                statsPanel.classList.add('active');
+            });
+        }
+            
+    });
+}
