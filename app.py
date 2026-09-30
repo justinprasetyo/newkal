@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import requests
 
-from database import init_db, create_topic, get_alltopics
+from database import init_db, create_topic, get_alltopics, delete_alltopics
+from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
@@ -10,14 +11,22 @@ CORS(app)
 @app.route('/')
 def home():
     init_db()
+    delete_alltopics() # delete topics on startup 
     return render_template('index.html')
 
 @app.route('/api/topics', methods=['POST'])
 def uploadInput():
-    obj = {'name': 'Sliding windows leetcode', 'progress': '0', 'created_at': '09/28/2026', 'interval_step': '0', 'next_review': '09/29/2026', 'level': 'Beginner'}
+    data = request.get_json() 
+
+    if data is None:
+        return jsonify({"error": "No valid data received"}), 400
+    print(data)
+    obj = {'name': data['input'], 'progress': '0', 'created_at': date.today().isoformat(), 'interval_step': '0', 'next_review': (date.today() + timedelta(days=1)).isoformat(), 'level': 'Beginner'}
     create_topic(obj)
-    print(get_alltopics())
-    return jsonify({'status': True})
+    #print(get_alltopics())
+    print(obj)
+    print((date.today() + timedelta(days=1)).isoformat())
+    return jsonify(get_alltopics())
 
 @app.route('/api/topics', methods=['GET'])
 def list_topics():

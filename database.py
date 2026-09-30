@@ -53,7 +53,28 @@ def get_alltopics():
         FROM topics
         ORDER BY created_at
     """)
+
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    return [dict(row) for row in rows]
+    arr = []
+    for row in rows:
+        formatDates(row)
+        arr.append(dict(row))
+    return arr
+
+def delete_alltopics():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM topics;")
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def formatDates(obj):
+    if obj['created_at']:
+        obj['created_at'] = obj['created_at'].isoformat()
+
+    if obj['next_review']:
+        obj['next_review'] = obj['next_review'].isoformat()
+
