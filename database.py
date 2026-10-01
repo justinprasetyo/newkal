@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-levels = ['Washed', 'Mastered']
+levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
 intervals = [1, 3, 7, 16, 35] # then multiply based on performance
 
 def get_db():
@@ -52,6 +52,23 @@ def create_topic(topic_obj):
     cur.close()
     conn.close()
 
+def get_topicById(id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT id, name, progress, created_at, interval_step, next_review, level
+        FROM topics
+        WHERE id = %s
+    """, (
+        id,
+    ))
+
+    topic = cur.fetchone()
+    cur.close()
+    conn.close()
+    formatDates(topic)
+    return dict(topic) if topic else None
+
 def get_alltopics():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -80,6 +97,20 @@ def load_topics():
             all_reviews[obj['next_review']] = [obj]
     return all_reviews
 
+def delete_topicById(id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM topics
+        WHERE id = %s
+    """, (
+        id,
+    ))
+    print("DELETED" + id)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 def delete_alltopics():
     conn = get_db()
     cur = conn.cursor()
@@ -88,3 +119,34 @@ def delete_alltopics():
     cur.close()
     conn.close()
 
+
+def seed_reviews():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """, ("Sliding windows leetcode", 0, "2026-10-13", 0, "2026-10-14", "Beginner"
+    ))
+    conn.commit()
+    cur.close()
+    conn.close()
+"""
+def seed_reviews():
+    connection = get_db()
+    count = connection.execute("SELECT COUNT(*) FROM reservations").fetchone()[0]
+    if count == 0:
+        sample = [
+            ("2026-09-28", 0, "Beginner", "Sliding windows leetcode", "2026-09-29", 0),
+            (2, "2026-10-03", "2026-10-04", "Community sail day"),
+            (3, "2026-10-10", "2026-10-20", "R/V2 8:30 AM example"),
+        ]
+        connection.executemany(
+            "INSERT INTO reservations (dock_number, start_date, end_date, reason) VALUES (?, ?, ?, ?)",
+            sample,
+        )
+        connection.commit()
+    connection.close()
+"""
+
+#seed_reviews()

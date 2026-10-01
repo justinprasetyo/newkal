@@ -4,7 +4,10 @@
 -get calendar to be able to switch beetween day, week, month, maybe even year
 
 -repeat a skill for each interval
--come up with a formula to calculate retention %
 -come up with a formula to calculate next interval based on retention level
--make openStatsPanel func
 
+-make exp level system instead of retention %
+-come up with a formula to calculate levels/exp/retention %
+-make button to actually say you've done the review and rate ur remembering from 1 to 10 or smth.
+
+-fix delete buttons not getting class of the review ID

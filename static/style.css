@@ -2,6 +2,7 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 4px;
+    max-width: 750px;
 }
 .day-cell {
     aspect-ratio: 1;
@@ -39,8 +40,15 @@ h1 {
 
 .skills-list.active {
     transform: translateX(0);
-    color: rgb(171, 1, 1);
+    color: rgb(83, 83, 83);
+    border-collapse: collapse; 
 
+}
+
+.skills-list table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    width: 100%;
 }
 
 #skills-list-close-btn, #stats-close-btn {
@@ -84,7 +92,7 @@ h1 {
 
 .stats.active {
     transform: translateX(0);
-    color: rgb(171, 1, 1);
+    color: rgb(0, 0, 0);
 
 }
 
@@ -98,14 +106,23 @@ h1 {
 }
 
 .skill-row-btn th {
-    padding: 20px 15px;
+    padding: 30px 15px;
     font-size: 25px;
-    border-bottom: 1px solid black;
     
 }
 
-.skill-row-btn:hover, .clickable-row:focus {
-  background-color: #f5f5f5;
+.skill-row-btn {
+    border: 5px solid rgba(198, 198, 198, 0.372);
+}
+
+.skill-row-btn:hover, .skill-row-btn:focus {
+  background-color: #e87b607a;
+  outline: none; /* Clear default focus ring if you prefer custom styling */
+  cursor: pointer;
+}
+
+.skill-row-btn:active {
+  background-color: #d44d4d86;
   outline: none; /* Clear default focus ring if you prefer custom styling */
   cursor: pointer;
 }

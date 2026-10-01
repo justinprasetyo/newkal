@@ -13,6 +13,7 @@ const skillsTable = document.getElementById('skills-table');
 
 const statsPanel = document.getElementById('stats');
 const statsPanelCloseBtn = document.getElementById('stats-close-btn');
+const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
 
 let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
 'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
@@ -29,7 +30,7 @@ let exampleObj3 = {'created_at': "2026-09-28", 'interval_step': 0,
 let exampleReviews = {'2026-09-29': [exampleObj, exampleObj2, exampleObj3]}
 
 let currentYear = 2026; //dont hardcode, make this dynamic later
-let currentMonth = 8;
+let currentMonth = 9;
 loadReviews()
 
 async function getInput(input) {
@@ -55,6 +56,21 @@ async function loadReviews() {
     const reviewsList = await response.json()
     console.log(reviewsList)
     renderCalendar(currentYear, currentMonth, reviewsList)
+};
+
+async function getStatsById(id) {
+    const response = await fetch('/api/topics/stats', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': id
+        })
+    })
+    const topicObj = await response.json()
+    console.log(topicObj)
+    return topicObj
 };
 
 function formatSkills(list) {
@@ -126,20 +142,29 @@ function openSkillsPanel(skills_list) {
     reviewButtons()
 }
 
-function openStatsPanel(skill_id) {
-    
+async function openStatsPanel(skill_id) {
+    const topicName = document.getElementById('skill-name');
+    const topicStartDate = document.getElementById('skill-start-date');
+    const topicRetRate = document.getElementById('skill-retention-rate');
+    const topicNextInterval = document.getElementById('skill-next-interval');
+    const topicLevel = document.getElementById('skill-level');
+    const obj = await getStatsById(skill_id)
+    topicName.textContent = obj['name']
+    topicStartDate.textContent = obj['created_at']
+    topicRetRate.textContent = '50%'//`${int(obj['progress']) + 50}%`
+    topicNextInterval.textContent = obj['next_review']
+    topicLevel.textContent = obj['level']
+    deleteSkillReviewBtn.value = obj['id']
 }
 
 userSubjectBtn.addEventListener('click', async () => {
         getInput(userSubject.value)
-
     }
 );
 
 allTopicsBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const result = await response.json()
-        console.log(result)
     }
 );
 
@@ -169,15 +194,31 @@ statsPanelCloseBtn.addEventListener('click', () => {
     }
 );
 
+deleteSkillReviewBtn.addEventListener('click', async () => {
+        //delete in postgre table
+        const response = await fetch('/api/topics/delete', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': deleteSkillReviewBtn.value
+        })
+    })
+    loadReviews()
+    statsPanel.classList.remove('active')
+    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+});
+
 function reviewButtons() { // make skills clickable
     const buttons = document.querySelectorAll('.skill-row-btn');
 
     buttons.forEach((btn, index) => {
         if (!btn.classList.value.includes('button')) {
             btn.addEventListener('click', () => {
-                console.log(btn.id)
                 btn.classList.add('button')
                 statsPanel.classList.add('active');
+                openStatsPanel(btn.id)
             });
         }
             
