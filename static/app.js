@@ -14,6 +14,7 @@ const skillsTable = document.getElementById('skills-table');
 const statsPanel = document.getElementById('stats');
 const statsPanelCloseBtn = document.getElementById('stats-close-btn');
 const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
+const completeSkillReviewBtn = document.getElementById('complete-skill-review');
 
 let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
 'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
@@ -84,7 +85,6 @@ async function getStatsById(id) {
         })
     })
     const topicObj = await response.json()
-    console.log(topicObj)
     return topicObj
 };
 
@@ -171,6 +171,7 @@ async function openStatsPanel(skill_id) {
     topicNextInterval.textContent = obj['next_review']
     topicLevel.textContent = obj['level']
     deleteSkillReviewBtn.value = obj['id']
+    completeSkillReviewBtn.value = obj['id']
 }
 
 userSubjectBtn.addEventListener('click', async () => {
@@ -221,9 +222,16 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
             'id': deleteSkillReviewBtn.value
         })
     })
-    loadReviews()
+    await loadReviews()
     statsPanel.classList.remove('active')
     skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+});
+
+completeSkillReviewBtn.addEventListener('click', async () => {
+    //update in postgre table
+    statsPanel.classList.remove('active')  
+    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+    updateReviewById(completeSkillReviewBtn.value)
 });
 
 function reviewButtons() { // make skills clickable
