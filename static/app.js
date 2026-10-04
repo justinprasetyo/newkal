@@ -51,6 +51,21 @@ async function getInput(input) {
     loadReviews()
 };
 
+async function updateReviewById(id) {
+    const response = await fetch('/api/topics/update', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': id
+        })
+    })
+
+    const result = await response.json() 
+    loadReviews()
+};
+
 async function loadReviews() {
     const response = await fetch('/api/topics')
     const reviewsList = await response.json()
@@ -118,6 +133,7 @@ function renderCalendar(year, month, reviewsByDate) {
 };
 
 function openSkillsPanel(skills_list) {
+    statsPanel.classList.remove('active')
     skillsPanel.classList.add('active')
     skillsTable.innerHTML = ""
 
@@ -215,8 +231,8 @@ function reviewButtons() { // make skills clickable
 
     buttons.forEach((btn, index) => {
         if (!btn.classList.value.includes('button')) {
+            btn.classList.add('button')
             btn.addEventListener('click', () => {
-                btn.classList.add('button')
                 statsPanel.classList.add('active');
                 openStatsPanel(btn.id)
             });

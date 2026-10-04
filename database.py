@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from datetime import date, datetime, timedelta
 
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
 intervals = [1, 3, 7, 16, 35] # then multiply based on performance
@@ -16,6 +17,7 @@ def get_db():
 def init_db(): #initialize table on startup
     conn = get_db()
     cur = conn.cursor()
+    #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS topics (
             id SERIAL PRIMARY KEY,
@@ -24,7 +26,8 @@ def init_db(): #initialize table on startup
             created_at DATE NOT NULL DEFAULT CURRENT_DATE,
             interval_step INTEGER NOT NULL DEFAULT 0,
             next_review DATE NOT NULL,
-            level TEXT NOT NULL
+            level TEXT NOT NULL,
+            all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[]
         );
     """)
     conn.commit()
@@ -38,15 +41,19 @@ def formatDates(obj):
     if obj['next_review']:
         obj['next_review'] = obj['next_review'].isoformat()
 
+    if obj['all_reviews']:
+        for date in obj['all_reviews']:
+            date = date.isoformat()
+
 def create_topic(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
         topic_obj['name'], topic_obj['progress'], topic_obj['created_at'],
-        topic_obj['interval_step'], topic_obj['next_review'], topic_obj['level']
+        topic_obj['interval_step'], topic_obj['next_review'], topic_obj['level'], topic_obj['all_reviews']
     ))
     conn.commit()
     cur.close()
@@ -56,7 +63,7 @@ def get_topicById(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level
+        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews
         FROM topics
         WHERE id = %s
     """, (
@@ -66,14 +73,14 @@ def get_topicById(id):
     topic = cur.fetchone()
     cur.close()
     conn.close()
-    formatDates(topic)
+    formatDates(dict(topic))
     return dict(topic) if topic else None
 
 def get_alltopics():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level
+        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews
         FROM topics
         ORDER BY created_at
     """)
@@ -89,13 +96,14 @@ def get_alltopics():
 
 def load_topics():
     arr = get_alltopics()
-    all_reviews = {}
+    all_reviewsByDate = {}
     for obj in arr:
-        if obj['next_review'] in all_reviews:
-            all_reviews[obj['next_review']].append(obj)
-        else:
-            all_reviews[obj['next_review']] = [obj]
-    return all_reviews
+        for review in obj['all_reviews']:
+            if str(review) in all_reviewsByDate:
+                all_reviewsByDate[str(review)].append(obj)
+            else:
+                all_reviewsByDate[str(review)] = [obj]
+    return all_reviewsByDate
 
 def delete_topicById(id):
     conn = get_db()
@@ -119,34 +127,38 @@ def delete_alltopics():
     cur.close()
     conn.close()
 
+def create_nextReview(id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cur.execute("""
+        UPDATE topics
+        SET 
+            interval_step = interval_step + 1,
+            next_review = next_review + (%s::int[])[interval_step + 1] * INTERVAL '1 day',
+            all_reviews = all_reviews || (next_review + (%s::int[])[interval_step + 1] * INTERVAL '1 day')::date
+        WHERE id = %s
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews;
+    """, (intervals, intervals, id))
+
+    row = cur.fetchone()
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    print(row['all_reviews'])
+    return 'Topic not found', 404
 
 def seed_reviews():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, ("Sliding windows leetcode", 0, "2026-10-13", 0, "2026-10-14", "Beginner"
     ))
     conn.commit()
     cur.close()
     conn.close()
-"""
-def seed_reviews():
-    connection = get_db()
-    count = connection.execute("SELECT COUNT(*) FROM reservations").fetchone()[0]
-    if count == 0:
-        sample = [
-            ("2026-09-28", 0, "Beginner", "Sliding windows leetcode", "2026-09-29", 0),
-            (2, "2026-10-03", "2026-10-04", "Community sail day"),
-            (3, "2026-10-10", "2026-10-20", "R/V2 8:30 AM example"),
-        ]
-        connection.executemany(
-            "INSERT INTO reservations (dock_number, start_date, end_date, reason) VALUES (?, ?, ?, ?)",
-            sample,
-        )
-        connection.commit()
-    connection.close()
-"""
 
 #seed_reviews()

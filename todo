@@ -1,3 +1,8 @@
+******
+-get intervals going
+******
+
+
 -make pop-up for clicking skills and its UI
 -get calendar to render skills
 
@@ -11,3 +16,5 @@
 -make button to actually say you've done the review and rate ur remembering from 1 to 10 or smth.
 
 -fix delete buttons not getting class of the review ID
+
+-login system
