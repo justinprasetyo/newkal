@@ -15,6 +15,10 @@ const statsPanel = document.getElementById('stats');
 const statsPanelCloseBtn = document.getElementById('stats-close-btn');
 const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
 const completeSkillReviewBtn = document.getElementById('complete-skill-review');
+const completeReviewConfirmation = document.getElementById('finish-review-confirmation');
+const completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
+
+const ratingButtons = document.querySelectorAll('.finish-review-rating');
 
 let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
 'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
@@ -52,14 +56,15 @@ async function getInput(input) {
     loadReviews()
 };
 
-async function updateReviewById(id) {
+async function updateReviewById(id, rating) {
     const response = await fetch('/api/topics/update', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
-            'id': id
+            'id': id,
+            'rating': rating
         })
     })
 
@@ -165,7 +170,7 @@ async function openStatsPanel(skill_id) {
     const obj = await getStatsById(skill_id)
     topicName.textContent = obj['name']
     topicStartDate.textContent = obj['created_at']
-    topicRetRate.textContent = '50%'//`${int(obj['progress']) + 50}%`
+    topicRetRate.textContent = obj['progress'] * 10 + 50 + '%'//`${int(obj['progress']) + 50}%`
     topicNextInterval.textContent = obj['next_review']
     topicLevel.textContent = obj['level']
     deleteSkillReviewBtn.value = obj['id']
@@ -228,8 +233,11 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
 completeSkillReviewBtn.addEventListener('click', async () => {
     //update in postgre table
     statsPanel.classList.remove('active')  
-    skillsPanel.classList.remove('active') 
-    updateReviewById(completeSkillReviewBtn.value)
+    skillsPanel.classList.remove('active')
+
+    const topicName = document.getElementById('skill-name');
+    completeReviewConfirmationTxt.textContent = topicName.textContent
+    completeReviewConfirmation.classList.add('active')
 });
 
 function reviewButtons() { // make skills clickable
@@ -246,3 +254,10 @@ function reviewButtons() { // make skills clickable
             
     });
 }
+
+ratingButtons.forEach((btn, index) => {
+    btn.addEventListener('click', async () => {
+        completeReviewConfirmation.classList.remove('active');
+        updateReviewById(completeSkillReviewBtn.value, btn.value)
+    });     
+});

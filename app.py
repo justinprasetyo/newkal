@@ -3,6 +3,7 @@ from flask_cors import CORS
 import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById, create_nextReview
+from retention import add_rating, update_level
 from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
@@ -56,8 +57,9 @@ def update_topicInterval():
     
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
-    
-    create_nextReview(data['id']) #and add ur points func here
+
+    update_level(data['id'], data['rating'])
+    create_nextReview(data['id'])
     return '', 204
 
 

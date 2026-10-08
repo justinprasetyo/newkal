@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NewKal: A spaced repetition reminder app.</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <h1>NewKal v1</h1>
@@ -66,6 +68,16 @@
         <label for="daily-subject">What did you learn today? </label>
         <input id="daily-subject">
         <button id="daily-subject-btn">ok!</button>
+    </div>
+
+    <div class="finish-review-confirmation" id="finish-review-confirmation">
+        <h4>how did it go?</h4>
+        <p id="finish-review-confirmation-text"></p>
+        <button class="finish-review-rating" value="0">forgot</button>
+        <button class="finish-review-rating" value="25">eh</button>
+        <button class="finish-review-rating" value="50">okay</button>
+        <button class="finish-review-rating" value="75">well</button>
+        <button class="finish-review-rating" value="100">perfect</button>
     </div>
     
 

@@ -126,3 +126,25 @@ h1 {
   outline: none; /* Clear default focus ring if you prefer custom styling */
   cursor: pointer;
 }
+
+.finish-review-confirmation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1); 
+
+    height: 50vh;
+    width: 400px;
+    opacity: 0.9;
+    visibility: hidden;
+    background-color: rgb(219, 214, 214);
+    border-radius: 10px;
+    border:1px, rgb(0, 0, 0), solid
+}
+
+.finish-review-confirmation.active {
+    visibility: visible;
+}
