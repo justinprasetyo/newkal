@@ -63,14 +63,12 @@ async function updateReviewById(id) {
         })
     })
 
-    const result = await response.json() 
-    loadReviews()
+    await loadReviews()
 };
 
 async function loadReviews() {
     const response = await fetch('/api/topics')
     const reviewsList = await response.json()
-    console.log(reviewsList)
     renderCalendar(currentYear, currentMonth, reviewsList)
 };
 
@@ -230,7 +228,7 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
 completeSkillReviewBtn.addEventListener('click', async () => {
     //update in postgre table
     statsPanel.classList.remove('active')  
-    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+    skillsPanel.classList.remove('active') 
     updateReviewById(completeSkillReviewBtn.value)
 });
 
@@ -240,9 +238,9 @@ function reviewButtons() { // make skills clickable
     buttons.forEach((btn, index) => {
         if (!btn.classList.value.includes('button')) {
             btn.classList.add('button')
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 statsPanel.classList.add('active');
-                openStatsPanel(btn.id)
+                await openStatsPanel(btn.id)
             });
         }
             

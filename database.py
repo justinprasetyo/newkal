@@ -3,7 +3,7 @@ from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
-intervals = [1, 3, 7, 16, 35] # then multiply based on performance
+intervals = [0, 1, 3, 7, 16, 35, 70] # then multiply based on performance
 
 def get_db():
     conn = psycopg2.connect(
@@ -27,7 +27,8 @@ def init_db(): #initialize table on startup
             interval_step INTEGER NOT NULL DEFAULT 0,
             next_review DATE NOT NULL,
             level TEXT NOT NULL,
-            all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[]
+            all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[],
+            review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[]
         );
     """)
     conn.commit()
@@ -49,11 +50,11 @@ def create_topic(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """, (
-        topic_obj['name'], topic_obj['progress'], topic_obj['created_at'],
-        topic_obj['interval_step'], topic_obj['next_review'], topic_obj['level'], topic_obj['all_reviews']
+        topic_obj['name'], topic_obj['progress'], topic_obj['created_at'], topic_obj['interval_step'],
+        topic_obj['next_review'], topic_obj['level'], topic_obj['all_reviews'], topic_obj['review_ratings']
     ))
     conn.commit()
     cur.close()
@@ -63,7 +64,7 @@ def get_topicById(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews
+        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
         FROM topics
         WHERE id = %s
     """, (
@@ -80,7 +81,7 @@ def get_alltopics():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews
+        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
         FROM topics
         ORDER BY created_at
     """)
@@ -130,32 +131,36 @@ def delete_alltopics():
 def create_nextReview(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    
+
+    cur.execute("SELECT interval_step, next_review FROM topics WHERE id = %s", (id,))
+    topic = cur.fetchone()
+    if topic is None:
+        cur.close(); conn.close()
+        return None
+
+    new_step = min(topic['interval_step'] + 1, len(intervals) - 1)  # never runs off the list
+    new_next_review = topic['next_review'] + timedelta(days=intervals[new_step])
+
     cur.execute("""
         UPDATE topics
-        SET 
-            interval_step = interval_step + 1,
-            next_review = next_review + (%s::int[])[interval_step + 1] * INTERVAL '1 day',
-            all_reviews = all_reviews || (next_review + (%s::int[])[interval_step + 1] * INTERVAL '1 day')::date
+        SET interval_step = %s, next_review = %s, all_reviews = all_reviews || %s::date
         WHERE id = %s
-        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews;
-    """, (intervals, intervals, id))
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
+    """, (new_step, new_next_review, new_next_review, id))
 
     row = cur.fetchone()
-    
     conn.commit()
     cur.close()
     conn.close()
-    print(row['all_reviews'])
-    return 'Topic not found', 404
+    return dict(row)
 
 def seed_reviews():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-    """, ("Sliding windows leetcode", 0, "2026-10-13", 0, "2026-10-14", "Beginner"
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """, ("Sliding windows leetcode", 0, "2026-10-13", 0, "2026-10-14", "Beginner", []
     ))
     conn.commit()
     cur.close()

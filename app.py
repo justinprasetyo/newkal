@@ -20,8 +20,10 @@ def uploadInput():
 
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
-
-    obj = {'name': data['input'], 'progress': '0', 'created_at': date.today().isoformat(), 'interval_step': '0', 'next_review': (date.today() + timedelta(days=1)).isoformat(), 'level': 'Beginner', 'all_reviews': [date.today(), (date.today() + timedelta(days=1))]}
+    #, (date.today() + timedelta(days=1)) if u want both days
+    obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
+           'next_review': date.today(), 'level': 'Beginner', 
+           'all_reviews': [date.today()], 'review_ratings': []}
     create_topic(obj)
     return jsonify(get_alltopics())
 
@@ -55,7 +57,7 @@ def update_topicInterval():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
     
-    create_nextReview(data['id'])
+    create_nextReview(data['id']) #and add ur points func here
     return '', 204
 
 
