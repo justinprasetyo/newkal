@@ -115,7 +115,7 @@ def delete_topicById(id):
     """, (
         id,
     ))
-    print("DELETED" + id)
+    print(f"DELETED {id}")
     conn.commit()
     cur.close()
     conn.close()

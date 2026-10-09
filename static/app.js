@@ -17,6 +17,8 @@ const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
 const completeSkillReviewBtn = document.getElementById('complete-skill-review');
 const completeReviewConfirmation = document.getElementById('finish-review-confirmation');
 const completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
+const completeReviewCancel = document.getElementById('finish-review-cancel');
+
 
 const ratingButtons = document.querySelectorAll('.finish-review-rating');
 
@@ -211,6 +213,11 @@ skillsPanelCloseBtn.addEventListener('click', () => {
 
 statsPanelCloseBtn.addEventListener('click', () => {
         statsPanel.classList.remove('active')
+    }
+);
+
+completeReviewCancel.addEventListener('click', () => {
+        completeReviewConfirmation.classList.remove('active')
     }
 );
 

@@ -1,10 +1,5 @@
 ******
-fix the arr crash with min(step, arr length -1)
-
--make retention rate. maybe self-rated first? 
-"how well did you perform?" -forgot, -okay, -well, -perfect
-
-each will have points?
+merge functions
 ******
 
 

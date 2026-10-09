@@ -1,0 +1,150 @@
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    max-width: 750px;
+}
+.day-cell {
+    aspect-ratio: 1;
+    border: 1px solid #ddd;
+    padding: 4px;
+    cursor: pointer;
+}
+.day-cell.empty {
+    border: none;
+    cursor: default;
+}
+
+h1 {
+    color: rgb(171, 1, 1);
+}
+
+.skills-list {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 40vw;
+    min-width: 150px;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transform: translateX(100%); 
+    transition: transform 0.3s ease-in-out; 
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    box-sizing: border-box;
+}
+
+.skills-list.active {
+    transform: translateX(0);
+    color: rgb(83, 83, 83);
+    border-collapse: collapse; 
+
+}
+
+.skills-list table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    width: 100%;
+}
+
+#skills-list-close-btn, #stats-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 32px;
+    line-height: 1;
+    color: #333333;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease, transform 0.2s ease;
+    border-radius: 100px;
+}
+
+#skills-list-close-btn:hover, #stats-close-btn:hover {
+  color: rgb(171, 1, 1); 
+  transform: scale(1.2);
+}
+
+.stats {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 40vw;
+    min-width: 150px;
+    height: 100vh;
+    background-color: #ffffff;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transform: translateX(100%); 
+    transition: transform 0.3s ease-in-out; 
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; 
+    box-sizing: border-box;
+}
+
+.stats.active {
+    transform: translateX(0);
+    color: rgb(0, 0, 0);
+
+}
+
+.name-header {
+    font-size: 22px;
+    font-weight: 700;
+    color: #111111;
+    margin-bottom: 25px;
+    border-bottom: 2px solid rgb(171, 1, 1);
+    padding-bottom: 12px;
+}
+
+.skill-row-btn th {
+    padding: 30px 15px;
+    font-size: 25px;
+    
+}
+
+.skill-row-btn {
+    border: 5px solid rgba(198, 198, 198, 0.372);
+}
+
+.skill-row-btn:hover, .skill-row-btn:focus {
+  background-color: #e87b607a;
+  outline: none; /* Clear default focus ring if you prefer custom styling */
+  cursor: pointer;
+}
+
+.skill-row-btn:active {
+  background-color: #d44d4d86;
+  outline: none; /* Clear default focus ring if you prefer custom styling */
+  cursor: pointer;
+}
+
+.finish-review-confirmation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1); 
+
+    height: 50vh;
+    width: 400px;
+    opacity: 0.9;
+    visibility: hidden;
+    background-color: rgb(219, 214, 214);
+    border-radius: 10px;
+    border:1px, rgb(0, 0, 0), solid
+}
+
+.finish-review-confirmation.active {
+    visibility: visible;
+}
