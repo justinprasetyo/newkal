@@ -331,7 +331,8 @@ label[for="daily-subject"] {
 }
 
 /* ---- "How did it go?" rating modal ---- */
-.finish-review-confirmation {
+.finish-review-confirmation,
+.delete-review-confirmation {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -355,20 +356,23 @@ label[for="daily-subject"] {
   transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
 }
 
-.finish-review-confirmation.active {
+.finish-review-confirmation.active,
+.delete-review-confirmation.active {
   visibility: visible;
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
 
-.finish-review-confirmation h4 {
+.finish-review-confirmation h4,
+.delete-review-confirmation h4 {
   font-family: 'Lora', serif;
   font-size: 1.2rem;
   color: var(--ink);
   margin: 0;
 }
 
-#finish-review-confirmation-text {
+#finish-review-confirmation-text,
+#delete-review-confirmation-text {
   font-size: 0.9rem;
   color: var(--ink-muted);
   margin: 0;

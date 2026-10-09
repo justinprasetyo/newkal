@@ -18,9 +18,11 @@ const completeSkillReviewBtn = document.getElementById('complete-skill-review');
 const completeReviewConfirmation = document.getElementById('finish-review-confirmation');
 const completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
 const completeReviewCancel = document.getElementById('finish-review-cancel');
-
-
 const ratingButtons = document.querySelectorAll('.finish-review-rating');
+
+const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
+const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
+const deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
 
 let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
 'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
@@ -222,6 +224,16 @@ completeReviewCancel.addEventListener('click', () => {
 );
 
 deleteSkillReviewBtn.addEventListener('click', async () => {
+    const topicName = document.getElementById('skill-name');
+    const deleteReviewConfirmationTxt = document.getElementById('delete-review-confirmation-text')
+    deleteReviewConfirmationTxt.textContent = topicName.textContent
+
+    deleteReviewConfirmation.classList.add('active')
+    statsPanel.classList.remove('active')
+    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+});
+
+deleteReviewConfirmBtn.addEventListener('click', async () => {
         //delete in postgre table
         const response = await fetch('/api/topics/delete', {
         method: "POST",
@@ -233,8 +245,11 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
         })
     })
     await loadReviews()
-    statsPanel.classList.remove('active')
-    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+    deleteReviewConfirmation.classList.remove('active')
+});
+
+deleteReviewCancelBtn.addEventListener('click', async () => {
+    deleteReviewConfirmation.classList.remove('active')
 });
 
 completeSkillReviewBtn.addEventListener('click', async () => {
