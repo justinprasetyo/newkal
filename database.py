@@ -128,32 +128,6 @@ def delete_alltopics():
     cur.close()
     conn.close()
 
-def create_nextReview(id):
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-
-    cur.execute("SELECT interval_step, next_review FROM topics WHERE id = %s", (id,))
-    topic = cur.fetchone()
-    if topic is None:
-        cur.close(); conn.close()
-        return None
-
-    new_step = min(topic['interval_step'] + 1, len(intervals) - 1)  # never runs off the list
-    new_next_review = topic['next_review'] + timedelta(days=intervals[new_step])
-
-    cur.execute("""
-        UPDATE topics
-        SET interval_step = %s, next_review = %s, all_reviews = all_reviews || %s::date
-        WHERE id = %s
-        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
-    """, (new_step, new_next_review, new_next_review, id))
-
-    row = cur.fetchone()
-    conn.commit()
-    cur.close()
-    conn.close()
-    return dict(row)
-
 def seed_reviews():
     conn = get_db()
     cur = conn.cursor()

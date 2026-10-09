@@ -303,6 +303,12 @@ label[for="daily-subject"] {
   background: var(--ink);
 }
 
+#complete-skill-review:disabled { /* disable if not todays date or more */
+  background: var(--line);
+  color: var(--ink-muted);
+  cursor: not-allowed;
+}
+
 .bottom-header {
   border-top: 1px solid var(--line);
   padding-top: 16px;
