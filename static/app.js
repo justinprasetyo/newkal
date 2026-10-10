@@ -32,8 +32,7 @@ const LEVEL_COLORS = {
     'Mastered': 'var(--level-4)'
 };
 
-let currentYear = 2026; //dont hardcode, make this dynamic later
-let currentMonth = 9;
+let currentDate = new Date()
 loadReviews()
 
 async function getInput(input) {
@@ -50,11 +49,15 @@ async function getInput(input) {
     //const todayString = today.toDateString()
 
     const result = await response.json() // skills list array
-    console.log(result[result.length - 1])
+    //console.log(result[result.length - 1])
     loadReviews()
 };
 
 async function updateReviewById(id, rating) {
+    ratingInt = parseInt(rating)
+    if (ratingInt == NaN) {
+        return 'Error: rating is not valid', 404
+    }
     const response = await fetch('/api/topics/update', {
         method: "POST",
         headers: {
@@ -62,7 +65,7 @@ async function updateReviewById(id, rating) {
         },
         body: JSON.stringify({
             'id': id,
-            'rating': rating
+            'rating': ratingInt
         })
     })
 
@@ -72,7 +75,7 @@ async function updateReviewById(id, rating) {
 async function loadReviews() {
     const response = await fetch('/api/topics')
     const reviewsList = await response.json()
-    renderCalendar(currentYear, currentMonth, reviewsList)
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
 };
 
 async function getStatsById(id) {
@@ -164,7 +167,6 @@ function openSkillsPanel(skills_list) {
         newRow.append(name_col)
         newRow.append(mastery_col)
         skillsTable.append(newRow)
-        console.log(newRow)
     }
 
     reviewButtons()
@@ -191,7 +193,7 @@ userSubjectBtn.addEventListener('click', async () => {
     }
 );
 
-allTopicsBtn.addEventListener('click', async () => {
+allTopicsBtn.addEventListener('click', async () => { //lowk useless rn just fix later i dont need this
         const response = await fetch('/api/topics')
         const result = await response.json()
     }
@@ -200,16 +202,16 @@ allTopicsBtn.addEventListener('click', async () => {
 prevMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
-        currentMonth -= 1
-        renderCalendar(currentYear, currentMonth, reviewsList)
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
     }
 );
 
 nextMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
-        currentMonth += 1
-        renderCalendar(currentYear, currentMonth, reviewsList)
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
     }
 );
 

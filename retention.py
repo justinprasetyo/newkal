@@ -17,7 +17,21 @@ def complete_review(id, rating):
         cur.close(); conn.close()
         return None
 
-    new_step = min(row['interval_step'] + 1, len(intervals) - 1)
+    old_step = row['interval_step']
+    if rating == 0: # forgot
+        new_step = 1
+    elif rating == 25: # eh - go back 1 interval, or repeat if at 1
+        if old_step == 0:
+            new_step = old_step + 1
+        elif old_step == 1:
+            new_step = old_step 
+        else:
+            new_step = old_step - 1
+    elif rating == 50: # ok - repeat, dont advance
+        new_step = old_step if old_step > 1 else old_step + 1
+    else: # good/perfect — advance normally
+        new_step = min(old_step + 1, len(intervals) - 1)
+
     new_next_review = row['next_review'] + timedelta(days=intervals[new_step])
 
     avg = sum(row['review_ratings']) / len(row['review_ratings'])
@@ -36,8 +50,9 @@ def complete_review(id, rating):
         WHERE id = %s
         RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
     """, (new_step, new_next_review, new_next_review, mastery, levels[level], id))
-
+    
     result = cur.fetchone()
+    print(result['all_reviews'])
     conn.commit()
     cur.close()
     conn.close()

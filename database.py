@@ -3,7 +3,7 @@ from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
-intervals = [0, 1, 3, 7, 16, 35, 70] # then multiply based on performance
+intervals = [0, 1, 3, 7, 16, 35, 70, 180, 365]
 
 def get_db():
     conn = psycopg2.connect(
@@ -18,6 +18,7 @@ def init_db(): #initialize table on startup
     conn = get_db()
     cur = conn.cursor()
     #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
+    #cur.execute("DROP TABLE IF EXISTS daily_log CASCADE;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS topics (
             id SERIAL PRIMARY KEY,
@@ -35,8 +36,9 @@ def init_db(): #initialize table on startup
     cur.execute("""
             CREATE TABLE IF NOT EXISTS daily_log (
             id SERIAL PRIMARY KEY,
-            text TEXT NOT NULL,
-            created_at DATE NOT NULL DEFAULT CURRENT_DATE
+            name TEXT NOT NULL,
+            created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+            description TEXT NOT NULL
         );
     """)
 
