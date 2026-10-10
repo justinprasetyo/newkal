@@ -24,19 +24,13 @@ const deleteReviewConfirmation = document.getElementById('delete-review-confirma
 const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
 const deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
 
-let exampleObj = {'created_at': "2026-09-28", 'interval_step': 0,
-'level': "Beginner", 'name': "Sliding windows leetcode", 'next_review': "2026-09-29",
-'progress': 0}
-
-let exampleObj2 = {'created_at': "2026-09-28", 'interval_step': 0,
-'level': "Advanced", 'name': "Hash leet", 'next_review': "2026-09-29",
-'progress': 0}
-
-let exampleObj3 = {'created_at': "2026-09-28", 'interval_step': 0,
-'level': "Intermediate", 'name': "Trig sub integrals", 'next_review': "2026-09-29",
-'progress': 0}
-
-let exampleReviews = {'2026-09-29': [exampleObj, exampleObj2, exampleObj3]}
+const LEVEL_COLORS = {
+    'Beginner': 'var(--level-0)',
+    'Washed': 'var(--level-1)',
+    'Intermediate': 'var(--level-2)',
+    'Advanced': 'var(--level-3)',
+    'Mastered': 'var(--level-4)'
+};
 
 let currentYear = 2026; //dont hardcode, make this dynamic later
 let currentMonth = 9;
@@ -123,6 +117,7 @@ function renderCalendar(year, month, reviewsByDate) {
     monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric' })
 
     for (const day of grid) {
+        //<span class="due-tick" style="background: var(--level-${levelIndex})"></span>
         const cell = document.createElement("div");
         if (day === null) {
             cell.className = "day-cell empty";
@@ -133,6 +128,16 @@ function renderCalendar(year, month, reviewsByDate) {
             if (reviewsByDate[dateKey]) {
                 cell.style.background = "#dbeafe";   // highlight days with a scheduled review
                 cell.addEventListener("click", () => openSkillsPanel(reviewsByDate[dateKey]));
+                const tickContainer = document.createElement("div")
+                tickContainer.className = "due-ticks"
+
+                for (const topic of reviewsByDate[dateKey]) {
+                    const tick = document.createElement("span")
+                    tick.className = "due-tick"
+                    tick.style.background = LEVEL_COLORS[topic.level] || LEVEL_COLORS['Beginner'];
+                    tickContainer.append(tick)
+                }
+                cell.append(tickContainer)
             }
         }
         container.appendChild(cell);
@@ -174,7 +179,7 @@ async function openStatsPanel(skill_id) {
     const obj = await getStatsById(skill_id)
     topicName.textContent = obj['name']
     topicStartDate.textContent = obj['created_at']
-    topicRetRate.textContent = obj['progress'] * 10 + 50 + '%'//`${int(obj['progress']) + 50}%`
+    topicRetRate.textContent = obj['progress'] + '%'
     topicNextInterval.textContent = obj['next_review']
     topicLevel.textContent = obj['level']
     deleteSkillReviewBtn.value = obj['id']

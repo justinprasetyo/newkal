@@ -1,9 +1,12 @@
 ******
-streaks feature.
+long term / short term button after learning something.
+streaks feature for short term. (daily_log table)
+% of reviews completed on time for long-term.
 
 if 'forgot', reset interval to index 0 or 1
 
 reward UI for coompletion AND for leveling up
+skills leaderboard for most rating
 
 disable done from previous reviews
 ******

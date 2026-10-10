@@ -31,6 +31,15 @@ def init_db(): #initialize table on startup
             review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[]
         );
     """)
+
+    cur.execute("""
+            CREATE TABLE IF NOT EXISTS daily_log (
+            id SERIAL PRIMARY KEY,
+            text TEXT NOT NULL,
+            created_at DATE NOT NULL DEFAULT CURRENT_DATE
+        );
+    """)
+
     conn.commit()
     cur.close()
     conn.close()

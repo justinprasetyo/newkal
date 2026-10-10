@@ -42,3 +42,24 @@ def complete_review(id, rating):
     cur.close()
     conn.close()
     return dict(result)
+
+def get_streak():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT DISTINCT d::date AS activity_date
+        FROM topics, unnest(all_reviews) AS d
+        UNION
+        SELECT created_at FROM topics
+        UNION
+        SELECT created_at FROM daily_log
+    """)
+    active_days = {row[0] for row in cur.fetchall()}
+    cur.close(); conn.close()
+
+    streak = 0
+    day = date.today()
+    while day in active_days: #includes created topics from long and short term + review completion
+        streak += 1
+        day -= timedelta(days=1)
+    return streak
