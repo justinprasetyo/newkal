@@ -4,7 +4,7 @@ import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review
-from dailylog import create_daily_log
+from dailylog import create_daily_log, load_daily_logs
 from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
@@ -39,6 +39,10 @@ def uploadInput():
 @app.route('/api/topics', methods=['GET'])
 def list_topics():
     return jsonify(load_topics())
+
+@app.route('/api/daily_logs', methods=['GET'])
+def list_daily_logs():
+    return jsonify(load_daily_logs())
 
 @app.route('/api/topics/stats', methods=['POST'])
 def load_topicStats():

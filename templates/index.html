@@ -24,17 +24,21 @@
     <div class="skills-list" id="skills-list">
         <button id="skills-list-close-btn">&times;</button>
 
-        <table>
-            <thead>
-                <tr>
-                    <th></th>
-                </tr>
-            </thead>
+        <div class="tab-group" role="tablist">
+            <button class="tab-btn active" id="tab-skills-btn" role="tab" aria-selected="true">Skills</button>
+            <button class="tab-btn" id="tab-daily-btn" role="tab" aria-selected="false">Daily Log</button>
+        </div>
 
-            <tbody id="skills-table">
-                
-            </tbody>
+        <table class="tab-panel active" id="skills-panel">
+            <thead><tr><th></th></tr></thead>
+            <tbody id="skills-table"></tbody>
         </table>
+
+        <table class="tab-panel" id="daily-panel">
+            <thead><tr><th></th></tr></thead>
+            <tbody id="daily-table"></tbody>
+        </table>
+
     </div>
 
     <div class="stats" id="stats">

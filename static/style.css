@@ -185,10 +185,13 @@ label[for="daily-subject"] {
   transition: transform 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-sizing: border-box;
   padding: 32px;
   border-left: 1px solid var(--line);
+}
+
+.stats {
+  justify-content: space-between; /* keeps .bottom-header pinned to the bottom */
 }
 
 .skills-list.active, .stats.active {
@@ -199,7 +202,7 @@ label[for="daily-subject"] {
 .skills-list table {
   border-collapse: collapse;
   width: 100%;
-  margin-top: 40px;
+  margin-top: 0px;
 }
 
 #skills-list-close-btn, #stats-close-btn {
@@ -404,6 +407,43 @@ label[for="daily-subject"] {
 .finish-review-rating[value="50"]  { background: var(--level-2); }
 .finish-review-rating[value="75"]  { background: var(--level-3); }
 .finish-review-rating[value="100"] { background: var(--level-4); }
+
+.tab-group {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+
+.tab-btn {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: var(--ink);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: table; /* NOT "block" — these are <table> elements */
+}
 
 /* ---- Mobile ---- */
 @media (max-width: 640px) {

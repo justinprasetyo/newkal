@@ -47,13 +47,13 @@ def init_db(): #initialize table on startup
     conn.close()
 
 def formatDates(obj):
-    if obj['created_at']:
+    if 'created_at' in obj:
         obj['created_at'] = obj['created_at'].isoformat()
 
-    if obj['next_review']:
+    if 'next_review' in obj:
         obj['next_review'] = obj['next_review'].isoformat()
 
-    if obj['all_reviews']:
+    if 'all_reviews' in obj:
         for date in obj['all_reviews']:
             date = date.isoformat()
 

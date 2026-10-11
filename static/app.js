@@ -15,6 +15,11 @@ const skillsPanel = document.getElementById('skills-list');
 const skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
 const skillsTable = document.getElementById('skills-table');
 
+const tabSkillsBtn = document.getElementById('tab-skills-btn');
+const tabDailyBtn = document.getElementById('tab-daily-btn');
+const skillsPanel2 = document.getElementById('skills-panel');
+const dailyPanel = document.getElementById('daily-panel');
+
 const statsPanel = document.getElementById('stats');
 const statsPanelCloseBtn = document.getElementById('stats-close-btn');
 const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
@@ -78,9 +83,12 @@ async function updateReviewById(id, rating) {
 };
 
 async function loadReviews() {
-    const response = await fetch('/api/topics')
-    const reviewsList = await response.json()
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+    const responseReviews = await fetch('/api/topics')
+    const reviewsList = await responseReviews.json()
+
+    const responseLogs = await fetch('/api/daily_logs')
+    const daily_logsList = await responseLogs.json()
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
 
 async function getStatsById(id) {
@@ -135,7 +143,10 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             if (reviewsByDate[dateKey]) {
                 cell.style.background = "#dbeafe";   // highlight days with a scheduled review
-                cell.addEventListener("click", () => openSkillsPanel(reviewsByDate[dateKey]));
+                cell.addEventListener("click", () => {
+                    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
+                    openSkillsPanel(reviewsByDate[dateKey])
+                });
                 const tickContainer = document.createElement("div")
                 tickContainer.className = "due-ticks"
 
@@ -147,12 +158,17 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                 }
                 cell.append(tickContainer)
             }
-            /*
+            
             if (dailylogByDate[dateKey]) {
-                cell.addEventListener("click", () => openSkillsPanel(dailylogByDate[dateKey]));
+                cell.style.background = "#dbfee7"
+                if (!reviewsByDate[dateKey]) {
+                    cell.addEventListener("click", () => {
+                        openSkillsPanel([])
+                        switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
+                    });
+                }
             }
-                */
-        } // make this if statement make days with daily logs clickable AND make openSkillsPanel have a second tab where u can see daily logs
+        } 
         container.appendChild(cell);
     }
 };
@@ -191,12 +207,38 @@ async function openStatsPanel(skill_id) {
     const obj = await getStatsById(skill_id)
     topicName.textContent = obj['name']
     topicStartDate.textContent = obj['created_at']
-    topicRetRate.textContent = obj['progress'] + '%'
+    topicRetRate.textContent = Math.min(obj['progress'], 100) + '%'
     topicNextInterval.textContent = obj['next_review']
     topicLevel.textContent = obj['level']
     deleteSkillReviewBtn.value = obj['id']
     completeSkillReviewBtn.value = obj['id']
 }
+
+prevMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+    }
+);
+
+nextMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+    }
+);
+
+todayMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
+        today = new Date
+        currentDate.setMonth(today.getMonth())
+        currentDate.setFullYear(today.getFullYear())
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+    }
+);
 
 userSubjectBtn.addEventListener('click', async () => {
         topicTermConfirmation.classList.add('active')
@@ -221,31 +263,20 @@ allTopicsBtn.addEventListener('click', async () => { //lowk useless rn just fix 
     }
 );
 
-prevMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
-    }
-);
+function switchTab(activeBtn, inactiveBtn, activePanel, inactivePanel) {
+    activeBtn.classList.add('active');
+    activeBtn.setAttribute('aria-selected', 'true');
+    inactiveBtn.classList.remove('active');
+    inactiveBtn.setAttribute('aria-selected', 'false');
+    activePanel.classList.add('active');
+    inactivePanel.classList.remove('active');
+}
 
-nextMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
-    }
-);
+tabSkillsBtn.addEventListener('click', () =>
+    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel))
 
-todayMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
-        today = new Date
-        currentDate.setMonth(today.getMonth());
-        currentDate.setFullYear(today.getFullYear());
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
-    }
-);
+tabDailyBtn.addEventListener('click', () =>
+    switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2))
 
 skillsPanelCloseBtn.addEventListener('click', () => {
         skillsPanel.classList.remove('active')
@@ -292,7 +323,6 @@ deleteReviewCancelBtn.addEventListener('click', async () => {
 });
 
 completeSkillReviewBtn.addEventListener('click', async () => {
-    //update in postgre table
     statsPanel.classList.remove('active')  
     skillsPanel.classList.remove('active')
 
