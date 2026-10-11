@@ -2,7 +2,7 @@ from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from database import intervals, levels, get_db
 
-def create_topic(topic_obj):
+def create_daily_log(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""

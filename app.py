@@ -4,6 +4,7 @@ import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review
+from dailylog import create_daily_log
 from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
@@ -21,7 +22,14 @@ def uploadInput():
 
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
-    #, (date.today() + timedelta(days=1)) if u want both days
+
+    if data['daily_log'] and data['daily_log'] == True:
+        obj = {'name': data['input'], 'created_at': date.today(), 'description': ''}
+        create_daily_log(obj)
+        print('short term topic created')
+        return jsonify(get_alltopics())
+
+
     obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
            'next_review': date.today(), 'level': 'Beginner', 
            'all_reviews': [date.today()], 'review_ratings': []}

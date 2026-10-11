@@ -26,7 +26,7 @@ def init_db(): #initialize table on startup
             progress INTEGER NOT NULL DEFAULT 0,
             created_at DATE NOT NULL DEFAULT CURRENT_DATE,
             interval_step INTEGER NOT NULL DEFAULT 0,
-            next_review DATE NOT NULL,
+            next_review DATE NOT NULL DEFAULT CURRENT_DATE,
             level TEXT NOT NULL,
             all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[],
             review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[]
@@ -34,7 +34,7 @@ def init_db(): #initialize table on startup
     """)
 
     cur.execute("""
-            CREATE TABLE IF NOT EXISTS daily_log (
+        CREATE TABLE IF NOT EXISTS daily_log (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             created_at DATE NOT NULL DEFAULT CURRENT_DATE,

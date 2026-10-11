@@ -1,11 +1,15 @@
 const userSubject = document.getElementById('daily-subject');
 const userSubjectBtn = document.getElementById('daily-subject-btn');
+const topicTermConfirmation = document.getElementById('topic-term-confirmation');
+const shortTermTopicBtn = document.getElementById('short-term-confirm');
+const longTermTopicBtn = document.getElementById('long-term-confirm');
 
 const allTopicsBtn = document.getElementById('all-topics-btn');
 
 const monthLabel = document.getElementById('month-label');
 const prevMonthBtn = document.getElementById('prev-month-btn');
 const nextMonthBtn = document.getElementById('next-month-btn');
+const todayMonthBtn = document.getElementById('today-month-btn');
 
 const skillsPanel = document.getElementById('skills-list');
 const skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
@@ -35,14 +39,15 @@ const LEVEL_COLORS = {
 let currentDate = new Date()
 loadReviews()
 
-async function getInput(input) {
+async function getInput(input, dailylog) {
     const response = await fetch('/api/topics', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
-            'input': input
+            'input': input,
+            'daily_log': dailylog
         })
     })
     //const today = new Date();
@@ -112,7 +117,7 @@ function getMonthGrid(year, month) {  //0 = January
     return cells;
 };
 
-function renderCalendar(year, month, reviewsByDate) {
+function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
     const grid = getMonthGrid(year, month);
     const container = document.getElementById("calendar");
     container.innerHTML = "";
@@ -142,7 +147,12 @@ function renderCalendar(year, month, reviewsByDate) {
                 }
                 cell.append(tickContainer)
             }
-        }
+            /*
+            if (dailylogByDate[dateKey]) {
+                cell.addEventListener("click", () => openSkillsPanel(dailylogByDate[dateKey]));
+            }
+                */
+        } // make this if statement make days with daily logs clickable AND make openSkillsPanel have a second tab where u can see daily logs
         container.appendChild(cell);
     }
 };
@@ -189,7 +199,19 @@ async function openStatsPanel(skill_id) {
 }
 
 userSubjectBtn.addEventListener('click', async () => {
-        getInput(userSubject.value)
+        topicTermConfirmation.classList.add('active')
+    }
+);
+
+longTermTopicBtn.addEventListener('click', async () => {
+        getInput(userSubject.value, false)
+        topicTermConfirmation.classList.remove('active')
+    }
+);
+
+shortTermTopicBtn.addEventListener('click', async () => {
+        getInput(userSubject.value, true) //make a load daily_log function that fetches to api/daily_log
+        topicTermConfirmation.classList.remove('active')
     }
 );
 
@@ -211,6 +233,16 @@ nextMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
         currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+    }
+);
+
+todayMonthBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics')
+        const reviewsList = await response.json()
+        today = new Date
+        currentDate.setMonth(today.getMonth());
+        currentDate.setFullYear(today.getFullYear());
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
     }
 );
