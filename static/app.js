@@ -19,6 +19,7 @@ const tabSkillsBtn = document.getElementById('tab-skills-btn');
 const tabDailyBtn = document.getElementById('tab-daily-btn');
 const skillsPanel2 = document.getElementById('skills-panel');
 const dailyPanel = document.getElementById('daily-panel');
+const dailyTable = document.getElementById('daily-table');
 
 const statsPanel = document.getElementById('stats');
 const statsPanelCloseBtn = document.getElementById('stats-close-btn');
@@ -28,6 +29,9 @@ const completeReviewConfirmation = document.getElementById('finish-review-confir
 const completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
 const completeReviewCancel = document.getElementById('finish-review-cancel');
 const ratingButtons = document.querySelectorAll('.finish-review-rating');
+
+const logContentPanel = document.getElementById('log');
+const logContentPanelCloseBtn = document.getElementById('log-close-btn');
 
 const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
 const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
@@ -115,6 +119,20 @@ function formatSkills(list) {
     }
 };
 
+async function getLogById(id) {
+    const response = await fetch('/api/daily_logs/content', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': id
+        })
+    })
+    const logObj = await response.json()
+    return logObj
+};
+
 function getMonthGrid(year, month) {  //0 = January
     const firstDay = new Date(year, month, 1).getDay(); //0 = Sunday
     const daysInMonth = new Date(year, month + 1, 0).getDate(); // day 0 = last day of last month
@@ -164,7 +182,12 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                 if (!reviewsByDate[dateKey]) {
                     cell.addEventListener("click", () => {
                         openSkillsPanel([])
+                        openLogsPanel(dailylogByDate[dateKey])
                         switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
+                    });
+                } else {
+                     cell.addEventListener("click", () => { 
+                        //openLogsPanel(dailylogByDate[dateKey])
                     });
                 }
             }
@@ -173,10 +196,45 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
     }
 };
 
+function openLogsPanel(logs_list) {
+    //statsPanel.classList.remove('active')
+    //skillsPanel.classList.add('active')
+    skillsTable.innerHTML = ""
+    dailyTable.innerHTML = ""
+
+    for (log of logs_list) {
+        //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
+        const newRow = document.createElement("tr")
+        newRow.id = log['id'] // make a forEach like in Overstimulated that makes each skill section clickable
+        newRow.classList.add('log-row-btn')
+        newRow.role = 'button'
+        newRow.tabIndex = '0'
+
+        const name_col = document.createElement("th")
+        name_col.textContent = log["name"]
+        newRow.append(name_col)
+        dailyTable.append(newRow)
+    }
+
+    logButtons()
+}
+
+async function openLogContent(log_id) {
+    const topicName = document.getElementById('log-name');
+    const topicStartDate = document.getElementById('log-start-date');
+    const topicDescription = document.getElementById('log-description');
+    const obj = await getLogById(log_id)
+    topicName.textContent = obj['name']
+    topicStartDate.textContent = obj['created_at']
+    topicDescription.textContent = obj['description']
+}
+
 function openSkillsPanel(skills_list) {
     statsPanel.classList.remove('active')
+    logContentPanel.classList.remove('active')
     skillsPanel.classList.add('active')
     skillsTable.innerHTML = ""
+    dailyTable.innerHTML = ""
 
     for (skill of skills_list) {
         //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
@@ -257,9 +315,10 @@ shortTermTopicBtn.addEventListener('click', async () => {
     }
 );
 
-allTopicsBtn.addEventListener('click', async () => { //lowk useless rn just fix later i dont need this
-        const response = await fetch('/api/topics')
+allTopicsBtn.addEventListener('click', async () => { //testing button
+        const response = await fetch('/api/test')
         const result = await response.json()
+        console.log(result)
     }
 );
 
@@ -285,6 +344,11 @@ skillsPanelCloseBtn.addEventListener('click', () => {
 
 statsPanelCloseBtn.addEventListener('click', () => {
         statsPanel.classList.remove('active')
+    }
+);
+
+logContentPanelCloseBtn.addEventListener('click', () => {
+        logContentPanel.classList.remove('active')
     }
 );
 
@@ -340,6 +404,21 @@ function reviewButtons() { // make skills clickable
             btn.addEventListener('click', async () => {
                 statsPanel.classList.add('active');
                 await openStatsPanel(btn.id)
+            });
+        }
+            
+    });
+}
+
+function logButtons() { // make logs clickable
+    const buttons = document.querySelectorAll('.log-row-btn');
+
+    buttons.forEach((btn, index) => {
+        if (!btn.classList.value.includes('button')) {
+            btn.classList.add('button')
+            btn.addEventListener('click', async () => {
+                logContentPanel.classList.add('active'); // am i sure?
+                await openLogContent(btn.id)
             });
         }
             

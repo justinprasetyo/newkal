@@ -171,7 +171,7 @@ label[for="daily-subject"] {
 }
 
 /* ---- Slide-in drawers ---- */
-.skills-list, .stats {
+.skills-list, .stats, .log {
   position: fixed;
   top: 0;
   right: 0;
@@ -190,11 +190,11 @@ label[for="daily-subject"] {
   border-left: 1px solid var(--line);
 }
 
-.stats {
+.stats, .log {
   justify-content: space-between; /* keeps .bottom-header pinned to the bottom */
 }
 
-.skills-list.active, .stats.active {
+.skills-list.active, .stats.active, .log.active {
   transform: translateX(0);
   color: var(--ink);
 }
@@ -205,7 +205,7 @@ label[for="daily-subject"] {
   margin-top: 0px;
 }
 
-#skills-list-close-btn, #stats-close-btn {
+#skills-list-close-btn, #stats-close-btn, #log-close-btn {
   position: absolute;
   top: 24px;
   right: 24px;
@@ -219,15 +219,15 @@ label[for="daily-subject"] {
   transition: color 0.15s ease;
 }
 
-#skills-list-close-btn:hover, #stats-close-btn:hover {
+#skills-list-close-btn:hover, #stats-close-btn:hover, #log-close-btn:hover {
   color: var(--accent);
 }
 
-.skill-row-btn {
+.skill-row-btn, .log-row-btn {
   border-bottom: 1px solid var(--line);
 }
 
-.skill-row-btn th {
+.skill-row-btn th, .log-row-btn th {
   font-family: 'Lora', serif;
   font-weight: 500;
   text-align: left;
@@ -236,13 +236,14 @@ label[for="daily-subject"] {
   color: var(--ink);
 }
 
-.skill-row-btn:hover, .skill-row-btn:focus {
+.skill-row-btn:hover, .skill-row-btn:focus,
+.log-row-btn:hover, .log-row-btn:focus {
   background-color: var(--accent-soft);
   outline: none;
   cursor: pointer;
 }
 
-.skill-row-btn:active {
+.skill-row-btn:active, .log-row-btn:active {
   background-color: var(--accent-soft);
 }
 
@@ -317,7 +318,7 @@ label[for="daily-subject"] {
   padding-top: 16px;
 }
 
-#delete-skill-review {
+#delete-skill-review, #delete-log {
   background: none;
   border: 1px solid var(--line);
   color: var(--ink-muted);
@@ -328,7 +329,7 @@ label[for="daily-subject"] {
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-#delete-skill-review:hover {
+#delete-skill-review:hover, #delete-log:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -447,7 +448,7 @@ label[for="daily-subject"] {
 
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
-  .skills-list, .stats {
+  .skills-list, .stats, .log {
     width: 100vw;
     min-width: 0;
   }

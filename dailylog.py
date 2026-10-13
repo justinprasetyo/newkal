@@ -44,3 +44,20 @@ def load_daily_logs():
         else:
             all_logsByDate[str(dateKey)] = [obj]
     return all_logsByDate
+
+def get_daily_logById(id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT id, name, created_at, description
+        FROM daily_log
+        WHERE id = %s
+    """, (
+        id,
+    ))
+
+    topic = cur.fetchone()
+    cur.close()
+    conn.close()
+    formatDates(dict(topic))
+    return dict(topic) if topic else None

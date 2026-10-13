@@ -4,7 +4,7 @@ import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review
-from dailylog import create_daily_log, load_daily_logs
+from dailylog import create_daily_log, load_daily_logs, get_daily_logById
 from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
@@ -29,20 +29,16 @@ def uploadInput():
         print('short term topic created')
         return jsonify(get_alltopics())
 
-
     obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
            'next_review': date.today(), 'level': 'Beginner', 
            'all_reviews': [date.today()], 'review_ratings': []}
+    
     create_topic(obj)
     return jsonify(get_alltopics())
 
 @app.route('/api/topics', methods=['GET'])
 def list_topics():
     return jsonify(load_topics())
-
-@app.route('/api/daily_logs', methods=['GET'])
-def list_daily_logs():
-    return jsonify(load_daily_logs())
 
 @app.route('/api/topics/stats', methods=['POST'])
 def load_topicStats():
@@ -72,6 +68,25 @@ def update_topicInterval():
 
     complete_review(data['id'], data['rating'])
     return '', 204
+
+@app.route('/api/daily_logs', methods=['GET'])
+def list_daily_logs():
+    return jsonify(load_daily_logs())
+
+@app.route('/api/daily_logs/content', methods=['POST'])
+def load_logContent():
+    data = request.get_json() 
+    
+    if data is None:
+        return jsonify({"error": "No valid data received"}), 400
+    
+    return jsonify(get_daily_logById(data['id']))
+
+@app.route('/api/test', methods=['GET'])
+def test():
+    print(load_daily_logs())
+    return '', 204
+
 
 
 if __name__ == '__main__':
