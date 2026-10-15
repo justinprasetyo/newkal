@@ -95,7 +95,7 @@ def get_alltopics():
     cur.execute("""
         SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
         FROM topics
-        ORDER BY created_at
+        ORDER BY next_review
     """)
 
     rows = cur.fetchall()

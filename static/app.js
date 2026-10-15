@@ -48,6 +48,7 @@ const LEVEL_COLORS = {
 };
 
 let currentDate = new Date()
+console.log(currentDate.toLocaleDateString('en-CA'))
 loadReviews()
 
 async function getInput(input, dailylog) {
@@ -161,11 +162,19 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             cell.className = "day-cell";
             cell.textContent = day;
             const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            if (dateKey == currentDate.toLocaleDateString('en-CA')) {
+                    cell.style.border = '2px solid #4a89dc';
+                    cell.style.borderRadius = '5px';
+            } //make today's date special yayyy
             if (reviewsByDate[dateKey]) {
-                cell.style.background = "#dbeafe";  // highlight days with a scheduled review
+                if (dateKey < currentDate.toLocaleDateString('en-CA')) {
+                    cell.style.background = "#d2d8e7"; 
+                } else {
+                    cell.style.background = "#dbeafe"; 
+                } // highlight days with a scheduled review
                 cell.addEventListener("click", () => {
                     switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
-                    openSkillsPanel(reviewsByDate[dateKey])
+                    openSkillsPanel(reviewsByDate[dateKey], dateKey)
                 });
                 const tickContainer = document.createElement("div")
                 tickContainer.className = "due-ticks"
@@ -180,7 +189,11 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             }
             
             if (dailylogByDate[dateKey]) {
-                cell.style.background = "#dbfee7"
+                if (dateKey < currentDate.toLocaleDateString('en-CA')) {
+                    cell.style.background = "rgb(212, 229, 218)";
+                } else {
+                    cell.style.background = "#dbfee7"
+                }
                 if (!reviewsByDate[dateKey]) {
                     cell.addEventListener("click", () => {
                         openSkillsPanel([])
@@ -231,7 +244,7 @@ async function openLogContent(log_id) {
     topicDescription.textContent = obj['description']
 }
 
-function openSkillsPanel(skills_list) {
+function openSkillsPanel(skills_list, dateKey) {
     statsPanel.classList.remove('active')
     logContentPanel.classList.remove('active')
     skillsPanel.classList.add('active')
@@ -252,6 +265,11 @@ function openSkillsPanel(skills_list) {
         mastery_col.textContent = skill["level"]
         newRow.append(name_col)
         newRow.append(mastery_col)
+
+        if (skill['next_review'] > dateKey.slice(0, 10)) {
+            newRow.style.background = '#d9d9dcb6';
+        } //grey out completed topics
+
         skillsTable.append(newRow)
     }
 
