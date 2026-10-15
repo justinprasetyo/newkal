@@ -42,6 +42,9 @@ const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
 const deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
 
 const undoReviewBtn = document.getElementById('undo-skill-review');
+const undoReviewConfirmation = document.getElementById('undo-review-confirmation');
+const undoReviewConfirmBtn = document.getElementById('undo-review-confirm');
+const undoReviewCancelBtn = document.getElementById('undo-review-cancel');
 
 const LEVEL_COLORS = {
     'Beginner': 'var(--level-0)',
@@ -432,6 +435,19 @@ completeSkillReviewBtn.addEventListener('click', async () => {
 });
 
 undoReviewBtn.addEventListener('click', async () => {
+    const topicName = document.getElementById('skill-name');
+    const undoReviewConfirmationTxt = document.getElementById('undo-review-confirmation-text')
+    undoReviewConfirmationTxt.textContent = topicName.textContent
+
+    undoReviewConfirmation.classList.add('active')
+    skillsPanel.classList.remove('active')
+});
+
+undoReviewCancelBtn.addEventListener('click', async () => {
+    undoReviewConfirmation.classList.remove('active')
+});
+
+undoReviewConfirmBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics/undo', {
         method: "POST",
         headers: {
@@ -441,6 +457,7 @@ undoReviewBtn.addEventListener('click', async () => {
             'id': undoReviewBtn.value
         })
     })
+    undoReviewConfirmation.classList.remove('active')
     openStatsPanel(undoReviewBtn.value)
     await loadReviews()
 });
