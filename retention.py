@@ -46,13 +46,51 @@ def complete_review(id, rating):
     cur.execute("""
         UPDATE topics
         SET interval_step = %s, next_review = %s, all_reviews = all_reviews || %s::date,
-            progress = %s, level = %s
+            progress = %s, level = %s, interval_step_history = interval_step_history || %s::int
         WHERE id = %s
-        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
-    """, (new_step, new_next_review, new_next_review, mastery, levels[level], id))
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings, interval_step_history
+    """, (new_step, new_next_review, new_next_review, mastery, levels[level], new_step,  id))
     
     result = cur.fetchone()
-    print(result['all_reviews'])
+    print(result['interval_step_history'])
+    conn.commit()
+    cur.close()
+    conn.close()
+    return dict(result)
+
+def undo_review(id):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("SELECT all_reviews, review_ratings, interval_step_history FROM topics WHERE id = %s", (id,))
+    topic = cur.fetchone()
+    if topic is None or len(topic['all_reviews']) <= 1:
+        cur.close(); conn.close()
+        return None   # nothing to undo
+
+    new_all_reviews = topic['all_reviews'][:-1]
+    new_ratings = topic['review_ratings'][:-1]
+    new_step_history = topic['interval_step_history'][:-1]
+    new_step = new_step_history[-1]
+    new_next_review = new_all_reviews[-1]
+
+    avg = sum(new_ratings) / len(new_ratings) if new_ratings else 0
+    mastery = (avg * (new_step + 1)) / 5
+    level = 0
+    if mastery > 90: level = 4
+    elif mastery > 75: level = 3
+    elif mastery > 50: level = 2
+    elif mastery > 20: level = 1
+
+    cur.execute("""
+        UPDATE topics
+        SET all_reviews = %s, review_ratings = %s, interval_step_history = %s,
+            interval_step = %s, next_review = %s, progress = %s, level = %s
+        WHERE id = %s
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
+    """, (new_all_reviews, new_ratings, new_step_history, new_step, new_next_review, mastery, levels[level], id))
+
+    result = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()

@@ -29,7 +29,8 @@ def init_db(): #initialize table on startup
             next_review DATE NOT NULL DEFAULT CURRENT_DATE,
             level TEXT NOT NULL,
             all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[],
-            review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[]
+            review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[],
+            interval_step_history INTEGER[] NOT NULL DEFAULT ARRAY[0]::INTEGER[]
         );
     """)
 

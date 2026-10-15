@@ -37,6 +37,8 @@ const deleteReviewConfirmation = document.getElementById('delete-review-confirma
 const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
 const deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
 
+const undoReviewBtn = document.getElementById('undo-skill-review');
+
 const LEVEL_COLORS = {
     'Beginner': 'var(--level-0)',
     'Washed': 'var(--level-1)',
@@ -160,7 +162,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             cell.textContent = day;
             const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
             if (reviewsByDate[dateKey]) {
-                cell.style.background = "#dbeafe";   // highlight days with a scheduled review
+                cell.style.background = "#dbeafe";  // highlight days with a scheduled review
                 cell.addEventListener("click", () => {
                     switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
                     openSkillsPanel(reviewsByDate[dateKey])
@@ -270,6 +272,7 @@ async function openStatsPanel(skill_id) {
     topicLevel.textContent = obj['level']
     deleteSkillReviewBtn.value = obj['id']
     completeSkillReviewBtn.value = obj['id']
+    undoReviewBtn.value = obj['id']
 }
 
 prevMonthBtn.addEventListener('click', async () => {
@@ -393,6 +396,20 @@ completeSkillReviewBtn.addEventListener('click', async () => {
     const topicName = document.getElementById('skill-name');
     completeReviewConfirmationTxt.textContent = topicName.textContent
     completeReviewConfirmation.classList.add('active')
+});
+
+undoReviewBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/topics/undo', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': undoReviewBtn.value
+        })
+    })
+    openStatsPanel(undoReviewBtn.value)
+    await loadReviews()
 });
 
 function reviewButtons() { // make skills clickable

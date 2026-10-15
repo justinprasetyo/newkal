@@ -31,7 +31,6 @@ def get_allDaily_logs():
     for row in rows:
         formatDates(row)
         arr.append(dict(row))
-    print(arr)
     return arr
 
 def load_daily_logs():

@@ -3,7 +3,7 @@ from flask_cors import CORS
 import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
-from retention import complete_review
+from retention import complete_review, undo_review
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById
 from datetime import date, datetime, timedelta
 
@@ -31,7 +31,7 @@ def uploadInput():
 
     obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
            'next_review': date.today(), 'level': 'Beginner', 
-           'all_reviews': [date.today()], 'review_ratings': []}
+           'all_reviews': [date.today()], 'review_ratings': [], 'interval_step_history': [0]}
     
     create_topic(obj)
     return jsonify(get_alltopics())
@@ -49,16 +49,6 @@ def load_topicStats():
     
     return jsonify(get_topicById(data['id']))
 
-@app.route('/api/topics/delete', methods=['POST'])
-def delete_topicReview():
-    data = request.get_json() 
-    
-    if data is None:
-        return jsonify({"error": "No valid data received"}), 400
-    
-    delete_topicById(data['id'])
-    return '', 204
-
 @app.route('/api/topics/update', methods=['POST'])
 def update_topicInterval():
     data = request.get_json() 
@@ -67,6 +57,26 @@ def update_topicInterval():
         return jsonify({"error": "No valid data received"}), 400
 
     complete_review(data['id'], data['rating'])
+    return '', 204
+
+@app.route('/api/topics/undo', methods=['POST'])
+def undo_topicReview():
+    data = request.get_json() 
+    
+    if data is None:
+        return jsonify({"error": "No valid data received"}), 400
+
+    undo_review(data['id'])
+    return '', 204
+
+@app.route('/api/topics/delete', methods=['POST'])
+def delete_topicReview():
+    data = request.get_json() 
+    
+    if data is None:
+        return jsonify({"error": "No valid data received"}), 400
+    
+    delete_topicById(data['id'])
     return '', 204
 
 @app.route('/api/daily_logs', methods=['GET'])
@@ -86,6 +96,7 @@ def load_logContent():
 def test():
     print(load_daily_logs())
     return '', 204
+
 
 
 

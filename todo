@@ -1,9 +1,10 @@
 ******
-undo finish review button. delete the last element of all_reviews and review_ratings and change next_review to the last element of all_reviews.
-
 delete log confirmation
 
-long term / short term button after learning something.
+grey out skill-row-btn if its already done that day. its confusing af whn im using
+
+make skill names and log names and log descriptions editable.
+
 streaks feature for short term. (daily_log table)
 % of reviews completed on time for long-term.
 
@@ -11,6 +12,8 @@ reward UI for coompletion AND for leveling up
 skills leaderboard for most rating
 
 disable done from previous reviews
+
+make shade of highlighted days darker and more saturated as more reviews/logs are in them (like github)
 ******
 further out:
 
