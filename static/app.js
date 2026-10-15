@@ -155,6 +155,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
     const container = document.getElementById("calendar");
     container.innerHTML = "";
     const date = new Date(year, month);
+    const actualCurrentDate = new Date();
     monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric' })
 
     for (const day of grid) {
@@ -166,12 +167,12 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             cell.className = "day-cell";
             cell.textContent = day;
             const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            if (dateKey == currentDate.toLocaleDateString('en-CA')) {
+            if (dateKey == actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.border = '2px solid #4a89dc';
                     cell.style.borderRadius = '5px';
             } //make today's date special yayyy
             if (reviewsByDate[dateKey]) {
-                if (dateKey < currentDate.toLocaleDateString('en-CA')) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "#d2d8e7"; 
                 } else {
                     cell.style.background = "#dbeafe"; 
@@ -193,7 +194,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             }
             
             if (dailylogByDate[dateKey]) {
-                if (dateKey < currentDate.toLocaleDateString('en-CA')) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "rgb(212, 229, 218)";
                 } else {
                     cell.style.background = "#dbfee7"
@@ -301,26 +302,35 @@ async function openStatsPanel(skill_id) {
 prevMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
+
+        const responseLogs = await fetch('/api/daily_logs')
+        const daily_logsList = await responseLogs.json()
         currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
     }
 );
 
 nextMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
+
+        const responseLogs = await fetch('/api/daily_logs')
+        const daily_logsList = await responseLogs.json()
         currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
     }
 );
 
 todayMonthBtn.addEventListener('click', async () => {
         const response = await fetch('/api/topics')
         const reviewsList = await response.json()
+
+        const responseLogs = await fetch('/api/daily_logs')
+        const daily_logsList = await responseLogs.json()
         today = new Date
         currentDate.setMonth(today.getMonth())
         currentDate.setFullYear(today.getFullYear())
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList)
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
     }
 );
 
