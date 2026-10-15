@@ -4,7 +4,7 @@ import requests
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review
-from dailylog import create_daily_log, load_daily_logs, get_daily_logById
+from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById
 from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
@@ -91,6 +91,16 @@ def load_logContent():
         return jsonify({"error": "No valid data received"}), 400
     
     return jsonify(get_daily_logById(data['id']))
+
+@app.route('/api/daily_logs/delete', methods=['POST'])
+def delete_log():
+    data = request.get_json() 
+    
+    if data is None:
+        return jsonify({"error": "No valid data received"}), 400
+    
+    delete_logById(data['id'])
+    return '', 204
 
 @app.route('/api/test', methods=['GET'])
 def test():

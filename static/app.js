@@ -32,6 +32,10 @@ const ratingButtons = document.querySelectorAll('.finish-review-rating');
 
 const logContentPanel = document.getElementById('log');
 const logContentPanelCloseBtn = document.getElementById('log-close-btn');
+const deleteLogBtn = document.getElementById('delete-log');
+const deleteLogConfirmation = document.getElementById('delete-log-confirmation');
+const deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
+const deleteLogCancelBtn = document.getElementById('delete-log-cancel');
 
 const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
 const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
@@ -242,6 +246,7 @@ async function openLogContent(log_id) {
     topicName.textContent = obj['name']
     topicStartDate.textContent = obj['created_at']
     topicDescription.textContent = obj['description']
+    deleteLogBtn.value = obj['id']
 }
 
 function openSkillsPanel(skills_list, dateKey) {
@@ -465,4 +470,32 @@ ratingButtons.forEach((btn, index) => {
         completeReviewConfirmation.classList.remove('active');
         updateReviewById(completeSkillReviewBtn.value, btn.value)
     });     
+});
+
+deleteLogBtn.addEventListener('click', async () => {
+    const topicName = document.getElementById('log-name');
+    const deleteLogConfirmationTxt = document.getElementById('delete-log-confirmation-text')
+    deleteLogConfirmationTxt.textContent = topicName.textContent
+
+    deleteLogConfirmation.classList.add('active')
+    logContentPanel.classList.remove('active')
+    skillsPanel.classList.remove('active')
+});
+
+deleteLogCancelBtn.addEventListener('click', async () => {
+    deleteLogConfirmation.classList.remove('active')
+});
+
+deleteLogConfirmBtn.addEventListener('click', async () => {
+        const response = await fetch('/api/daily_logs/delete', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': deleteLogBtn.value
+        })
+    })
+    await loadReviews()
+    deleteLogConfirmation.classList.remove('active')
 });

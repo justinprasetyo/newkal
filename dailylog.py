@@ -60,3 +60,17 @@ def get_daily_logById(id):
     conn.close()
     formatDates(dict(topic))
     return dict(topic) if topic else None
+
+def delete_logById(id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("""
+        DELETE FROM daily_log
+        WHERE id = %s
+    """, (
+        id,
+    ))
+    print(f"DELETED {id}")
+    conn.commit()
+    cur.close()
+    conn.close()

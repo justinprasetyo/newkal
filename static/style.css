@@ -337,7 +337,8 @@ label[for="daily-subject"] {
 /* ---- "How did it go?" rating modal ---- */
 .finish-review-confirmation,
 .delete-review-confirmation,
-.topic-term-confirmation {
+.topic-term-confirmation,
+.delete-log-confirmation {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -363,7 +364,8 @@ label[for="daily-subject"] {
 
 .finish-review-confirmation.active,
 .delete-review-confirmation.active,
-.topic-term-confirmation.active {
+.topic-term-confirmation.active,
+.delete-log-confirmation.active {
   visibility: visible;
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
@@ -371,7 +373,8 @@ label[for="daily-subject"] {
 
 .finish-review-confirmation h4,
 .delete-review-confirmation h4,
-.topic-term-confirmation h4 {
+.topic-term-confirmation h4,
+.delete-log-confirmation h4 {
   font-family: 'Lora', serif;
   font-size: 1.2rem;
   color: var(--ink);
@@ -380,7 +383,8 @@ label[for="daily-subject"] {
 
 #finish-review-confirmation-text,
 #delete-review-confirmation-text,
-#topic-term-confirmation-text {
+#topic-term-confirmation-text,
+#delete-log-confirmation-text {
   font-size: 0.9rem;
   color: var(--ink-muted);
   margin: 0;
