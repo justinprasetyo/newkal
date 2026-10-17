@@ -61,10 +61,10 @@ def complete_review(id, rating):
 
     cur.execute("""
         UPDATE topics
-        SET level = %s
+        SET level = %s, progress = %s
         WHERE id = %s
         RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-    """, (levels[level], id))
+    """, (levels[level], mastery, id))
 
     final_result = cur.fetchone()
     conn.commit()

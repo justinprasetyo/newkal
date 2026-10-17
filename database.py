@@ -17,7 +17,7 @@ def get_db():
 def init_db(): #initialize table on startup
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
+    #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
     #cur.execute("DROP TABLE IF EXISTS daily_log CASCADE;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS topics (

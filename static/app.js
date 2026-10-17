@@ -154,6 +154,7 @@ function getMonthGrid(year, month) {  //0 = January
 };
 
 function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
+    console.log(dailylogByDate)
     const grid = getMonthGrid(year, month);
     const container = document.getElementById("calendar");
     container.innerHTML = "";
@@ -197,20 +198,21 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             }
             
             if (dailylogByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+                if (!reviewsByDate[dateKey] && dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "rgb(212, 229, 218)";
-                } else {
+                } else if (!reviewsByDate[dateKey] && dateKey > actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "#dbfee7"
                 }
                 if (!reviewsByDate[dateKey]) {
                     cell.addEventListener("click", () => {
-                        openSkillsPanel([])
+                        openSkillsPanel([], dateKey)
                         openLogsPanel(dailylogByDate[dateKey])
                         switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
                     });
                 } else {
                      cell.addEventListener("click", () => { 
-                        //openLogsPanel(dailylogByDate[dateKey])
+                        openLogsPanel(dailylogByDate[dateKey])
+                        openSkillsPanel(reviewsByDate[dateKey], dateKey)
                     });
                 }
             }
@@ -222,7 +224,6 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
 function openLogsPanel(logs_list) {
     //statsPanel.classList.remove('active')
     //skillsPanel.classList.add('active')
-    skillsTable.innerHTML = ""
     dailyTable.innerHTML = ""
 
     for (log of logs_list) {
@@ -258,7 +259,6 @@ function openSkillsPanel(skills_list, dateKey) {
     logContentPanel.classList.remove('active')
     skillsPanel.classList.add('active')
     skillsTable.innerHTML = ""
-    dailyTable.innerHTML = ""
 
     for (skill of skills_list) {
         //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
@@ -274,6 +274,7 @@ function openSkillsPanel(skills_list, dateKey) {
         mastery_col.textContent = skill["level"]
         newRow.append(name_col)
         newRow.append(mastery_col)
+        console.log(dateKey)
 
         if (skill['next_review'] > dateKey.slice(0, 10)) {
             newRow.style.background = '#d9d9dcb6';
