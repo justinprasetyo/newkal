@@ -17,7 +17,7 @@ def get_db():
 def init_db(): #initialize table on startup
     conn = get_db()
     cur = conn.cursor()
-    #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
+    cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
     #cur.execute("DROP TABLE IF EXISTS daily_log CASCADE;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS topics (
@@ -28,9 +28,7 @@ def init_db(): #initialize table on startup
             interval_step INTEGER NOT NULL DEFAULT 0,
             next_review DATE NOT NULL DEFAULT CURRENT_DATE,
             level TEXT NOT NULL,
-            all_reviews DATE[] NOT NULL DEFAULT ARRAY[]::DATE[],
-            review_ratings INTEGER[] NOT NULL DEFAULT ARRAY[]::INTEGER[],
-            interval_step_history INTEGER[] NOT NULL DEFAULT ARRAY[0]::INTEGER[]
+            review_log JSONB NOT NULL DEFAULT '[]'::jsonb
         );
     """)
 
@@ -54,19 +52,20 @@ def formatDates(obj):
     if 'next_review' in obj:
         obj['next_review'] = obj['next_review'].isoformat()
 
-    if 'all_reviews' in obj:
-        for date in obj['all_reviews']:
-            date = date.isoformat()
+    #if 'review_log' in obj and len(obj['review_log']) > 0:
+        #for review in obj['review_log']:
+            #if 'date' in review:
+                #review['date'] = review['date'].isoformat()
 
 def create_topic(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, review_log)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
     """, (
         topic_obj['name'], topic_obj['progress'], topic_obj['created_at'], topic_obj['interval_step'],
-        topic_obj['next_review'], topic_obj['level'], topic_obj['all_reviews'], topic_obj['review_ratings']
+        topic_obj['next_review'], topic_obj['level'], topic_obj['review_log']
     ))
     conn.commit()
     cur.close()
@@ -76,7 +75,7 @@ def get_topicById(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
+        SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
         FROM topics
         WHERE id = %s
     """, (
@@ -93,7 +92,7 @@ def get_alltopics():
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
+        SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
         FROM topics
         ORDER BY next_review
     """)
@@ -111,12 +110,21 @@ def load_topics():
     arr = get_alltopics()
     all_reviewsByDate = {}
     for obj in arr:
-        for review in obj['all_reviews']:
-            if str(review) in all_reviewsByDate:
-                all_reviewsByDate[str(review)].append(obj)
-            else:
-                all_reviewsByDate[str(review)] = [obj]
+        for review in obj['review_log']:
+            if 'date' in review:
+                if str(review['date']) in all_reviewsByDate:
+                    all_reviewsByDate[str(review['date'])].append(obj)
+                else:
+                    all_reviewsByDate[str(review['date'])] = [obj]
+
+    for obj in arr:
+        if str(obj['created_at']) in all_reviewsByDate:
+            all_reviewsByDate[str(obj['created_at'])].append(obj)
+        else:
+            all_reviewsByDate[str(obj['created_at'])] = [obj]
     return all_reviewsByDate
+
+print(get_alltopics())
 
 def delete_topicById(id):
     conn = get_db()

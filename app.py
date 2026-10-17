@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import requests
+from psycopg2.extras import Json
+import requests, json
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review
@@ -30,8 +31,7 @@ def uploadInput():
         return jsonify(get_alltopics())
 
     obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
-           'next_review': date.today(), 'level': 'Beginner', 
-           'all_reviews': [date.today()], 'review_ratings': [], 'interval_step_history': [0]}
+           'next_review': date.today(), 'level': 'Beginner', 'review_log': Json([])}
     
     create_topic(obj)
     return jsonify(get_alltopics())

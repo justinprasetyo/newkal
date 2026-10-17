@@ -1,17 +1,13 @@
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from database import intervals, levels, get_db
+import json
 
 def complete_review(id, rating):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("""
-        UPDATE topics
-        SET review_ratings = review_ratings || %s::int
-        WHERE id = %s
-        RETURNING review_ratings, interval_step, next_review
-    """, (rating, id))
+    cur.execute("SELECT interval_step, next_review, review_log FROM topics WHERE id = %s", (id,))
     row = cur.fetchone()
     if row is None:
         cur.close(); conn.close()
@@ -32,9 +28,29 @@ def complete_review(id, rating):
     else: # good/perfect — advance normally
         new_step = min(old_step + 1, len(intervals) - 1)
 
-    new_next_review = row['next_review'] + timedelta(days=intervals[new_step])
+    new_next_review = date.today() + timedelta(days=intervals[new_step]) #get next review from TODAY, not the date ur supposed to complete
+    offset_days = (date.today() - row['next_review']).days #we still have the 'next_review' data point for easy access
 
-    avg = sum(row['review_ratings']) / len(row['review_ratings'])
+    entry = {"date": str(new_next_review), "rating": rating, #'date' meaning next review date that completion created
+            "interval_step": new_step, "offset_days": offset_days}    
+
+    cur.execute("""
+        UPDATE topics
+        SET review_log = review_log || %s::jsonb,
+            interval_step = %s,
+            next_review = %s
+        WHERE id = %s
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
+    """, (json.dumps([entry]), new_step, new_next_review, id))
+    
+    result = cur.fetchone()
+
+    rating_sum = 0
+    for completed_review in result['review_log']:
+        if len(completed_review) > 0:
+            rating_sum += completed_review['rating']
+
+    avg = rating_sum / len(result['review_log'])
     mastery = (avg * (new_step + 1)) / 5
 
     level = 0
@@ -45,37 +61,44 @@ def complete_review(id, rating):
 
     cur.execute("""
         UPDATE topics
-        SET interval_step = %s, next_review = %s, all_reviews = all_reviews || %s::date,
-            progress = %s, level = %s, interval_step_history = interval_step_history || %s::int
+        SET level = %s
         WHERE id = %s
-        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings, interval_step_history
-    """, (new_step, new_next_review, new_next_review, mastery, levels[level], new_step,  id))
-    
-    result = cur.fetchone()
-    print(result['interval_step_history'])
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
+    """, (levels[level], id))
+
+    final_result = cur.fetchone()
     conn.commit()
     cur.close()
     conn.close()
-    return dict(result)
+    return dict(final_result)
 
 def undo_review(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("SELECT all_reviews, review_ratings, interval_step_history FROM topics WHERE id = %s", (id,))
-    topic = cur.fetchone()
-    if topic is None or len(topic['all_reviews']) <= 1:
+    cur.execute("SELECT review_log, created_at FROM topics WHERE id = %s", (id,))
+    row = cur.fetchone()
+    if row is None or len(row['review_log']) == 0:
         cur.close(); conn.close()
-        return None   # nothing to undo
+        return None  # nothing to undo
 
-    new_all_reviews = topic['all_reviews'][:-1]
-    new_ratings = topic['review_ratings'][:-1]
-    new_step_history = topic['interval_step_history'][:-1]
-    new_step = new_step_history[-1]
-    new_next_review = new_all_reviews[-1]
+    log = row['review_log'][:-1]  # drop the most recent completion
 
-    avg = sum(new_ratings) / len(new_ratings) if new_ratings else 0
+    if len(log) > 0:
+        new_step = log[-1]['interval_step']
+        new_next_review = log[-1]['date']
+    else:
+        new_step = 0
+        new_next_review = row['created_at']  # back to day one if 0 completed reviews
+
+    rating_sum = 0
+    for completed_review in result['review_log']:
+        if len(completed_review) > 0:
+            rating_sum += completed_review['rating']
+
+    avg = rating_sum / len(result['review_log'])
     mastery = (avg * (new_step + 1)) / 5
+
     level = 0
     if mastery > 90: level = 4
     elif mastery > 75: level = 3
@@ -84,11 +107,11 @@ def undo_review(id):
 
     cur.execute("""
         UPDATE topics
-        SET all_reviews = %s, review_ratings = %s, interval_step_history = %s,
-            interval_step = %s, next_review = %s, progress = %s, level = %s
+        SET review_log = %s::jsonb, interval_step = %s, next_review = %s,
+            progress = %s, level = %s
         WHERE id = %s
-        RETURNING id, name, progress, created_at, interval_step, next_review, level, all_reviews, review_ratings
-    """, (new_all_reviews, new_ratings, new_step_history, new_step, new_next_review, mastery, levels[level], id))
+        RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
+    """, (json.dumps(log), new_step, new_next_review, mastery, levels[level], id))
 
     result = cur.fetchone()
     conn.commit()
