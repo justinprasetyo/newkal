@@ -1,3 +1,4 @@
+const percentageOnTime = document.getElementById('percentage-ontime');
 const userSubject = document.getElementById('daily-subject');
 const userSubjectBtn = document.getElementById('daily-subject-btn');
 const topicTermConfirmation = document.getElementById('topic-term-confirmation');
@@ -102,6 +103,10 @@ async function loadReviews() {
 
     const responseLogs = await fetch('/api/daily_logs')
     const daily_logsList = await responseLogs.json()
+
+    const percentageOnTimeReviews = await fetch('/api/topics/percentage')
+    const percentage = await percentageOnTimeReviews.json()
+    percentageOnTime.textContent = percentage + "% reviews done on time"
     renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
 

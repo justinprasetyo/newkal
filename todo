@@ -1,10 +1,5 @@
 ******
-store review data like this:
-[
-  {"date": "2026-10-14", "rating": 75, "interval_step": 1, "offset_days": -2},
-  {"date": "2026-10-16", "rating": 100, "interval_step": 2, "offset_days": 0}
-]
-1 element obj per review info so we can truncate last element after undo super easily! and we can check a certain review and offset day to see if it was late or not super easy!
+lateness score?
 
 make skill names and log names and log descriptions editable.
 

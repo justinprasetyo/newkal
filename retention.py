@@ -1,6 +1,6 @@
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
-from database import intervals, levels, get_db
+from database import intervals, levels, get_db, get_alltopics
 import json
 
 def complete_review(id, rating):
@@ -118,6 +118,21 @@ def undo_review(id):
     cur.close()
     conn.close()
     return dict(result)
+
+def get_ontime_percentage():
+    all_topics = get_alltopics()
+    late_reviews = 0
+    all_reviews_count = 0
+    for topic in all_topics:
+        print(topic)
+        for review in topic['review_log']:
+            all_reviews_count += 1
+            if review['offset_days'] > 0:
+                late_reviews += 1
+    if all_reviews_count == 0:
+        return 0
+    percentage = ((all_reviews_count - late_reviews) / all_reviews_count) * 100
+    return percentage
 
 def get_streak():
     conn = get_db()
