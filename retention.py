@@ -28,7 +28,10 @@ def complete_review(id, rating):
     else: # good/perfect — advance normally
         new_step = min(old_step + 1, len(intervals) - 1)
 
-    new_next_review = date.today() + timedelta(days=intervals[new_step]) #get next review from TODAY, not the date ur supposed to complete
+    if row['next_review'] >= date.today():
+        new_next_review = row['next_review'] + timedelta(days=intervals[new_step])
+    else: #if already late, use todays date as 'next_review'
+        new_next_review = date.today() + timedelta(days=intervals[new_step])
     offset_days = (date.today() - row['next_review']).days #we still have the 'next_review' data point for easy access
 
     entry = {"date": str(new_next_review), "rating": rating, #'date' meaning next review date that completion created
