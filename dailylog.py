@@ -74,3 +74,18 @@ def delete_logById(id):
     conn.commit()
     cur.close()
     conn.close()
+
+def edit_log_description(id, desc):
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        UPDATE daily_log
+        SET description = %s
+        WHERE id = %s
+    """, (
+        desc, id
+    ))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return '', 204

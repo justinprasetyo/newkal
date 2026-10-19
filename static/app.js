@@ -32,11 +32,13 @@ const completeReviewCancel = document.getElementById('finish-review-cancel');
 const ratingButtons = document.querySelectorAll('.finish-review-rating');
 
 const logContentPanel = document.getElementById('log');
+const logDescriptionEditBtn = document.getElementById('log-description-edit-btn');
 const logContentPanelCloseBtn = document.getElementById('log-close-btn');
 const deleteLogBtn = document.getElementById('delete-log');
 const deleteLogConfirmation = document.getElementById('delete-log-confirmation');
 const deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
 const deleteLogCancelBtn = document.getElementById('delete-log-cancel');
+const logEditConfirmBtn = document.getElementById('log-description-edit-confirm-btn');
 
 const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
 const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
@@ -148,6 +150,19 @@ async function getLogById(id) {
     return logObj
 };
 
+async function editLogDesc(id, desc) {
+    const response = await fetch('/api/daily_logs/update/description', {
+        method: "POST",
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'id': id,
+            'description': desc
+        })
+    })
+}
+
 function getMonthGrid(year, month) {  //0 = January
     const firstDay = new Date(year, month, 1).getDay(); //0 = Sunday
     const daysInMonth = new Date(year, month + 1, 0).getDate(); // day 0 = last day of last month
@@ -256,6 +271,7 @@ async function openLogContent(log_id) {
     topicName.textContent = obj['name']
     topicStartDate.textContent = obj['created_at']
     topicDescription.textContent = obj['description']
+    logDescriptionEditBtn.value = obj['id']
     deleteLogBtn.value = obj['id']
 }
 
@@ -531,4 +547,21 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
     })
     await loadReviews()
     deleteLogConfirmation.classList.remove('active')
+});
+
+logDescriptionEditBtn.addEventListener('click', () => {
+    const editTools = document.getElementById('log-description-edit-tools');
+    const topicDescription = document.getElementById('log-description');
+    const topicDescriptionEdit = document.getElementById('log-description-edit');
+    editTools.classList.add('active');
+    topicDescriptionEdit.value = topicDescription.textContent;
+});
+
+logEditConfirmBtn.addEventListener('click', async () => {
+    const editTools = document.getElementById('log-description-edit-tools');
+    const topicDescription = document.getElementById('log-description');
+    const topicDescriptionEdit = document.getElementById('log-description-edit');
+    await editLogDesc(logDescriptionEditBtn.value, topicDescriptionEdit.value);
+    topicDescription.textContent = topicDescriptionEdit.value;
+    editTools.classList.remove('active');
 });

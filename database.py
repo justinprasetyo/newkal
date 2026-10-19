@@ -124,8 +124,6 @@ def load_topics():
             all_reviewsByDate[str(obj['created_at'])] = [obj]
     return all_reviewsByDate
 
-print(get_alltopics())
-
 def delete_topicById(id):
     conn = get_db()
     cur = conn.cursor()
