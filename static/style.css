@@ -417,6 +417,21 @@ label[for="daily-subject"] {
 .finish-review-rating[value="75"]  { background: var(--level-3); }
 .finish-review-rating[value="100"] { background: var(--level-4); }
 
+.log-description-edit-tools {
+  visibility: hidden;
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.log-description-edit-tools textarea {
+  height: 200px;
+}
+
+.log-description-edit-tools.active {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(0%, -2%) scale(1);
+}
+
 .tab-group {
   display: flex;
   border-bottom: 1px solid var(--line);

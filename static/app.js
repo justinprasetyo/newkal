@@ -38,6 +38,7 @@ const deleteLogBtn = document.getElementById('delete-log');
 const deleteLogConfirmation = document.getElementById('delete-log-confirmation');
 const deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
 const deleteLogCancelBtn = document.getElementById('delete-log-cancel');
+const logEditTools = document.getElementById('log-description-edit-tools');
 const logEditConfirmBtn = document.getElementById('log-description-edit-confirm-btn');
 
 const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
@@ -245,6 +246,7 @@ function openLogsPanel(logs_list) {
     //statsPanel.classList.remove('active')
     //skillsPanel.classList.add('active')
     dailyTable.innerHTML = ""
+    logEditTools.classList.remove('active');
 
     for (log of logs_list) {
         //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
@@ -550,18 +552,16 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
 });
 
 logDescriptionEditBtn.addEventListener('click', () => {
-    const editTools = document.getElementById('log-description-edit-tools');
     const topicDescription = document.getElementById('log-description');
     const topicDescriptionEdit = document.getElementById('log-description-edit');
-    editTools.classList.add('active');
+    logEditTools.classList.add('active');
     topicDescriptionEdit.value = topicDescription.textContent;
 });
 
 logEditConfirmBtn.addEventListener('click', async () => {
-    const editTools = document.getElementById('log-description-edit-tools');
     const topicDescription = document.getElementById('log-description');
     const topicDescriptionEdit = document.getElementById('log-description-edit');
     await editLogDesc(logDescriptionEditBtn.value, topicDescriptionEdit.value);
     topicDescription.textContent = topicDescriptionEdit.value;
-    editTools.classList.remove('active');
+    logEditTools.classList.remove('active');
 });
