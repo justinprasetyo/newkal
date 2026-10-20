@@ -127,7 +127,8 @@ def get_ontime_percentage():
     late_reviews = 0
     all_reviews_count = 0
     for topic in all_topics:
-        print(topic)
+        if date.fromisoformat(topic['next_review']) < date.today(): #including NON-completed reviews that are overdue
+            late_reviews += 1
         for review in topic['review_log']:
             all_reviews_count += 1
             if review['offset_days'] > 0:

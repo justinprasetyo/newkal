@@ -469,6 +469,13 @@ label[for="daily-subject"] {
   display: table; /* NOT "block" — these are <table> elements */
 }
 
+.panel-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  min-height: 0;
+  overflow-wrap: break-word;
+}
+
 /* ---- Mobile ---- */
 @media (max-width: 640px) {
   .skills-list, .stats, .log {
