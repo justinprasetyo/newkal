@@ -196,7 +196,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                     cell.style.border = '2px solid #4a89dc';
                     cell.style.borderRadius = '5px';
             } //make today's date special yayyy
-            if (reviewsByDate[dateKey]) {
+            if (reviewsByDate[dateKey] && dailylogByDate[dateKey]) {
                 if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "#d2d8e7"; 
                 } else {
@@ -205,6 +205,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                 cell.addEventListener("click", () => {
                     switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
                     openSkillsPanel(reviewsByDate[dateKey], dateKey)
+                    openLogsPanel(dailylogByDate[dateKey])
                 });
                 const tickContainer = document.createElement("div")
                 tickContainer.className = "due-ticks"
@@ -216,26 +217,39 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                     tickContainer.append(tick)
                 }
                 cell.append(tickContainer)
-            }
-            
-            if (dailylogByDate[dateKey]) {
-                if (!reviewsByDate[dateKey] && dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+            } else if (reviewsByDate[dateKey]) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+                    cell.style.background = "#d2d8e7"; 
+                } else {
+                    cell.style.background = "#dbeafe"; 
+                } // highlight days with a scheduled review
+                cell.addEventListener("click", () => {
+                    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
+                    openSkillsPanel(reviewsByDate[dateKey], dateKey)
+                    openLogsPanel([])
+                });
+                const tickContainer = document.createElement("div")
+                tickContainer.className = "due-ticks"
+
+                for (const topic of reviewsByDate[dateKey]) {
+                    const tick = document.createElement("span")
+                    tick.className = "due-tick"
+                    tick.style.background = LEVEL_COLORS[topic.level] || LEVEL_COLORS['Beginner'];
+                    tickContainer.append(tick)
+                }
+                cell.append(tickContainer)
+            } else if (dailylogByDate[dateKey]) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
                     cell.style.background = "rgb(212, 229, 218)";
-                } else if (!reviewsByDate[dateKey] && dateKey > actualCurrentDate.toLocaleDateString('en-CA')) {
+                } else {
                     cell.style.background = "#dbfee7"
                 }
-                if (!reviewsByDate[dateKey]) {
-                    cell.addEventListener("click", () => {
-                        openSkillsPanel([], dateKey)
-                        openLogsPanel(dailylogByDate[dateKey])
-                        switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
-                    });
-                } else {
-                     cell.addEventListener("click", () => { 
-                        openLogsPanel(dailylogByDate[dateKey])
-                        openSkillsPanel(reviewsByDate[dateKey], dateKey)
-                    });
-                }
+                cell.addEventListener("click", () => {
+                    openSkillsPanel([], dateKey)
+                    openLogsPanel(dailylogByDate[dateKey])
+                    switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
+                });
+                
             }
         } 
         container.appendChild(cell);
