@@ -54,7 +54,7 @@ def complete_review(id, rating):
             rating_sum += completed_review['rating']
 
     avg = rating_sum / len(result['review_log'])
-    mastery = (avg * (new_step + 1)) / 5
+    mastery = (avg * new_step) / 5 #5 perfects right off the bat = Mastered
 
     level = 0
     if mastery > 90: level = 4
@@ -95,12 +95,12 @@ def undo_review(id):
         new_next_review = row['created_at']  # back to day one if 0 completed reviews
 
     rating_sum = 0
-    for completed_review in result['review_log']:
+    for completed_review in row['review_log']:
         if len(completed_review) > 0:
             rating_sum += completed_review['rating']
 
-    avg = rating_sum / len(result['review_log'])
-    mastery = (avg * (new_step + 1)) / 5
+    avg = rating_sum / len(row['review_log'])
+    mastery = (avg * new_step) / 5
 
     level = 0
     if mastery > 90: level = 4
@@ -150,7 +150,7 @@ def get_streak():
     rows = cur.fetchall()
     active_days = {row[0] for row in rows}
     cur.close(); conn.close()
-    
+
     streak = 0
     day = date.today()
     while day in active_days: #includes created topics from long and short term + review completion
