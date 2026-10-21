@@ -129,6 +129,7 @@ def get_ontime_percentage():
     for topic in all_topics:
         if date.fromisoformat(topic['next_review']) < date.today(): #including NON-completed reviews that are overdue
             late_reviews += 1
+            all_reviews_count += 1
         for review in topic['review_log']:
             all_reviews_count += 1
             if review['offset_days'] > 0:
@@ -142,16 +143,14 @@ def get_streak():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        SELECT DISTINCT d::date AS activity_date
-        FROM topics, unnest(all_reviews) AS d
+        SELECT created_at::date AS activity_date FROM topics
         UNION
-        SELECT created_at FROM topics
-        UNION
-        SELECT created_at FROM daily_log
+        SELECT created_at::date FROM daily_log
     """)
-    active_days = {row[0] for row in cur.fetchall()}
+    rows = cur.fetchall()
+    active_days = {row[0] for row in rows}
     cur.close(); conn.close()
-
+    
     streak = 0
     day = date.today()
     while day in active_days: #includes created topics from long and short term + review completion

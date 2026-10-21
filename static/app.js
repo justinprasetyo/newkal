@@ -1,4 +1,5 @@
 const percentageOnTime = document.getElementById('percentage-ontime');
+const streakCounter = document.getElementById('streak-count');
 const userSubject = document.getElementById('daily-subject');
 const userSubjectBtn = document.getElementById('daily-subject-btn');
 const topicTermConfirmation = document.getElementById('topic-term-confirmation');
@@ -110,6 +111,10 @@ async function loadReviews() {
     const percentageOnTimeReviews = await fetch('/api/topics/percentage')
     const percentage = await percentageOnTimeReviews.json()
     percentageOnTime.textContent = percentage + "% reviews done on time"
+
+    const streakCount = await fetch('/api/streak')
+    const streak = await streakCount.json()
+    streakCounter.textContent = "Daily-learning streak: " + streak
     renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
 

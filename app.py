@@ -4,7 +4,7 @@ from psycopg2.extras import Json
 import requests, json
 
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
-from retention import complete_review, undo_review, get_ontime_percentage
+from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
 from datetime import date, datetime, timedelta
 
@@ -43,6 +43,10 @@ def list_topics():
 @app.route('/api/topics/percentage', methods=['GET'])
 def update_review_percentage():
     return jsonify(get_ontime_percentage())
+
+@app.route('/api/streak', methods=['GET'])
+def update_streak():
+    return jsonify(get_streak())
 
 @app.route('/api/topics/stats', methods=['POST'])
 def load_topicStats():
