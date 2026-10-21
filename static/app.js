@@ -133,7 +133,7 @@ async function getStatsById(id) {
 };
 
 function formatSkills(list) {
-    for (skill of list) {
+    for (const skill of list) {
         if (skill['next_review'] in exampleReviews) {
             exampleReviews[skill['next_review']].push(skill);
         } else {
@@ -267,7 +267,7 @@ function openLogsPanel(logs_list) {
     dailyTable.innerHTML = ""
     logEditTools.classList.remove('active');
 
-    for (log of logs_list) {
+    for (const log of logs_list) {
         //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
         const newRow = document.createElement("tr")
         newRow.id = log['id'] // make a forEach like in Overstimulated that makes each skill section clickable
@@ -302,7 +302,7 @@ function openSkillsPanel(skills_list, dateKey) {
     skillsPanel.classList.add('active')
     skillsTable.innerHTML = ""
 
-    for (skill of skills_list) {
+    for (const skill of skills_list) {
         //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
         const newRow = document.createElement("tr")
         newRow.id = skill['id'] // make a forEach like in Overstimulated that makes each skill section clickable
