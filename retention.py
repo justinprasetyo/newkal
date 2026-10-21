@@ -136,7 +136,7 @@ def get_ontime_percentage():
     if all_reviews_count == 0:
         return 0
     percentage = ((all_reviews_count - late_reviews) / all_reviews_count) * 100
-    return percentage
+    return round(percentage, 2)
 
 def get_streak():
     conn = get_db()
