@@ -4,6 +4,9 @@ from database import intervals, levels, get_db, get_alltopics
 import json
 
 def complete_review(id, rating):
+    if type(rating) is not int or rating not in [0, 25, 50, 75, 100]:
+        return "Invalid rating", 400
+    
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
@@ -11,7 +14,7 @@ def complete_review(id, rating):
     row = cur.fetchone()
     if row is None:
         cur.close(); conn.close()
-        return None
+        return None, 404
 
     old_step = row['interval_step']
     if rating == 0: # forgot
@@ -83,7 +86,7 @@ def undo_review(id):
     row = cur.fetchone()
     if row is None or len(row['review_log']) == 0:
         cur.close(); conn.close()
-        return None  # nothing to undo
+        return None, 404  # nothing to undo
 
     log = row['review_log'][:-1]  # drop the most recent completion
 
@@ -148,6 +151,9 @@ def get_streak():
         SELECT created_at::date FROM daily_log
     """)
     rows = cur.fetchall()
+    if rows is None:
+        cur.close(); conn.close()
+        return None, 404
     active_days = {row[0] for row in rows}
     cur.close(); conn.close()
 

@@ -64,6 +64,9 @@ console.log(currentDate.toLocaleDateString('en-CA'))
 loadReviews()
 
 async function getInput(input, dailylog) {
+    if (input == "") {
+        return "Invalid input", 400
+    }
     const response = await fetch('/api/topics', {
         method: "POST",
         headers: {
@@ -74,18 +77,18 @@ async function getInput(input, dailylog) {
             'daily_log': dailylog
         })
     })
-    //const today = new Date();
-    //const todayString = today.toDateString()
 
-    const result = await response.json() // skills list array
-    //console.log(result[result.length - 1])
+    if (!response.ok) {
+        const message = await response.text();
+        console.log(message);
+    }
     loadReviews()
 };
 
 async function updateReviewById(id, rating) {
     ratingInt = parseInt(rating)
-    if (ratingInt == NaN) {
-        return 'Error: rating is not valid', 404
+    if (Number.isNaN(ratingInt)) {
+        return 'Invalid rating', 400
     }
     const response = await fetch('/api/topics/update', {
         method: "POST",
@@ -97,7 +100,11 @@ async function updateReviewById(id, rating) {
             'rating': ratingInt
         })
     })
-
+    
+    if (!response.ok) {
+        const message = await response.text();
+        console.log(message);
+    }
     await loadReviews()
 };
 
@@ -262,15 +269,12 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
 };
 
 function openLogsPanel(logs_list) {
-    //statsPanel.classList.remove('active')
-    //skillsPanel.classList.add('active')
     dailyTable.innerHTML = ""
     logEditTools.classList.remove('active');
 
     for (const log of logs_list) {
-        //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
         const newRow = document.createElement("tr")
-        newRow.id = log['id'] // make a forEach like in Overstimulated that makes each skill section clickable
+        newRow.id = log['id'] 
         newRow.classList.add('log-row-btn')
         newRow.role = 'button'
         newRow.tabIndex = '0'
@@ -303,9 +307,8 @@ function openSkillsPanel(skills_list, dateKey) {
     skillsTable.innerHTML = ""
 
     for (const skill of skills_list) {
-        //<div id="myClickableDiv" role="button" tabindex="0" class="interactive-box">
         const newRow = document.createElement("tr")
-        newRow.id = skill['id'] // make a forEach like in Overstimulated that makes each skill section clickable
+        newRow.id = skill['id'] 
         newRow.classList.add('skill-row-btn')
         newRow.role = 'button'
         newRow.tabIndex = '0'
@@ -316,7 +319,6 @@ function openSkillsPanel(skills_list, dateKey) {
         mastery_col.textContent = skill["level"]
         newRow.append(name_col)
         newRow.append(mastery_col)
-        console.log(dateKey)
 
         if (skill['next_review'] > dateKey.slice(0, 10)) {
             newRow.style.background = '#d9d9dcb6';
@@ -392,7 +394,7 @@ longTermTopicBtn.addEventListener('click', async () => {
 );
 
 shortTermTopicBtn.addEventListener('click', async () => {
-        getInput(userSubject.value, true) //make a load daily_log function that fetches to api/daily_log
+        getInput(userSubject.value, true)
         topicTermConfirmation.classList.remove('active')
     }
 );
