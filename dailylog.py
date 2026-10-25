@@ -1,3 +1,4 @@
+from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from database import intervals, levels, get_db, formatDates

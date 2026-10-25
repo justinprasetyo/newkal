@@ -9,150 +9,160 @@
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>NewKal v1</h1>
-    <h2 id="streak-count">0</h2>
-    <h2 id="percentage-ontime">%</h2>
-
-    <div class="calendar-nav">
-        <h2 id="month-label"></h2>
-        <button id="prev-month-btn"><</button>
-        <button id="next-month-btn">></button>
-        <button id="today-month-btn">today</button>
-    </div>
-    
-    <div class="calendar" id="calendar">
+    <div id="logged-out-view">
+        <h1>NewKal</h1>
+        <input id="login-username" placeholder="username">
+        <input id="login-password" type="password" placeholder="password">
+        <button id="login-btn">log in</button>
+        <button id="register-btn">sign up</button>
     </div>
 
-    <div class="skills-list" id="skills-list">
-        <button id="skills-list-close-btn">&times;</button>
+    <div id="logged-in-view">
+        <h1>NewKal v1</h1>
+        <h2 id="streak-count">0</h2>
+        <h2 id="percentage-ontime">%</h2>
 
-        <div class="tab-group" role="tablist">
-            <button class="tab-btn active" id="tab-skills-btn" role="tab" aria-selected="true">Skills</button>
-            <button class="tab-btn" id="tab-daily-btn" role="tab" aria-selected="false">Daily Log</button>
+        <div class="calendar-nav">
+            <h2 id="month-label"></h2>
+            <button id="prev-month-btn"><</button>
+            <button id="next-month-btn">></button>
+            <button id="today-month-btn">today</button>
+        </div>
+        
+        <div class="calendar" id="calendar">
         </div>
 
-        <div class="panel-scroll">
-            <table class="tab-panel active" id="skills-panel">
-                <thead><tr><th></th></tr></thead>
-                <tbody id="skills-table"></tbody>
-            </table>
+        <div class="skills-list" id="skills-list">
+            <button id="skills-list-close-btn">&times;</button>
 
-            <table class="tab-panel" id="daily-panel">
-                <thead><tr><th></th></tr></thead>
-                <tbody id="daily-table"></tbody>
-            </table>
-        </div>
-
-    </div>
-
-    <div class="stats" id="stats">
-        <button id="stats-close-btn">&times;</button>
-
-        <div class="panel-scroll">
-            <div class="skills-content">
-
-                <h1 class="name-header" id="skill-name">Sliding Window Algo</h1>
-
-                <div class="sub-headers-group">
-                    <h2 class="sub-header">Start-date:</h2>
-                    <p id="skill-start-date">09/28/2026</p>
-
-                    <h2 class="sub-header">Retention-rate:</h2>
-                    <p id="skill-retention-rate">49%</p>
-
-                    <h2 class="sub-header">Next interval:</h2>
-                    <p id="skill-next-interval">3 days</p>
-
-                    <h3 id="skill-level">Washed</h3>
-                    <button id="complete-skill-review">done?</button>
-                    <button id="undo-skill-review">undo previous review</button>
-                </div>
-                    
+            <div class="tab-group" role="tablist">
+                <button class="tab-btn active" id="tab-skills-btn" role="tab" aria-selected="true">Skills</button>
+                <button class="tab-btn" id="tab-daily-btn" role="tab" aria-selected="false">Daily Log</button>
             </div>
+
+            <div class="panel-scroll">
+                <table class="tab-panel active" id="skills-panel">
+                    <thead><tr><th></th></tr></thead>
+                    <tbody id="skills-table"></tbody>
+                </table>
+
+                <table class="tab-panel" id="daily-panel">
+                    <thead><tr><th></th></tr></thead>
+                    <tbody id="daily-table"></tbody>
+                </table>
+            </div>
+
         </div>
 
-        <div class="bottom-header">
-            <button id="delete-skill-review">Delete topic (all reviews)</button>
-        </div>
-    </div>
+        <div class="stats" id="stats">
+            <button id="stats-close-btn">&times;</button>
 
-    <div class="log" id="log">
-        <button id="log-close-btn">&times;</button>
+            <div class="panel-scroll">
+                <div class="skills-content">
 
-        <div class="panel-scroll">
-            <div class="log-content">
+                    <h1 class="name-header" id="skill-name">Sliding Window Algo</h1>
 
-                <h1 class="name-header" id="log-name">Name Placeholder</h1>
+                    <div class="sub-headers-group">
+                        <h2 class="sub-header">Start-date:</h2>
+                        <p id="skill-start-date">09/28/2026</p>
 
-                <div class="sub-headers-group">
-                    <h2 class="sub-header">Start-date:</h2>
-                    <p id="log-start-date">09/28/2026</p>
+                        <h2 class="sub-header">Retention-rate:</h2>
+                        <p id="skill-retention-rate">49%</p>
 
-                    <h2 class="sub-header">Description</h2>
-                    <p id="log-description">desc placeholder</p>
-                    <button id="log-description-edit-btn">edit</button>
-                    <div class="log-description-edit-tools" id="log-description-edit-tools">
-                        <textarea id="log-description-edit"></textarea>
-                        <button id="log-description-edit-confirm-btn">okk</button>
+                        <h2 class="sub-header">Next interval:</h2>
+                        <p id="skill-next-interval">3 days</p>
+
+                        <h3 id="skill-level">Washed</h3>
+                        <button id="complete-skill-review">done?</button>
+                        <button id="undo-skill-review">undo previous review</button>
                     </div>
-                    
+                        
                 </div>
-                    
+            </div>
+
+            <div class="bottom-header">
+                <button id="delete-skill-review">Delete topic (all reviews)</button>
             </div>
         </div>
 
-        <div class="bottom-header">
-            <button id="delete-log">Delete log</button>
+        <div class="log" id="log">
+            <button id="log-close-btn">&times;</button>
+
+            <div class="panel-scroll">
+                <div class="log-content">
+
+                    <h1 class="name-header" id="log-name">Name Placeholder</h1>
+
+                    <div class="sub-headers-group">
+                        <h2 class="sub-header">Start-date:</h2>
+                        <p id="log-start-date">09/28/2026</p>
+
+                        <h2 class="sub-header">Description</h2>
+                        <p id="log-description">desc placeholder</p>
+                        <button id="log-description-edit-btn">edit</button>
+                        <div class="log-description-edit-tools" id="log-description-edit-tools">
+                            <textarea id="log-description-edit"></textarea>
+                            <button id="log-description-edit-confirm-btn">okk</button>
+                        </div>
+                        
+                    </div>
+                        
+                </div>
+            </div>
+
+            <div class="bottom-header">
+                <button id="delete-log">Delete log</button>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <label for="daily-subject">What did you learn today? </label>
-        <input id="daily-subject">
-        <button id="daily-subject-btn">ok!</button>
-    </div>
+        <div>
+            <label for="daily-subject">What did you learn today? </label>
+            <input id="daily-subject">
+            <button id="daily-subject-btn">ok!</button>
+        </div>
 
-    <div class="topic-term-confirmation" id="topic-term-confirmation">
-        <h4>is this a short or long term topic?</h4>
-        <p id="topic-term-confirmation-text"></p>
-        <button id="short-term-confirm">short</button>
-        <button id="long-term-confirm">long</button>
-    </div>
+        <div class="topic-term-confirmation" id="topic-term-confirmation">
+            <h4>is this a short or long term topic?</h4>
+            <p id="topic-term-confirmation-text"></p>
+            <button id="short-term-confirm">short</button>
+            <button id="long-term-confirm">long</button>
+        </div>
 
-    <div class="finish-review-confirmation" id="finish-review-confirmation">
-        <h4>how did it go?</h4>
-        <p id="finish-review-confirmation-text"></p>
-        <button class="finish-review-rating" value="0">forgot</button>
-        <button class="finish-review-rating" value="25">eh</button>
-        <button class="finish-review-rating" value="50">okay</button>
-        <button class="finish-review-rating" value="75">well</button>
-        <button class="finish-review-rating" value="100">perfect</button>
-        <button id="finish-review-cancel">cancel</button>
-    </div>
+        <div class="finish-review-confirmation" id="finish-review-confirmation">
+            <h4>how did it go?</h4>
+            <p id="finish-review-confirmation-text"></p>
+            <button class="finish-review-rating" value="0">forgot</button>
+            <button class="finish-review-rating" value="25">eh</button>
+            <button class="finish-review-rating" value="50">okay</button>
+            <button class="finish-review-rating" value="75">well</button>
+            <button class="finish-review-rating" value="100">perfect</button>
+            <button id="finish-review-cancel">cancel</button>
+        </div>
 
-    <div class="undo-review-confirmation" id="undo-review-confirmation">
-        <h4>r u sure u want to undo this topic's last completed review?</h4>
-        <p id="undo-review-confirmation-text"></p>
-        <button id="undo-review-confirm">undooo</button>
-        <button id="undo-review-cancel">nah</button>
-    </div>
+        <div class="undo-review-confirmation" id="undo-review-confirmation">
+            <h4>r u sure u want to undo this topic's last completed review?</h4>
+            <p id="undo-review-confirmation-text"></p>
+            <button id="undo-review-confirm">undooo</button>
+            <button id="undo-review-cancel">nah</button>
+        </div>
 
-    <div class="delete-review-confirmation" id="delete-review-confirmation">
-        <h4>are you sure you want to delete?</h4>
-        <p id="delete-review-confirmation-text"></p>
-        <button id="delete-review-confirm">delete</button>
-        <button id="delete-review-cancel">cancel</button>
-    </div>
+        <div class="delete-review-confirmation" id="delete-review-confirmation">
+            <h4>are you sure you want to delete?</h4>
+            <p id="delete-review-confirmation-text"></p>
+            <button id="delete-review-confirm">delete</button>
+            <button id="delete-review-cancel">cancel</button>
+        </div>
 
-    <div class="delete-log-confirmation" id="delete-log-confirmation">
-        <h4>are you sure you want to delete?</h4>
-        <p id="delete-log-confirmation-text"></p>
-        <button id="delete-log-confirm">delete</button>
-        <button id="delete-log-cancel">cancel</button>
-    </div>
-    
+        <div class="delete-log-confirmation" id="delete-log-confirmation">
+            <h4>are you sure you want to delete?</h4>
+            <p id="delete-log-confirmation-text"></p>
+            <button id="delete-log-confirm">delete</button>
+            <button id="delete-log-cancel">cancel</button>
+        </div>
+        
 
-    <button id="all-topics-btn">topics</button>
+        <button id="all-topics-btn">topics</button>
+    </div>
     <script src="/static/app.js" defer></script>
 </body>
 </html>

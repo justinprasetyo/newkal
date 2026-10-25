@@ -1,3 +1,4 @@
+from flask import session
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
@@ -20,6 +21,14 @@ def init_db(): #initialize table on startup
     #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
     #cur.execute("DROP TABLE IF EXISTS daily_log CASCADE;")
     cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        );
+    """)
+    
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS topics (
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
@@ -28,7 +37,8 @@ def init_db(): #initialize table on startup
             interval_step INTEGER NOT NULL DEFAULT 0,
             next_review DATE NOT NULL DEFAULT CURRENT_DATE,
             level TEXT NOT NULL,
-            review_log JSONB NOT NULL DEFAULT '[]'::jsonb
+            review_log JSONB NOT NULL DEFAULT '[]'::jsonb,
+            user_id INTEGER REFERENCES users(id)
         );
     """)
 
@@ -37,7 +47,8 @@ def init_db(): #initialize table on startup
             id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             created_at DATE NOT NULL DEFAULT CURRENT_DATE,
-            description TEXT NOT NULL
+            description TEXT NOT NULL,
+            user_id INTEGER REFERENCES users(id)
         );
     """)
 

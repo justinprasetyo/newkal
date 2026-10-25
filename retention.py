@@ -1,3 +1,4 @@
+from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
 from database import intervals, levels, get_db, get_alltopics
@@ -98,11 +99,15 @@ def undo_review(id):
         new_next_review = row['created_at']  # back to day one if 0 completed reviews
 
     rating_sum = 0
-    for completed_review in row['review_log']:
+    for completed_review in log:
         if len(completed_review) > 0:
             rating_sum += completed_review['rating']
 
-    avg = rating_sum / len(row['review_log'])
+    if len(log) > 0:
+        avg = rating_sum / len(log)
+    else:
+        avg = 0
+        
     mastery = (avg * new_step) / 5
 
     level = 0

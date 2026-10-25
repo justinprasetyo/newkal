@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from psycopg2.extras import Json
 import requests, json
+import os
 
+from security import login, register, logout
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
@@ -10,12 +12,34 @@ from datetime import date, datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-in-production")
 
 @app.route('/')
 def home():
     init_db()
     #delete_alltopics() # delete topics on startup 
     return render_template('index.html')
+
+@app.route('/api/me')
+def whoami():
+    return jsonify({"logged_in": 'user_id' in session})
+
+@app.route('/api/register', methods=['POST'])
+def register_user():
+    data = request.get_json()
+    register(data)
+    return jsonify({"status": "registered"})
+
+@app.route('/api/login', methods=['POST'])
+def login_user():
+    data = request.get_json()
+    login(data)
+    return jsonify({"status": "registered"})
+
+@app.route('/api/logout', methods=['POST'])
+def logout_user():
+    session.pop('user_id', None)
+    return jsonify({"status": "logged out"})
 
 @app.route('/api/topics', methods=['POST'])
 def uploadInput():

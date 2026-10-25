@@ -1,3 +1,26 @@
+const loginUsername = document.getElementById('login-username');
+const loginPassword = document.getElementById('login-password');
+const loginBtn = document.getElementById('login-btn');
+const registerBtn = document.getElementById('register-btn');
+
+loginBtn.addEventListener('click', async () => {
+    const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'username': loginUsername.value,
+            'password': loginPassword.value
+        })
+
+    })
+    const result = await response.json()
+    console.log(result)
+})
+
+
+
 const percentageOnTime = document.getElementById('percentage-ontime');
 const streakCounter = document.getElementById('streak-count');
 const userSubject = document.getElementById('daily-subject');
