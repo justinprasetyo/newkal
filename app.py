@@ -27,14 +27,17 @@ def whoami():
 @app.route('/api/register', methods=['POST'])
 def register_user():
     data = request.get_json()
-    register(data)
+    result = register(data)
+    return jsonify(result)
     return jsonify({"status": "registered"})
 
 @app.route('/api/login', methods=['POST'])
 def login_user():
     data = request.get_json()
-    login(data)
-    return jsonify({"status": "registered"})
+    result = login(data)
+    print(session)
+    return jsonify(result)
+    return jsonify({"status": "logged in"})
 
 @app.route('/api/logout', methods=['POST'])
 def logout_user():
@@ -78,7 +81,6 @@ def load_topicStats():
     
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
-    
     return jsonify(get_topicById(data['id']))
 
 @app.route('/api/topics/update', methods=['POST'])

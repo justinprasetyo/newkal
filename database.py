@@ -72,11 +72,11 @@ def create_topic(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, review_log)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, review_log, user_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         topic_obj['name'], topic_obj['progress'], topic_obj['created_at'], topic_obj['interval_step'],
-        topic_obj['next_review'], topic_obj['level'], topic_obj['review_log']
+        topic_obj['next_review'], topic_obj['level'], topic_obj['review_log'], session['user_id']
     ))
     conn.commit()
     cur.close()
@@ -88,9 +88,9 @@ def get_topicById(id):
     cur.execute("""
         SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
         FROM topics
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
     """, (
-        id,
+        id, session['user_id']
     ))
 
     topic = cur.fetchone()
@@ -105,8 +105,11 @@ def get_alltopics():
     cur.execute("""
         SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
         FROM topics
+        WHERE user_id = %s
         ORDER BY next_review
-    """)
+    """, (
+        session['user_id'],
+    ))
 
     rows = cur.fetchall()
     cur.close()
@@ -140,9 +143,9 @@ def delete_topicById(id):
     cur = conn.cursor()
     cur.execute("""
         DELETE FROM topics
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
     """, (
-        id,
+        id, session['user_id'],
     ))
     print(f"DELETED {id}")
     conn.commit()
@@ -152,7 +155,12 @@ def delete_topicById(id):
 def delete_alltopics():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("DELETE FROM topics;")
+    cur.execute("""
+        DELETE FROM topics
+        WHERE user_id = %s
+    """, (
+        session['user_id'],
+    ))
     conn.commit()
     cur.close()
     conn.close()

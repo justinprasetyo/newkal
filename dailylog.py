@@ -7,10 +7,10 @@ def create_daily_log(topic_obj):
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO daily_log (name, created_at, description)
-        VALUES (%s, %s, %s)
+        INSERT INTO daily_log (name, created_at, description, user_id)
+        VALUES (%s, %s, %s, %s)
     """, (
-        topic_obj['name'], topic_obj['created_at'], topic_obj['description']
+        topic_obj['name'], topic_obj['created_at'], topic_obj['description'], session['user_id']
     ))
     conn.commit()
     cur.close()
@@ -22,8 +22,11 @@ def get_allDaily_logs():
     cur.execute("""
         SELECT id, name, created_at, description
         FROM daily_log
+        WHERE user_id = %s
         ORDER BY created_at
-    """)
+    """, (
+        session['user_id'],
+    ))
 
     rows = cur.fetchall()
     cur.close()
@@ -51,9 +54,9 @@ def get_daily_logById(id):
     cur.execute("""
         SELECT id, name, created_at, description
         FROM daily_log
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
     """, (
-        id,
+        id, session['user_id'],
     ))
 
     topic = cur.fetchone()
@@ -67,9 +70,9 @@ def delete_logById(id):
     cur = conn.cursor()
     cur.execute("""
         DELETE FROM daily_log
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
     """, (
-        id,
+        id, session['user_id'],
     ))
     print(f"DELETED {id}")
     conn.commit()
@@ -82,9 +85,9 @@ def edit_log_description(id, desc):
     cur.execute("""
         UPDATE daily_log
         SET description = %s
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
     """, (
-        desc, id
+        desc, id, session['user_id']
     ))
     conn.commit()
     cur.close()

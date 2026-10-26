@@ -2,6 +2,7 @@ const loginUsername = document.getElementById('login-username');
 const loginPassword = document.getElementById('login-password');
 const loginBtn = document.getElementById('login-btn');
 const registerBtn = document.getElementById('register-btn');
+const logoutBtn = document.getElementById('logout-btn');
 
 loginBtn.addEventListener('click', async () => {
     const response = await fetch('/api/login', {
@@ -18,6 +19,37 @@ loginBtn.addEventListener('click', async () => {
     const result = await response.json()
     console.log(result)
 })
+
+registerBtn.addEventListener('click', async () => {
+    const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'username': loginUsername.value,
+            'password': loginPassword.value
+        })
+
+    })
+    const result = await response.json()
+    console.log(result)
+})
+
+logoutBtn.addEventListener('click', async () => {
+    const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+        })
+
+    })
+    const result = await response.json()
+    console.log(result)
+})
+
 
 
 
@@ -159,6 +191,7 @@ async function getStatsById(id) {
         })
     })
     const topicObj = await response.json()
+    console.log(topicObj)
     return topicObj
 };
 

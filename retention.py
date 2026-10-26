@@ -11,7 +11,11 @@ def complete_review(id, rating):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("SELECT interval_step, next_review, review_log FROM topics WHERE id = %s", (id,))
+    cur.execute("""
+        SELECT interval_step, next_review, review_log
+        FROM topics
+        WHERE id = %s AND user_id = %s
+    """, (id, session['user_id'],))
     row = cur.fetchone()
     if row is None:
         cur.close(); conn.close()
@@ -46,9 +50,9 @@ def complete_review(id, rating):
         SET review_log = review_log || %s::jsonb,
             interval_step = %s,
             next_review = %s
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
         RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-    """, (json.dumps([entry]), new_step, new_next_review, id))
+    """, (json.dumps([entry]), new_step, new_next_review, id, session['user_id']))
     
     result = cur.fetchone()
 
@@ -69,9 +73,9 @@ def complete_review(id, rating):
     cur.execute("""
         UPDATE topics
         SET level = %s, progress = %s
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
         RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-    """, (levels[level], mastery, id))
+    """, (levels[level], mastery, id, session['user_id']))
 
     final_result = cur.fetchone()
     conn.commit()
@@ -83,7 +87,7 @@ def undo_review(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("SELECT review_log, created_at FROM topics WHERE id = %s", (id,))
+    cur.execute("SELECT review_log, created_at FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
     row = cur.fetchone()
     if row is None or len(row['review_log']) == 0:
         cur.close(); conn.close()
@@ -107,7 +111,7 @@ def undo_review(id):
         avg = rating_sum / len(log)
     else:
         avg = 0
-        
+
     mastery = (avg * new_step) / 5
 
     level = 0
@@ -120,9 +124,9 @@ def undo_review(id):
         UPDATE topics
         SET review_log = %s::jsonb, interval_step = %s, next_review = %s,
             progress = %s, level = %s
-        WHERE id = %s
+        WHERE id = %s AND user_id = %s
         RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-    """, (json.dumps(log), new_step, new_next_review, mastery, levels[level], id))
+    """, (json.dumps(log), new_step, new_next_review, mastery, levels[level], id, session['user_id']))
 
     result = cur.fetchone()
     conn.commit()
@@ -152,9 +156,13 @@ def get_streak():
     cur = conn.cursor()
     cur.execute("""
         SELECT created_at::date AS activity_date FROM topics
+        WHERE user_id = %s
         UNION
         SELECT created_at::date FROM daily_log
-    """)
+        WHERE user_id = %s
+    """, (
+        session['user_id'], session['user_id'],
+    ))
     rows = cur.fetchall()
     if rows is None:
         cur.close(); conn.close()
