@@ -13,9 +13,8 @@
 }
 
 .logged-out-view .logo {
-    height: 350px;
+    height: 275px;
     width: auto;
-    margin: -100px;
 }
 
 .logged-out-view h1 {
