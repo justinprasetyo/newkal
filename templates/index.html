@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NewKal: A spaced repetition reminder app.</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="logged-out-view">
+    <div class="logged-out-view active" id="logged-out-view">
         <h1>NewKal</h1>
         <input id="login-username" placeholder="username">
         <input id="login-password" type="password" placeholder="password">
         <button id="login-btn">log in</button>
-        <button id="register-btn">sign up</button>
+        <p>don't have an account? <button id="register-btn">sign up</button></p>
     </div>
 
-    <div id="logged-in-view">
+    <div class="logged-in-view" id="logged-in-view">
         <h1>NewKal v1</h1>
-        <button id="logout-btn">log out</button>
         <h2 id="streak-count">0</h2>
         <h2 id="percentage-ontime">%</h2>
 
@@ -160,9 +160,16 @@
             <button id="delete-log-confirm">delete</button>
             <button id="delete-log-cancel">cancel</button>
         </div>
-        
 
+        <div class="logout-confirmation" id="logout-confirmation">
+            <h4>are you sure you want to logout?</h4>
+            <p id="logout-confirmation-text"></p>
+            <button id="logout-confirm">yu get me outta here</button>
+            <button id="logout-cancel">cancel</button>
+        </div>
+        
         <button id="all-topics-btn">topics</button>
+        <button id="logout-btn">log out</button>
     </div>
     <script src="/static/app.js" defer></script>
 </body>

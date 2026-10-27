@@ -2,7 +2,120 @@ const loginUsername = document.getElementById('login-username');
 const loginPassword = document.getElementById('login-password');
 const loginBtn = document.getElementById('login-btn');
 const registerBtn = document.getElementById('register-btn');
-const logoutBtn = document.getElementById('logout-btn');
+
+const loggedInView = document.getElementById('logged-in-view');
+const loggedOutView = document.getElementById('logged-out-view');
+
+let percentageOnTime, streakCounter, userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
+
+let monthLabel, prevMonthBtn, nextMonthBtn, todayMonthBtn 
+
+let skillsPanel, skillsPanelCloseBtn, skillsTable 
+
+let tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel, dailyTable
+
+let statsPanel, statsPanelCloseBtn, deleteSkillReviewBtn, completeSkillReviewBtn, completeReviewConfirmation, completeReviewConfirmationTxt, completeReviewCancel, ratingButtons 
+
+let logContentPanel, logDescriptionEditBtn, logContentPanelCloseBtn, deleteLogBtn, deleteLogConfirmation, deleteLogConfirmBtn, deleteLogCancelBtn, logEditTools, logEditConfirmBtn
+
+let deleteReviewConfirmation, deleteReviewConfirmBtn, deleteReviewCancelBtn 
+
+let undoReviewBtn, undoReviewConfirmation, undoReviewConfirmBtn, undoReviewCancelBtn 
+
+let logoutBtn, logoutConfirmation, logoutConfirmBtn, logoutCancelBtn
+
+let currentDate
+
+const LEVEL_COLORS = {
+    'Beginner': 'var(--level-0)',
+    'Washed': 'var(--level-1)',
+    'Intermediate': 'var(--level-2)',
+    'Advanced': 'var(--level-3)',
+    'Mastered': 'var(--level-4)'
+};
+
+
+function cacheElements() {
+    percentageOnTime = document.getElementById('percentage-ontime');
+    streakCounter = document.getElementById('streak-count');
+    userSubject = document.getElementById('daily-subject');
+    userSubjectBtn = document.getElementById('daily-subject-btn');
+    topicTermConfirmation = document.getElementById('topic-term-confirmation');
+    shortTermTopicBtn = document.getElementById('short-term-confirm');
+    longTermTopicBtn = document.getElementById('long-term-confirm');
+
+    allTopicsBtn = document.getElementById('all-topics-btn');
+
+    monthLabel = document.getElementById('month-label');
+    prevMonthBtn = document.getElementById('prev-month-btn');
+    nextMonthBtn = document.getElementById('next-month-btn');
+    todayMonthBtn = document.getElementById('today-month-btn');
+
+    skillsPanel = document.getElementById('skills-list');
+    skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
+    skillsTable = document.getElementById('skills-table');
+
+    tabSkillsBtn = document.getElementById('tab-skills-btn');
+    tabDailyBtn = document.getElementById('tab-daily-btn');
+    skillsPanel2 = document.getElementById('skills-panel');
+    dailyPanel = document.getElementById('daily-panel');
+    dailyTable = document.getElementById('daily-table');
+
+    statsPanel = document.getElementById('stats');
+    statsPanelCloseBtn = document.getElementById('stats-close-btn');
+    deleteSkillReviewBtn = document.getElementById('delete-skill-review');
+    completeSkillReviewBtn = document.getElementById('complete-skill-review');
+    completeReviewConfirmation = document.getElementById('finish-review-confirmation');
+    completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
+    completeReviewCancel = document.getElementById('finish-review-cancel');
+    ratingButtons = document.querySelectorAll('.finish-review-rating');
+
+    logContentPanel = document.getElementById('log');
+    logDescriptionEditBtn = document.getElementById('log-description-edit-btn');
+    logContentPanelCloseBtn = document.getElementById('log-close-btn');
+    deleteLogBtn = document.getElementById('delete-log');
+    deleteLogConfirmation = document.getElementById('delete-log-confirmation');
+    deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
+    deleteLogCancelBtn = document.getElementById('delete-log-cancel');
+    logEditTools = document.getElementById('log-description-edit-tools');
+    logEditConfirmBtn = document.getElementById('log-description-edit-confirm-btn');
+
+    deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
+    deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
+    deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
+
+    undoReviewBtn = document.getElementById('undo-skill-review');
+    undoReviewConfirmation = document.getElementById('undo-review-confirmation');
+    undoReviewConfirmBtn = document.getElementById('undo-review-confirm');
+    undoReviewCancelBtn = document.getElementById('undo-review-cancel');
+
+    logoutBtn = document.getElementById('logout-btn');
+    logoutConfirmation = document.getElementById('logout-confirmation');
+    logoutConfirmBtn = document.getElementById('logout-confirm');
+    logoutCancelBtn = document.getElementById('logout-cancel');
+
+}
+
+function initializeApp() {
+    currentDate = new Date()
+    console.log(currentDate.toLocaleDateString('en-CA'))
+    loadReviews()
+}
+
+function checkSession() {
+    fetch('/api/me')
+        .then(r => r.json())
+        .then(data => {
+            if (data.logged_in) {
+                loggedOutView.classList.remove('active');
+                loggedInView.classList.add('active');
+                initializeApp();
+            } else {
+                loggedInView.classList.remove('active');
+                loggedOutView.classList.add('active');
+            }
+        });
+}
 
 loginBtn.addEventListener('click', async () => {
     const response = await fetch('/api/login', {
@@ -18,6 +131,7 @@ loginBtn.addEventListener('click', async () => {
     })
     const result = await response.json()
     console.log(result)
+    checkSession()
 })
 
 registerBtn.addEventListener('click', async () => {
@@ -34,9 +148,21 @@ registerBtn.addEventListener('click', async () => {
     })
     const result = await response.json()
     console.log(result)
+    checkSession()
 })
 
+cacheElements();   // safe to run immediately, needs the DOM to exist, not login state
+checkSession();    // decides whether initializeApp() runs
+
 logoutBtn.addEventListener('click', async () => {
+    logoutConfirmation.classList.add('active')
+})
+
+logoutCancelBtn.addEventListener('click', async () => {
+    logoutConfirmation.classList.remove('active')
+})
+
+logoutConfirmBtn.addEventListener('click', async () => {
     const response = await fetch('/api/logout', {
         method: 'POST',
         headers: {
@@ -48,75 +174,10 @@ logoutBtn.addEventListener('click', async () => {
     })
     const result = await response.json()
     console.log(result)
+    logoutConfirmation.classList.remove('active')
+    checkSession()
+    
 })
-
-
-
-
-const percentageOnTime = document.getElementById('percentage-ontime');
-const streakCounter = document.getElementById('streak-count');
-const userSubject = document.getElementById('daily-subject');
-const userSubjectBtn = document.getElementById('daily-subject-btn');
-const topicTermConfirmation = document.getElementById('topic-term-confirmation');
-const shortTermTopicBtn = document.getElementById('short-term-confirm');
-const longTermTopicBtn = document.getElementById('long-term-confirm');
-
-const allTopicsBtn = document.getElementById('all-topics-btn');
-
-const monthLabel = document.getElementById('month-label');
-const prevMonthBtn = document.getElementById('prev-month-btn');
-const nextMonthBtn = document.getElementById('next-month-btn');
-const todayMonthBtn = document.getElementById('today-month-btn');
-
-const skillsPanel = document.getElementById('skills-list');
-const skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
-const skillsTable = document.getElementById('skills-table');
-
-const tabSkillsBtn = document.getElementById('tab-skills-btn');
-const tabDailyBtn = document.getElementById('tab-daily-btn');
-const skillsPanel2 = document.getElementById('skills-panel');
-const dailyPanel = document.getElementById('daily-panel');
-const dailyTable = document.getElementById('daily-table');
-
-const statsPanel = document.getElementById('stats');
-const statsPanelCloseBtn = document.getElementById('stats-close-btn');
-const deleteSkillReviewBtn = document.getElementById('delete-skill-review');
-const completeSkillReviewBtn = document.getElementById('complete-skill-review');
-const completeReviewConfirmation = document.getElementById('finish-review-confirmation');
-const completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
-const completeReviewCancel = document.getElementById('finish-review-cancel');
-const ratingButtons = document.querySelectorAll('.finish-review-rating');
-
-const logContentPanel = document.getElementById('log');
-const logDescriptionEditBtn = document.getElementById('log-description-edit-btn');
-const logContentPanelCloseBtn = document.getElementById('log-close-btn');
-const deleteLogBtn = document.getElementById('delete-log');
-const deleteLogConfirmation = document.getElementById('delete-log-confirmation');
-const deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
-const deleteLogCancelBtn = document.getElementById('delete-log-cancel');
-const logEditTools = document.getElementById('log-description-edit-tools');
-const logEditConfirmBtn = document.getElementById('log-description-edit-confirm-btn');
-
-const deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
-const deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
-const deleteReviewCancelBtn = document.getElementById('delete-review-cancel');
-
-const undoReviewBtn = document.getElementById('undo-skill-review');
-const undoReviewConfirmation = document.getElementById('undo-review-confirmation');
-const undoReviewConfirmBtn = document.getElementById('undo-review-confirm');
-const undoReviewCancelBtn = document.getElementById('undo-review-cancel');
-
-const LEVEL_COLORS = {
-    'Beginner': 'var(--level-0)',
-    'Washed': 'var(--level-1)',
-    'Intermediate': 'var(--level-2)',
-    'Advanced': 'var(--level-3)',
-    'Mastered': 'var(--level-4)'
-};
-
-let currentDate = new Date()
-console.log(currentDate.toLocaleDateString('en-CA'))
-loadReviews()
 
 async function getInput(input, dailylog) {
     if (input == "") {

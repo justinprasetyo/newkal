@@ -16,7 +16,7 @@ def register(data):
     cur.close(); conn.close()
 
     session['user_id'] = user_id   # logs them in immediately after registering
-    return user_id
+    return True if 'user_id' in session else False
 
 def login(data):
     conn = get_db()
@@ -29,8 +29,8 @@ def login(data):
         return "Invalid username or password", 401
 
     session['user_id'] = user[0]
-    return user[0]
+    return True if 'user_id' in session else False
 
 def logout():
     session.pop('user_id', None)
-    return jsonify({"status": "logged out"})
+    return True if 'user_id' in session else False
