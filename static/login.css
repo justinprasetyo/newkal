@@ -13,7 +13,7 @@
 }
 
 .logged-out-view .logo {
-    height: 275px;
+    height: 200px;
     width: auto;
 }
 
@@ -57,6 +57,12 @@
   font-size: 1rem;
   color: var(--ink-muted);
   margin-top: 8px;
+}
+
+.logged-out-view #login-warning-text {
+    color: rgb(214, 6, 6);
+    font-size: 0.85rem;
+    margin-top: -8px;
 }
 
 .logged-out-view #register-btn {

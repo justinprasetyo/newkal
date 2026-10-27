@@ -5,6 +5,7 @@ const registerBtn = document.getElementById('register-btn');
 
 const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
+const loginWarningTxt = document.getElementById('login-warning-text');
 
 let percentageOnTime, streakCounter, userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
@@ -106,6 +107,7 @@ function checkSession() {
     fetch('/api/me')
         .then(r => r.json())
         .then(data => {
+            console.log(data)
             if (data.logged_in) {
                 loggedOutView.classList.remove('active');
                 loggedInView.classList.add('active');
@@ -118,7 +120,10 @@ function checkSession() {
 }
 
 loginBtn.addEventListener('click', async () => {
-    if (loginUsername.value == "" || loginPassword.value == "") return 'Invalid login input', 400 
+    if (loginUsername.value == "" || loginPassword.value == "") {
+        loginWarningTxt.textContent = 'Invalid login input'
+        return 'Invalid login input', 400
+    } 
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -131,12 +136,16 @@ loginBtn.addEventListener('click', async () => {
 
     })
     const result = await response.json()
-    console.log(result)
+    loginWarningTxt.textContent = result[0]?.status
+    console.log(result[0]?.status)
     checkSession()
 })
 
 registerBtn.addEventListener('click', async () => {
-    if (loginUsername.value == "" || loginPassword.value == "") return 'Invalid login input', 400 
+    if (loginUsername.value == "" || loginPassword.value == "") {
+        loginWarningTxt.textContent = 'Invalid login input'
+        return 'Invalid login input', 400
+    } 
     const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -149,7 +158,7 @@ registerBtn.addEventListener('click', async () => {
 
     })
     const result = await response.json()
-    console.log(result)
+    loginWarningTxt.textContent = result[0]?.status
     checkSession()
 })
 
