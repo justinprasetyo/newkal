@@ -30,6 +30,11 @@ body {
   padding: 32px 24px;
 }
 
+.logged-in-view .logo {
+    height: auto;
+    width: 200px;
+}
+
 h1 {
   font-family: 'Lora', serif;
   font-weight: 600;

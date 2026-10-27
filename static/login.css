@@ -12,6 +12,12 @@
   padding: 24px;
 }
 
+.logged-out-view .logo {
+    height: 350px;
+    width: auto;
+    margin: -100px;
+}
+
 .logged-out-view h1 {
   margin-bottom: 8px;
 }
@@ -47,9 +53,9 @@
   background: var(--ink);
 }
 
-.logged-out-view label {
+.logged-out-view p {
   font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--ink-muted);
   margin-top: 8px;
 }
