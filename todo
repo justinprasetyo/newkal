@@ -3,7 +3,7 @@ lateness score?
 
 make skill names and log names editable.
 
-streaks feature for short term. (daily_log table)
+streaks feature update for review completions?
 
 reward UI for coompletion AND for leveling up
 skills leaderboard for most rating
@@ -15,5 +15,3 @@ make shade of highlighted days darker and more saturated as more reviews/logs ar
 further out:
 
 -get calendar to be able to switch beetween day, week, month, maybe even year
-
--login system

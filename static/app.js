@@ -118,6 +118,7 @@ function checkSession() {
 }
 
 loginBtn.addEventListener('click', async () => {
+    if (loginUsername.value == "" || loginPassword.value == "") return 'Invalid login input', 400 
     const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -135,6 +136,7 @@ loginBtn.addEventListener('click', async () => {
 })
 
 registerBtn.addEventListener('click', async () => {
+    if (loginUsername.value == "" || loginPassword.value == "") return 'Invalid login input', 400 
     const response = await fetch('/api/register', {
         method: 'POST',
         headers: {

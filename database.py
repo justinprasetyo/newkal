@@ -20,6 +20,7 @@ def init_db(): #initialize table on startup
     cur = conn.cursor()
     #cur.execute("DROP TABLE IF EXISTS topics CASCADE;")
     #cur.execute("DROP TABLE IF EXISTS daily_log CASCADE;")
+    #cur.execute("DROP TABLE IF EXISTS users CASCADE;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,

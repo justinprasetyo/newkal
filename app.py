@@ -29,7 +29,6 @@ def register_user():
     data = request.get_json()
     result = register(data)
     return jsonify(result)
-    return jsonify({"status": "registered"})
 
 @app.route('/api/login', methods=['POST'])
 def login_user():
@@ -37,7 +36,6 @@ def login_user():
     result = login(data)
     print(session)
     return jsonify(result)
-    return jsonify({"status": "logged in"})
 
 @app.route('/api/logout', methods=['POST'])
 def logout_user():
