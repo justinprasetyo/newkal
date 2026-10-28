@@ -2,18 +2,22 @@ from flask import session
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
+import os
 
+#DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.environ["DATABASE_URL"]
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
 intervals = [0, 1, 3, 7, 16, 35, 70, 180, 365]
 
 def get_db():
-    conn = psycopg2.connect(
-        dbname="newkal",
-        user="justinprasetyo",
-        host="localhost",
-        port=5432
-    )
-    return conn
+    return psycopg2.connect(DATABASE_URL)
+    #conn = psycopg2.connect(
+            #dbname="newkal",
+            #user="justinprasetyo",
+            #host="localhost",
+            #port=5432
+        #)
+        #return conn
 
 def init_db(): #initialize table on startup
     conn = get_db()

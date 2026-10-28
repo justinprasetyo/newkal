@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from psycopg2.extras import Json
 import requests, json
 import os
@@ -13,6 +15,7 @@ from datetime import date, datetime, timedelta
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-in-production")
+limiter = Limiter(get_remote_address, app=app)
 
 @app.route('/')
 def home():
@@ -167,4 +170,4 @@ def test():
 
 
 if __name__ == '__main__':
-    app.run(port="8080", debug="True")
+    app.run(port=int(os.environ.get("PORT", 8080)), debug=False)

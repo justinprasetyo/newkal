@@ -2,7 +2,6 @@ import psycopg2
 from flask import session, request, jsonify
 from database import get_db
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from functools import wraps
 
 def login_required(f):
