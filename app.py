@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from psycopg2.extras import Json
+from dotenv import load_dotenv
 import requests, json
 import os
 
@@ -12,9 +13,10 @@ from retention import complete_review, undo_review, get_ontime_percentage, get_s
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
 from datetime import date, datetime, timedelta
 
+load_dotenv()
 app = Flask(__name__)
 CORS(app)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-only-change-in-production")
+app.secret_key = os.environ["SECRET_KEY"]
 limiter = Limiter(get_remote_address, app=app)
 
 @app.route('/')
