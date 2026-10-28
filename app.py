@@ -4,7 +4,7 @@ from psycopg2.extras import Json
 import requests, json
 import os
 
-from security import login, register, logout
+from security import login, register, logout, login_required
 from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
@@ -38,11 +38,13 @@ def login_user():
     return jsonify(result)
 
 @app.route('/api/logout', methods=['POST'])
+@login_required
 def logout_user():
     session.pop('user_id', None)
     return jsonify({"status": "logged out"})
 
 @app.route('/api/topics', methods=['POST'])
+@login_required
 def uploadInput():
     data = request.get_json() 
 
@@ -62,18 +64,22 @@ def uploadInput():
     return jsonify(get_alltopics())
 
 @app.route('/api/topics', methods=['GET'])
+@login_required
 def list_topics():
     return jsonify(load_topics())
 
 @app.route('/api/topics/percentage', methods=['GET'])
+@login_required
 def update_review_percentage():
     return jsonify(get_ontime_percentage())
 
 @app.route('/api/streak', methods=['GET'])
+@login_required
 def update_streak():
     return jsonify(get_streak())
 
 @app.route('/api/topics/stats', methods=['POST'])
+@login_required
 def load_topicStats():
     data = request.get_json() 
     
@@ -82,6 +88,7 @@ def load_topicStats():
     return jsonify(get_topicById(data['id']))
 
 @app.route('/api/topics/update', methods=['POST'])
+@login_required
 def update_topicInterval():
     data = request.get_json() 
     
@@ -92,6 +99,7 @@ def update_topicInterval():
     return '', 204
 
 @app.route('/api/topics/undo', methods=['POST'])
+@login_required
 def undo_topicReview():
     data = request.get_json() 
     
@@ -102,6 +110,7 @@ def undo_topicReview():
     return '', 204
 
 @app.route('/api/topics/delete', methods=['POST'])
+@login_required
 def delete_topicReview():
     data = request.get_json() 
     
@@ -112,6 +121,7 @@ def delete_topicReview():
     return '', 204
 
 @app.route('/api/daily_logs', methods=['GET'])
+@login_required
 def list_daily_logs():
     return jsonify(load_daily_logs())
 
@@ -125,6 +135,7 @@ def load_logContent():
     return jsonify(get_daily_logById(data['id']))
 
 @app.route('/api/daily_logs/update/description', methods=['POST'])
+@login_required
 def update_description():
     data = request.get_json() 
     
@@ -136,6 +147,7 @@ def update_description():
     return '', 204
 
 @app.route('/api/daily_logs/delete', methods=['POST'])
+@login_required
 def delete_log():
     data = request.get_json() 
     
@@ -146,6 +158,7 @@ def delete_log():
     return '', 204
 
 @app.route('/api/test', methods=['GET'])
+@login_required
 def test():
     print(load_daily_logs())
     return '', 204

@@ -3,6 +3,16 @@ from flask import session, request, jsonify
 from database import get_db
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from functools import wraps
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_id' not in session:
+            return jsonify({"error": "not logged in"}), 401
+        return f(*args, **kwargs)
+    return decorated
+
 def register(data):
     username, password = data['username'], data['password']
 
