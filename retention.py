@@ -1,7 +1,7 @@
 from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
-from database import intervals, levels, get_db, get_alltopics
+from database import intervals, levels, get_db, release_db,get_alltopics
 import json
 
 def complete_review(id, rating):
@@ -18,7 +18,7 @@ def complete_review(id, rating):
     """, (id, session['user_id'],))
     row = cur.fetchone()
     if row is None:
-        cur.close(); conn.close()
+        cur.close(); release_db(conn)
         return None, 404
 
     old_step = row['interval_step']
@@ -80,7 +80,7 @@ def complete_review(id, rating):
     final_result = cur.fetchone()
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
     return dict(final_result)
 
 def undo_review(id):
@@ -90,7 +90,7 @@ def undo_review(id):
     cur.execute("SELECT review_log, created_at FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
     row = cur.fetchone()
     if row is None or len(row['review_log']) == 0:
-        cur.close(); conn.close()
+        cur.close(); release_db(conn)
         return None, 404  # nothing to undo
 
     log = row['review_log'][:-1]  # drop the most recent completion
@@ -131,7 +131,7 @@ def undo_review(id):
     result = cur.fetchone()
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
     return dict(result)
 
 def get_ontime_percentage():
@@ -165,10 +165,10 @@ def get_streak():
     ))
     rows = cur.fetchall()
     if rows is None:
-        cur.close(); conn.close()
+        cur.close(); release_db(conn)
         return None, 404
     active_days = {row[0] for row in rows}
-    cur.close(); conn.close()
+    cur.close(); release_db(conn)
 
     streak = 0
     day = date.today()

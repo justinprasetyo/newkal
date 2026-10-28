@@ -1,7 +1,7 @@
 from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
-from database import intervals, levels, get_db, formatDates
+from database import intervals, levels, get_db, release_db, formatDates
 
 def create_daily_log(topic_obj):
     conn = get_db()
@@ -14,7 +14,7 @@ def create_daily_log(topic_obj):
     ))
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def get_allDaily_logs():
     conn = get_db()
@@ -30,7 +30,7 @@ def get_allDaily_logs():
 
     rows = cur.fetchall()
     cur.close()
-    conn.close()
+    release_db(conn)
     arr = []
     for row in rows:
         formatDates(row)
@@ -61,7 +61,7 @@ def get_daily_logById(id):
 
     topic = cur.fetchone()
     cur.close()
-    conn.close()
+    release_db(conn)
     formatDates(dict(topic))
     return dict(topic) if topic else None
 
@@ -77,7 +77,7 @@ def delete_logById(id):
     print(f"DELETED {id}")
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def edit_log_description(id, desc):
     conn = get_db()
@@ -91,5 +91,5 @@ def edit_log_description(id, desc):
     ))
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
     return '', 204

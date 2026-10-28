@@ -1,23 +1,31 @@
 from flask import session
 import psycopg2
+from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
+from dotenv import load_dotenv
 import os
 
-#DATABASE_URL = os.environ.get("DATABASE_URL")
+load_dotenv()
 DATABASE_URL = os.environ["DATABASE_URL"]
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
 intervals = [0, 1, 3, 7, 16, 35, 70, 180, 365]
 
+connection_pool = psycopg2.pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+
 def get_db():
-    return psycopg2.connect(DATABASE_URL)
-    #conn = psycopg2.connect(
-            #dbname="newkal",
-            #user="justinprasetyo",
-            #host="localhost",
-            #port=5432
-        #)
-        #return conn
+    #return psycopg2.connect(DATABASE_URL) #use when deploying
+    return connection_pool.getconn()
+    conn = psycopg2.connect(
+            dbname="newkal",
+            user="justinprasetyo",
+            host="localhost",
+            port=5432
+        )
+    return conn
+
+def release_db(conn):
+    connection_pool.putconn(conn)
 
 def init_db(): #initialize table on startup
     conn = get_db()
@@ -59,7 +67,7 @@ def init_db(): #initialize table on startup
 
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def formatDates(obj):
     if 'created_at' in obj:
@@ -85,7 +93,7 @@ def create_topic(topic_obj):
     ))
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def get_topicById(id):
     conn = get_db()
@@ -100,7 +108,7 @@ def get_topicById(id):
 
     topic = cur.fetchone()
     cur.close()
-    conn.close()
+    release_db(conn)
     formatDates(dict(topic))
     return dict(topic) if topic else None
 
@@ -118,7 +126,7 @@ def get_alltopics():
 
     rows = cur.fetchall()
     cur.close()
-    conn.close()
+    release_db(conn)
     arr = []
     for row in rows:
         formatDates(row)
@@ -155,7 +163,7 @@ def delete_topicById(id):
     print(f"DELETED {id}")
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def delete_alltopics():
     conn = get_db()
@@ -168,7 +176,7 @@ def delete_alltopics():
     ))
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 def seed_reviews():
     conn = get_db()
@@ -180,6 +188,6 @@ def seed_reviews():
     ))
     conn.commit()
     cur.close()
-    conn.close()
+    release_db(conn)
 
 #seed_reviews()

@@ -1,6 +1,6 @@
 import psycopg2
 from flask import session, request, jsonify
-from database import get_db
+from database import get_db, release_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
@@ -23,12 +23,12 @@ def register(data):
         cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s) RETURNING id", (username, hashed))
     except psycopg2.errors.UniqueViolation:
         conn.rollback()
-        cur.close(); conn.close()
+        cur.close(); release_db(conn)
         return {"status": "error: username already taken"}, 409
     
     user_id = cur.fetchone()[0]
     conn.commit()
-    cur.close(); conn.close()
+    cur.close(); release_db(conn)
 
     session['user_id'] = user_id   # logs them in immediately after registering
     return {"status": "account registered"}
@@ -38,7 +38,7 @@ def login(data):
     cur = conn.cursor()
     cur.execute("SELECT id, password_hash FROM users WHERE username = %s", (data['username'],))
     user = cur.fetchone()
-    cur.close(); conn.close()
+    cur.close(); release_db(conn)
 
     if user is None or not check_password_hash(user[1], data['password']):
         return {"status": "error: invalid username or password"}, 401

@@ -30,12 +30,14 @@ def whoami():
     return jsonify({"logged_in": 'user_id' in session})
 
 @app.route('/api/register', methods=['POST'])
+@limiter.limit("5 per 5 minutes")
 def register_user():
     data = request.get_json()
     result = register(data)
     return jsonify(result)
 
 @app.route('/api/login', methods=['POST'])
+@limiter.limit("5 per 5 minutes")
 def login_user():
     data = request.get_json()
     result = login(data)
