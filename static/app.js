@@ -7,7 +7,7 @@ const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
 const loginWarningTxt = document.getElementById('login-warning-text');
 
-let percentageOnTime, streakCounter, userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
+let loadingBar, percentageOnTime, streakCounter, userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
 let monthLabel, prevMonthBtn, nextMonthBtn, todayMonthBtn 
 
@@ -35,8 +35,8 @@ const LEVEL_COLORS = {
     'Mastered': 'var(--level-4)'
 };
 
-
 function cacheElements() {
+    loadingBar = document.getElementById('loading-bar');
     percentageOnTime = document.getElementById('percentage-ontime');
     streakCounter = document.getElementById('streak-count');
     userSubject = document.getElementById('daily-subject');
@@ -104,7 +104,9 @@ function initializeApp() {
 }
 
 function checkSession() {
-    fetch('/api/me')
+    showLoading()
+    try {
+        fetch('/api/me')
         .then(r => r.json())
         .then(data => {
             console.log(data)
@@ -117,6 +119,21 @@ function checkSession() {
                 loggedOutView.classList.add('active');
             }
         });
+
+    } finally {
+        hideLoading()
+    }
+    
+}
+
+function showLoading() {
+    loadingBar.classList.remove('done');
+    loadingBar.classList.add('active');
+}
+
+function hideLoading() {
+    loadingBar.classList.add('done');
+    setTimeout(() => loadingBar.classList.remove('active', 'done'), 300);
 }
 
 loginBtn.addEventListener('click', async () => {
@@ -124,7 +141,9 @@ loginBtn.addEventListener('click', async () => {
         loginWarningTxt.textContent = 'Invalid login input'
         return 'Invalid login input', 400
     } 
-    const response = await fetch('/api/login', {
+    showLoading()
+    try {
+        const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -132,13 +151,23 @@ loginBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             'username': loginUsername.value,
             'password': loginPassword.value
+            })
         })
 
-    })
-    const result = await response.json()
-    loginWarningTxt.textContent = result[0]?.status
-    console.log(result[0]?.status)
-    checkSession()
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        const result = await response.json()
+        loginWarningTxt.textContent = result[0]?.status
+        console.log(result[0]?.status)
+        checkSession()
+
+    } finally {
+        hideLoading()
+    }
 })
 
 registerBtn.addEventListener('click', async () => {
@@ -146,7 +175,9 @@ registerBtn.addEventListener('click', async () => {
         loginWarningTxt.textContent = 'Invalid login input'
         return 'Invalid login input', 400
     } 
-    const response = await fetch('/api/register', {
+    showLoading()
+    try {
+        const response = await fetch('/api/register', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -154,12 +185,22 @@ registerBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             'username': loginUsername.value,
             'password': loginPassword.value
+            })
         })
 
-    })
-    const result = await response.json()
-    loginWarningTxt.textContent = result[0]?.status
-    checkSession()
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        const result = await response.json()
+        loginWarningTxt.textContent = result[0]?.status
+        checkSession()
+
+    } finally {
+        hideLoading()
+    }
 })
 
 cacheElements();   // safe to run immediately, needs the DOM to exist, not login state
@@ -174,19 +215,30 @@ logoutCancelBtn.addEventListener('click', async () => {
 })
 
 logoutConfirmBtn.addEventListener('click', async () => {
-    const response = await fetch('/api/logout', {
+    showLoading()
+    try {
+        const response = await fetch('/api/logout', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
+            })
         })
 
-    })
-    const result = await response.json()
-    console.log(result)
-    logoutConfirmation.classList.remove('active')
-    checkSession()
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        logoutConfirmation.classList.remove('active')
+        checkSession()
+
+    } finally {
+        hideLoading()
+    }
+    
     
 })
 
@@ -194,7 +246,9 @@ async function getInput(input, dailylog) {
     if (input == "") {
         return "Invalid input", 400
     }
-    const response = await fetch('/api/topics', {
+    showLoading()
+    try {
+        const response = await fetch('/api/topics', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -202,14 +256,20 @@ async function getInput(input, dailylog) {
         body: JSON.stringify({
             'input': input,
             'daily_log': dailylog
+            })
         })
-    })
 
-    if (!response.ok) {
-        const message = await response.text();
-        console.log(message);
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+    } finally {
+        hideLoading() 
     }
     loadReviews()
+    
 };
 
 async function updateReviewById(id, rating) {
@@ -217,7 +277,9 @@ async function updateReviewById(id, rating) {
     if (Number.isNaN(ratingInt)) {
         return 'Invalid rating', 400
     }
-    const response = await fetch('/api/topics/update', {
+    showLoading()
+    try {
+        const response = await fetch('/api/topics/update', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -225,14 +287,20 @@ async function updateReviewById(id, rating) {
         body: JSON.stringify({
             'id': id,
             'rating': ratingInt
+            })
         })
-    })
-    
-    if (!response.ok) {
-        const message = await response.text();
-        console.log(message);
+        
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        await loadReviews()
+    } finally {
+        hideLoading()
     }
-    await loadReviews()
+    
 };
 
 async function loadReviews() {
@@ -253,18 +321,30 @@ async function loadReviews() {
 };
 
 async function getStatsById(id) {
-    const response = await fetch('/api/topics/stats', {
+    try {
+        const response = await fetch('/api/topics/stats', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
             'id': id
+            })
         })
-    })
-    const topicObj = await response.json()
-    console.log(topicObj)
-    return topicObj
+
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        const topicObj = await response.json()
+        console.log(topicObj)
+        return topicObj
+    } catch(error) {
+
+    }
+    
 };
 
 function formatSkills(list) {
@@ -278,21 +358,35 @@ function formatSkills(list) {
 };
 
 async function getLogById(id) {
-    const response = await fetch('/api/daily_logs/content', {
+    try {
+        const response = await fetch('/api/daily_logs/content', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
         },
         body: JSON.stringify({
             'id': id
+            })
         })
-    })
-    const logObj = await response.json()
-    return logObj
+
+        if (!response.ok) {
+                const message = await response.text();
+                console.log(message);
+                throw new Error('Failed');
+        }
+
+        const logObj = await response.json()
+        return logObj
+    } catch(error) {
+
+    }
+    
 };
 
 async function editLogDesc(id, desc) {
-    const response = await fetch('/api/daily_logs/update/description', {
+    showLoading()
+    try {
+        const response = await fetch('/api/daily_logs/update/description', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -300,8 +394,19 @@ async function editLogDesc(id, desc) {
         body: JSON.stringify({
             'id': id,
             'description': desc
+            })
         })
-    })
+
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+    } finally {
+        hideLoading()
+    }
+    
 }
 
 function getMonthGrid(year, month) {  //0 = January
@@ -580,7 +685,8 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
 });
 
 deleteReviewConfirmBtn.addEventListener('click', async () => {
-        //delete in postgre table
+    showLoading()
+    try {
         const response = await fetch('/api/topics/delete', {
         method: "POST",
         headers: {
@@ -588,10 +694,20 @@ deleteReviewConfirmBtn.addEventListener('click', async () => {
         },
         body: JSON.stringify({
             'id': deleteSkillReviewBtn.value
+            })
         })
-    })
-    await loadReviews()
-    deleteReviewConfirmation.classList.remove('active')
+
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        await loadReviews()
+        deleteReviewConfirmation.classList.remove('active')
+    } finally {
+        hideLoading()
+    }
 });
 
 deleteReviewCancelBtn.addEventListener('click', async () => {
@@ -621,6 +737,8 @@ undoReviewCancelBtn.addEventListener('click', async () => {
 });
 
 undoReviewConfirmBtn.addEventListener('click', async () => {
+    showLoading()
+    try {
         const response = await fetch('/api/topics/undo', {
         method: "POST",
         headers: {
@@ -628,11 +746,24 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         },
         body: JSON.stringify({
             'id': undoReviewBtn.value
+            })
         })
-    })
-    undoReviewConfirmation.classList.remove('active')
-    openStatsPanel(undoReviewBtn.value)
-    await loadReviews()
+
+        if (!response.ok) {
+            const message = await response.text();
+            console.log(message);
+            throw new Error('Failed');
+        }
+
+        undoReviewConfirmation.classList.remove('active')
+        openStatsPanel(undoReviewBtn.value)
+        await loadReviews()
+            
+    } finally {
+        hideLoading()
+    }
+        
+    
 });
 
 function reviewButtons() { // make skills clickable
@@ -687,6 +818,8 @@ deleteLogCancelBtn.addEventListener('click', async () => {
 });
 
 deleteLogConfirmBtn.addEventListener('click', async () => {
+    showLoading()
+    try {
         const response = await fetch('/api/daily_logs/delete', {
         method: "POST",
         headers: {
@@ -694,11 +827,22 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
         },
         body: JSON.stringify({
             'id': deleteLogBtn.value
+            })
         })
-    })
+
+    if (!response.ok) {
+        const message = await response.text();
+        console.log(message);
+        throw new Error('Failed');
+    }
+
     await loadReviews()
     deleteLogConfirmation.classList.remove('active')
+    } finally {
+        hideLoading()
+    }
 });
+        
 
 logDescriptionEditBtn.addEventListener('click', () => {
     const topicDescription = document.getElementById('log-description');
