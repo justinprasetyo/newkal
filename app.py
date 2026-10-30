@@ -135,6 +135,7 @@ def list_daily_logs():
     return jsonify(load_daily_logs())
 
 @app.route('/api/daily_logs/content', methods=['POST'])
+@login_required
 def load_logContent():
     data = request.get_json() 
     

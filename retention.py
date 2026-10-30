@@ -143,7 +143,7 @@ def undo_review(id):
         return {'level_down': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
     return {'level_down': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
 
-def get_ontime_percentage():
+def get_ontime_percentage(): #700-800ms
     all_topics = get_alltopics()
     late_reviews = 0
     all_reviews_count = 0
@@ -160,7 +160,7 @@ def get_ontime_percentage():
     percentage = ((all_reviews_count - late_reviews) / all_reviews_count) * 100
     return round(percentage, 2)
 
-def get_streak():
+def get_streak(): #700-800ms
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""

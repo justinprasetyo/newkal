@@ -311,18 +311,17 @@ async function updateReviewById(id, rating) {
 };
 
 async function loadReviews() {
-    const responseReviews = await fetch('/api/topics')
-    const reviewsList = await responseReviews.json()
+    const [responseReviews, responseLogs, percentageOnTimeReviews, streakCount] = await Promise.all([
+        fetch('/api/topics'), fetch('/api/daily_logs'), 
+        fetch('/api/topics/percentage'), fetch('/api/streak')
+    ]);
 
-    const responseLogs = await fetch('/api/daily_logs')
-    const daily_logsList = await responseLogs.json()
+    const [reviewsList, daily_logsList, percentage, streak] = await Promise.all([
+        responseReviews.json(), responseLogs.json(), 
+        percentageOnTimeReviews.json(), streakCount.json()
+    ]);
 
-    const percentageOnTimeReviews = await fetch('/api/topics/percentage')
-    const percentage = await percentageOnTimeReviews.json()
     percentageOnTime.textContent = percentage + "% reviews done on time"
-
-    const streakCount = await fetch('/api/streak')
-    const streak = await streakCount.json()
     streakCounter.textContent = "Daily-learning streak: " + streak
     renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
@@ -588,24 +587,34 @@ async function openStatsPanel(skill_id) {
 }
 
 prevMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
+    const [topicsResponse, logsResponse] = await Promise.all([
+        fetch('/api/topics'),
+        fetch('/api/daily_logs')
+    ]);
 
-        const responseLogs = await fetch('/api/daily_logs')
-        const daily_logsList = await responseLogs.json()
+    const [topics, logs] = await Promise.all([
+        topicsResponse.json(),
+        logsResponse.json()
+    ]);
+
         currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
     }
 );
 
 nextMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
+    const [topicsResponse, logsResponse] = await Promise.all([
+        fetch('/api/topics'),
+        fetch('/api/daily_logs')
+    ]);
 
-        const responseLogs = await fetch('/api/daily_logs')
-        const daily_logsList = await responseLogs.json()
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
+    const [topics, logs] = await Promise.all([
+        topicsResponse.json(),
+        logsResponse.json()
+    ]);
+
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
     }
 );
 
@@ -770,7 +779,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         await openStatsPanel(undoReviewBtn.value)
         const topicRetRate = document.getElementById('skill-retention-rate');
         tween(topicRetRate, parseInt(result['old_progress']), parseInt(result['progress']), 800)
-        
+
         await loadReviews()
     
     } finally {
