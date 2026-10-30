@@ -12,7 +12,7 @@ def complete_review(id, rating):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     cur.execute("""
-        SELECT interval_step, next_review, review_log, level
+        SELECT interval_step, next_review, review_log, level, progress
         FROM topics
         WHERE id = %s AND user_id = %s
     """, (id, session['user_id'],))

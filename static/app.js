@@ -725,7 +725,7 @@ deleteReviewCancelBtn.addEventListener('click', async () => {
 
 completeSkillReviewBtn.addEventListener('click', async () => {
     //statsPanel.classList.remove('active')  
-    //skillsPanel.classList.remove('active')
+    skillsPanel.classList.remove('active')
 
     const topicName = document.getElementById('skill-name');
     completeReviewConfirmationTxt.textContent = topicName.textContent
@@ -767,9 +767,12 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         const result = await response.json();
         undoReviewConfirmation.classList.remove('active')
         skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
-        openStatsPanel(undoReviewBtn.value)
+        await openStatsPanel(undoReviewBtn.value)
+        const topicRetRate = document.getElementById('skill-retention-rate');
+        tween(topicRetRate, parseInt(result['old_progress']), parseInt(result['progress']), 800)
+        
         await loadReviews()
-            
+    
     } finally {
         hideLoading()
     }
@@ -816,8 +819,8 @@ ratingButtons.forEach((btn, index) => {
             replay(skillLevelBadge, 'stamp');
         }
         skillLevelBadge.style.borderColor = LEVEL_COLORS[level_up.level];
-        //const topicRetRate = document.getElementById('skill-retention-rate');
-        //tween(topicRetRate, parseInt(level_up['old_progress']), parseInt(level_up['progress']), 1000)
+        const topicRetRate = document.getElementById('skill-retention-rate');
+        tween(topicRetRate, parseInt(level_up['old_progress']), parseInt(level_up['progress']), 800)
         
     });     
 });
