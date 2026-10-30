@@ -12,7 +12,7 @@ def complete_review(id, rating):
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     cur.execute("""
-        SELECT interval_step, next_review, review_log
+        SELECT interval_step, next_review, review_log, level
         FROM topics
         WHERE id = %s AND user_id = %s
     """, (id, session['user_id'],))
@@ -21,6 +21,8 @@ def complete_review(id, rating):
         cur.close(); release_db(conn)
         return None, 404
 
+    old_progress = row['progress']
+    old_level = levels.index(row['level'])
     old_step = row['interval_step']
     if rating == 0: # forgot
         new_step = 1
@@ -44,7 +46,7 @@ def complete_review(id, rating):
 
     entry = {"date": str(new_next_review), "rating": rating, #'date' meaning next review date that completion created
             "interval_step": new_step, "offset_days": offset_days}    
-
+    
     cur.execute("""
         UPDATE topics
         SET review_log = review_log || %s::jsonb,
@@ -81,18 +83,23 @@ def complete_review(id, rating):
     conn.commit()
     cur.close()
     release_db(conn)
+    if level > old_level:
+        return {'leveled_up': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
+    return {'leveled_up': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
     return dict(final_result)
 
 def undo_review(id):
     conn = get_db()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("SELECT review_log, created_at FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
+    cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
     row = cur.fetchone()
     if row is None or len(row['review_log']) == 0:
         cur.close(); release_db(conn)
         return None, 404  # nothing to undo
 
+    old_progress = row['progress']
+    old_level = levels.index(row['level'])
     log = row['review_log'][:-1]  # drop the most recent completion
 
     if len(log) > 0:
@@ -132,7 +139,9 @@ def undo_review(id):
     conn.commit()
     cur.close()
     release_db(conn)
-    return dict(result)
+    if old_level > level:
+        return {'level_down': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
+    return {'level_down': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
 
 def get_ontime_percentage():
     all_topics = get_alltopics()

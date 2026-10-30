@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, session
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
 from psycopg2.extras import Json
 from dotenv import load_dotenv
 import requests, json
@@ -102,8 +103,9 @@ def update_topicInterval():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
-    complete_review(data['id'], data['rating'])
-    return '', 204
+    leveled_up = complete_review(data['id'], data['rating'])
+    print(leveled_up)
+    return jsonify(leveled_up)
 
 @app.route('/api/topics/undo', methods=['POST'])
 @login_required
@@ -113,8 +115,8 @@ def undo_topicReview():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
-    undo_review(data['id'])
-    return '', 204
+    level_down = undo_review(data['id'])
+    return jsonify(level_down)
 
 @app.route('/api/topics/delete', methods=['POST'])
 @login_required
@@ -170,7 +172,9 @@ def test():
     print(load_daily_logs())
     return '', 204
 
-
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit(error):
+    return {"status": "Too many attempts. Please wait before trying again."}, 429
 
 
 if __name__ == '__main__':

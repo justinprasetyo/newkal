@@ -1,3 +1,5 @@
+import { replay, tween } from "./animation.js";
+
 const loginUsername = document.getElementById('login-username');
 const loginPassword = document.getElementById('login-password');
 const loginBtn = document.getElementById('login-btn');
@@ -15,7 +17,7 @@ let skillsPanel, skillsPanelCloseBtn, skillsTable
 
 let tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel, dailyTable
 
-let statsPanel, statsPanelCloseBtn, deleteSkillReviewBtn, completeSkillReviewBtn, completeReviewConfirmation, completeReviewConfirmationTxt, completeReviewCancel, ratingButtons 
+let statsPanel, statsPanelCloseBtn, deleteSkillReviewBtn, completeSkillReviewBtn, completeReviewConfirmation, completeReviewConfirmationTxt, completeReviewCancel, ratingButtons, skillLevelBadge 
 
 let logContentPanel, logDescriptionEditBtn, logContentPanelCloseBtn, deleteLogBtn, deleteLogConfirmation, deleteLogConfirmBtn, deleteLogCancelBtn, logEditTools, logEditConfirmBtn
 
@@ -70,6 +72,7 @@ function cacheElements() {
     completeReviewConfirmationTxt = document.getElementById('finish-review-confirmation-text');
     completeReviewCancel = document.getElementById('finish-review-cancel');
     ratingButtons = document.querySelectorAll('.finish-review-rating');
+    skillLevelBadge = document.getElementById('skill-level');
 
     logContentPanel = document.getElementById('log');
     logDescriptionEditBtn = document.getElementById('log-description-edit-btn');
@@ -156,13 +159,12 @@ loginBtn.addEventListener('click', async () => {
 
         if (!response.ok) {
             const message = await response.text();
-            console.log(message);
+            loginWarningTxt.textContent = message
             throw new Error('Failed');
         }
 
         const result = await response.json()
         loginWarningTxt.textContent = result[0]?.status
-        console.log(result[0]?.status)
         checkSession()
 
     } finally {
@@ -190,7 +192,7 @@ registerBtn.addEventListener('click', async () => {
 
         if (!response.ok) {
             const message = await response.text();
-            console.log(message);
+            loginWarningTxt.textContent = message
             throw new Error('Failed');
         }
 
@@ -273,7 +275,7 @@ async function getInput(input, dailylog) {
 };
 
 async function updateReviewById(id, rating) {
-    ratingInt = parseInt(rating)
+    let ratingInt = parseInt(rating)
     if (Number.isNaN(ratingInt)) {
         return 'Invalid rating', 400
     }
@@ -291,12 +293,17 @@ async function updateReviewById(id, rating) {
         })
         
         if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
+            //const message = await response.text();
+            //console.log(message);
+            return
             throw new Error('Failed');
         }
-
+        
+        const result = await response.json()
+        console.log(result)
         await loadReviews()
+        return result
+        
     } finally {
         hideLoading()
     }
@@ -634,8 +641,10 @@ shortTermTopicBtn.addEventListener('click', async () => {
 
 allTopicsBtn.addEventListener('click', async () => { //testing button
         const response = await fetch('/api/test')
-        const result = await response.json()
-        console.log(result)
+        //const result = await response.json()
+        //console.log(result)
+        skillLevelBadge.style.borderColor = LEVEL_COLORS["Mastered"];
+        replay(skillLevelBadge, 'stamp');
     }
 );
 
@@ -715,8 +724,8 @@ deleteReviewCancelBtn.addEventListener('click', async () => {
 });
 
 completeSkillReviewBtn.addEventListener('click', async () => {
-    statsPanel.classList.remove('active')  
-    skillsPanel.classList.remove('active')
+    //statsPanel.classList.remove('active')  
+    //skillsPanel.classList.remove('active')
 
     const topicName = document.getElementById('skill-name');
     completeReviewConfirmationTxt.textContent = topicName.textContent
@@ -755,7 +764,9 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
             throw new Error('Failed');
         }
 
+        const result = await response.json();
         undoReviewConfirmation.classList.remove('active')
+        skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
         openStatsPanel(undoReviewBtn.value)
         await loadReviews()
             
@@ -799,7 +810,15 @@ function logButtons() { // make logs clickable
 ratingButtons.forEach((btn, index) => {
     btn.addEventListener('click', async () => {
         completeReviewConfirmation.classList.remove('active');
-        updateReviewById(completeSkillReviewBtn.value, btn.value)
+        const level_up = await updateReviewById(completeSkillReviewBtn.value, btn.value)
+        await openStatsPanel(completeSkillReviewBtn.value)
+        if (level_up['leveled_up']) {
+            replay(skillLevelBadge, 'stamp');
+        }
+        skillLevelBadge.style.borderColor = LEVEL_COLORS[level_up.level];
+        //const topicRetRate = document.getElementById('skill-retention-rate');
+        //tween(topicRetRate, parseInt(level_up['old_progress']), parseInt(level_up['progress']), 1000)
+        
     });     
 });
 
