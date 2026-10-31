@@ -613,7 +613,7 @@ nextMonthBtn.addEventListener('click', async () => {
         logsResponse.json()
     ]);
 
-        currentDate.setMonth(currentDate.getMonth() - 1);
+        currentDate.setMonth(currentDate.getMonth() + 1);
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
     }
 );
