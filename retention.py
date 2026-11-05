@@ -1,6 +1,7 @@
 from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 from database import intervals, levels, get_db, release_db,get_alltopics
 import json
 
@@ -86,7 +87,6 @@ def complete_review(id, rating):
     if level > old_level:
         return {'leveled_up': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
     return {'leveled_up': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
-    return dict(final_result)
 
 def undo_review(id):
     conn = get_db()

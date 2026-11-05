@@ -30,6 +30,11 @@ def home():
 def whoami():
     return jsonify({"logged_in": 'user_id' in session})
 
+@app.route('/api/timezone', methods=['POST'])
+def get_timezone():
+    data = request.get_json()
+    return jsonify({"status": 'recieved'})
+
 @app.route('/api/register', methods=['POST'])
 @limiter.limit("5 per 5 minutes")
 def register_user():

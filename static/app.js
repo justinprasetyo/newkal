@@ -27,7 +27,7 @@ let undoReviewBtn, undoReviewConfirmation, undoReviewConfirmBtn, undoReviewCance
 
 let logoutBtn, logoutConfirmation, logoutConfirmBtn, logoutCancelBtn
 
-let currentDate
+let currentDate, userTimeZone
 
 const LEVEL_COLORS = {
     'Beginner': 'var(--level-0)',
@@ -100,10 +100,23 @@ function cacheElements() {
 
 }
 
-function initializeApp() {
-    currentDate = new Date()
-    console.log(currentDate.toLocaleDateString('en-CA'))
-    loadReviews()
+async function initializeApp() {
+    currentDate = new Date();
+    userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    try {
+        const response = await fetch('/api/timezone', {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            'timezone': userTimeZone
+            })
+        })
+    } finally {
+        loadReviews();
+    }
+    
 }
 
 function checkSession() {
@@ -112,7 +125,6 @@ function checkSession() {
         fetch('/api/me')
         .then(r => r.json())
         .then(data => {
-            console.log(data)
             if (data.logged_in) {
                 loggedOutView.classList.remove('active');
                 loggedInView.classList.add('active');
@@ -426,13 +438,12 @@ function getMonthGrid(year, month) {  //0 = January
 };
 
 function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
-    console.log(dailylogByDate)
     const grid = getMonthGrid(year, month);
     const container = document.getElementById("calendar");
     container.innerHTML = "";
     const date = new Date(year, month);
     const actualCurrentDate = new Date();
-    monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric' })
+    monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric', timeZone: userTimeZone })
 
     for (const day of grid) {
         //<span class="due-tick" style="background: var(--level-${levelIndex})"></span>
@@ -443,12 +454,12 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
             cell.className = "day-cell";
             cell.textContent = day;
             const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            if (dateKey == actualCurrentDate.toLocaleDateString('en-CA')) {
+            if (dateKey == actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
                     cell.style.border = '2px solid #4a89dc';
                     cell.style.borderRadius = '5px';
             } //make today's date special yayyy
             if (reviewsByDate[dateKey] && dailylogByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
                     cell.style.background = "#d2d8e7"; 
                 } else {
                     cell.style.background = "#dbeafe"; 
@@ -469,7 +480,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                 }
                 cell.append(tickContainer)
             } else if (reviewsByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
                     cell.style.background = "#d2d8e7"; 
                 } else {
                     cell.style.background = "#dbeafe"; 
@@ -490,7 +501,7 @@ function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
                 }
                 cell.append(tickContainer)
             } else if (dailylogByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA')) {
+                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
                     cell.style.background = "rgb(212, 229, 218)";
                 } else {
                     cell.style.background = "#dbfee7"

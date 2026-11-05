@@ -60,6 +60,7 @@ def get_daily_logById(id):
     ))
 
     topic = cur.fetchone()
+    if topic is None: return None
     cur.close()
     release_db(conn)
     formatDates(dict(topic))

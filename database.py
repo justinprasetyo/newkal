@@ -11,7 +11,7 @@ DATABASE_URL = os.environ["DATABASE_URL"]
 levels = ['Beginner', 'Washed', 'Intermediate', 'Advanced', 'Mastered']
 intervals = [0, 1, 3, 7, 16, 35, 70, 180, 365]
 
-connection_pool = psycopg2.pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+connection_pool = psycopg2.pool.ThreadedConnectionPool(1, 10, DATABASE_URL)
 
 def get_db():
     #return psycopg2.connect(DATABASE_URL) #use when deploying
@@ -107,6 +107,7 @@ def get_topicById(id):
     ))
 
     topic = cur.fetchone()
+    if topic is None: return None
     cur.close()
     release_db(conn)
     formatDates(dict(topic))
