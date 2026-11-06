@@ -790,7 +790,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
         await openStatsPanel(undoReviewBtn.value)
         const topicRetRate = document.getElementById('skill-retention-rate');
-        tween(topicRetRate, Math.round(result['old_progress']), Math.round(result['progress']), 800)
+        tween(topicRetRate, Math.min(Math.round(result['old_progress']), 100), Math.min(Math.round(result['progress']), 100), 800)
 
         await loadReviews()
     
@@ -841,7 +841,7 @@ ratingButtons.forEach((btn, index) => {
         }
         skillLevelBadge.style.borderColor = LEVEL_COLORS[level_up.level];
         const topicRetRate = document.getElementById('skill-retention-rate');
-        tween(topicRetRate, parseInt(level_up['old_progress']), parseInt(level_up['progress']), 800)
+        tween(topicRetRate, Math.min(Math.round(level_up['old_progress']), 100), Math.min(Math.round(level_up['progress']), 100), 800)
         
     });     
 });
