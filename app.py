@@ -5,14 +5,13 @@ from flask_limiter.util import get_remote_address
 from flask_limiter.errors import RateLimitExceeded
 from psycopg2.extras import Json
 from dotenv import load_dotenv
-import requests, json
 import os
 
-from security import login, register, logout, login_required
-from database import init_db, create_topic, get_alltopics, delete_alltopics, load_topics, get_topicById, delete_topicById
+from security import login, register, login_required, VALID_TIMEZONES
+from database import create_topic, get_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
-from datetime import date, datetime, timedelta
+from datetime import date
 
 load_dotenv()
 app = Flask(__name__)
@@ -22,8 +21,6 @@ limiter = Limiter(get_remote_address, app=app)
 
 @app.route('/')
 def home():
-    init_db()
-    #delete_alltopics() # delete topics on startup 
     return render_template('index.html')
 
 @app.route('/api/me')
@@ -33,6 +30,9 @@ def whoami():
 @app.route('/api/timezone', methods=['POST'])
 def get_timezone():
     data = request.get_json()
+    if data['timezone'] not in VALID_TIMEZONES:
+        return {"status": "not valid timezone"}
+    session['tz'] = data['timezone']
     return jsonify({"status": 'recieved'})
 
 @app.route('/api/register', methods=['POST'])
@@ -47,7 +47,6 @@ def register_user():
 def login_user():
     data = request.get_json()
     result = login(data)
-    print(session)
     return jsonify(result)
 
 @app.route('/api/logout', methods=['POST'])
@@ -184,4 +183,4 @@ def handle_rate_limit(error):
 
 
 if __name__ == '__main__':
-    app.run(port=int(os.environ.get("PORT", 8080)), debug=False)
+    app.run(port=int(os.environ.get("PORT", 8080)), threaded=True, debug=False)

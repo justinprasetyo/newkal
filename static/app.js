@@ -103,6 +103,7 @@ function cacheElements() {
 async function initializeApp() {
     currentDate = new Date();
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    console.log(userTimeZone)
     try {
         const response = await fetch('/api/timezone', {
         method: 'POST',
@@ -789,7 +790,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
         await openStatsPanel(undoReviewBtn.value)
         const topicRetRate = document.getElementById('skill-retention-rate');
-        tween(topicRetRate, parseInt(result['old_progress']), parseInt(result['progress']), 800)
+        tween(topicRetRate, Math.round(result['old_progress']), Math.round(result['progress']), 800)
 
         await loadReviews()
     
