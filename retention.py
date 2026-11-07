@@ -1,8 +1,10 @@
 from flask import session
 from psycopg2.extras import RealDictCursor
 from datetime import date, datetime, timedelta
-from database import intervals, levels, get_db, get_alltopics
 import json
+
+from database import intervals, levels, get_db, get_alltopics
+from security import user_today
 
 def complete_review(id, rating):
     if type(rating) is not int or rating not in [0, 25, 50, 75, 100]:
@@ -36,11 +38,12 @@ def complete_review(id, rating):
         else: # good/perfect — advance normally
             new_step = min(old_step + 1, len(intervals) - 1)
 
-        if row['next_review'] >= date.today():
+        today = user_today()
+        if row['next_review'] >= today:
             new_next_review = row['next_review'] + timedelta(days=intervals[new_step])
         else: #if already late, use todays date as 'next_review'
-            new_next_review = date.today() + timedelta(days=intervals[new_step])
-        offset_days = (date.today() - row['next_review']).days #we still have the 'next_review' data point for easy access
+            new_next_review = today + timedelta(days=intervals[new_step])
+        offset_days = (today - row['next_review']).days #we still have the 'next_review' data point for easy access
 
         entry = {"date": str(new_next_review), "rating": rating, #'date' meaning next review date that completion created
                 "interval_step": new_step, "offset_days": offset_days}    
@@ -136,10 +139,11 @@ def undo_review(id):
 
 def get_ontime_percentage(): #700-800ms
     all_topics = get_alltopics()
+    today = user_today()
     late_reviews = 0
     all_reviews_count = 0
     for topic in all_topics:
-        if date.fromisoformat(topic['next_review']) < date.today(): #including NON-completed reviews that are overdue
+        if date.fromisoformat(topic['next_review']) < today: #including NON-completed reviews that are overdue
             late_reviews += 1
             all_reviews_count += 1
         for review in topic['review_log']:
@@ -168,7 +172,7 @@ def get_streak(): #700-800ms
         active_days = {row[0] for row in rows}
 
         streak = 0
-        day = date.today()
+        day = user_today()
         while day in active_days: #includes created topics from long and short term + review completion
             streak += 1
             day -= timedelta(days=1)

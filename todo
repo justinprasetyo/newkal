@@ -2,8 +2,7 @@
 in progress: timezones. I need python to know the timezone | i already set up /api/timezone post request, just need to make a user_today() helper function to replace date.today() in python functions for late days.
 
 
-LIMIT sql queries for RealDictCursor cuz it has to scan like so much
-im at #6.
+LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 
 navigation bar on top of screen for profile purposes/ settings and so we can contain logo better
 

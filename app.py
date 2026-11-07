@@ -7,7 +7,7 @@ from psycopg2.extras import Json
 from dotenv import load_dotenv
 import os
 
-from security import login, register, login_required, VALID_TIMEZONES
+from security import login, register, login_required, user_today, VALID_TIMEZONES
 from database import create_topic, get_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
@@ -63,14 +63,15 @@ def uploadInput():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
+    today = user_today()
     if data['daily_log'] and data['daily_log'] == True:
-        obj = {'name': data['input'], 'created_at': date.today(), 'description': ''}
+        obj = {'name': data['input'], 'created_at': today, 'description': ''}
         create_daily_log(obj)
         print('short term topic created')
         return jsonify(get_alltopics())
 
-    obj = {'name': data['input'], 'progress': 0, 'created_at': date.today(), 'interval_step': 0, 
-           'next_review': date.today(), 'level': 'Beginner', 'review_log': Json([])}
+    obj = {'name': data['input'], 'progress': 0, 'created_at': today, 'interval_step': 0, 
+           'next_review': today, 'level': 'Beginner', 'review_log': Json([])}
     
     create_topic(obj)
     return jsonify(get_alltopics())
