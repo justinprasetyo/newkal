@@ -636,7 +636,7 @@ todayMonthBtn.addEventListener('click', async () => {
 
         const responseLogs = await fetch('/api/daily_logs')
         const daily_logsList = await responseLogs.json()
-        today = new Date
+        const today = new Date()
         currentDate.setMonth(today.getMonth())
         currentDate.setFullYear(today.getFullYear())
         renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)

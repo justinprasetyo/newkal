@@ -1,6 +1,7 @@
 ******
-in progress: timezones. I need python to know the timezone | i already set up /api/timezone post request, just need to make a user_today() helper function to replace date.today() in python functions for late days.
+in progress: make complete_review reject reviews where next_review > user_today(). Also, grey out Done button for those reviews in css
 
+Add a temp route that returns request.remote_addr and request.headers.get('X-Forwarded-For'), look at it on Render, then add ProxyFix(app.wsgi_app, x_for=N) with N set to the real number of proxy hops. Remove the temp route afterward.
 
 LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 
