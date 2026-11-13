@@ -5,6 +5,7 @@ from flask_limiter.util import get_remote_address
 from flask_limiter.errors import RateLimitExceeded
 from psycopg2.extras import Json
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 
 from security import login, register, login_required, user_today, VALID_TIMEZONES
@@ -15,6 +16,7 @@ from datetime import date
 
 load_dotenv()
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
 CORS(app)
 app.secret_key = os.environ["SECRET_KEY"]
 limiter = Limiter(get_remote_address, app=app)
