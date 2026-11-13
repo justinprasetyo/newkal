@@ -745,7 +745,7 @@ deleteReviewCancelBtn.addEventListener('click', async () => {
 });
 
 completeSkillReviewBtn.addEventListener('click', async () => {
-    //statsPanel.classList.remove('active')  
+    //you can add a blocker here to disallow users from clicking done if next review > today
     skillsPanel.classList.remove('active')
 
     const topicName = document.getElementById('skill-name');
@@ -835,6 +835,9 @@ ratingButtons.forEach((btn, index) => {
     btn.addEventListener('click', async () => {
         completeReviewConfirmation.classList.remove('active');
         const level_up = await updateReviewById(completeSkillReviewBtn.value, btn.value)
+
+        if (level_up['error']) return "couldn't update review", 400
+
         await openStatsPanel(completeSkillReviewBtn.value)
         if (level_up['leveled_up']) {
             replay(skillLevelBadge, 'stamp');

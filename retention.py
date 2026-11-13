@@ -21,6 +21,9 @@ def complete_review(id, rating):
         if row is None:
             return None, 404
 
+        if user_today() < row['next_review']: 
+            return {'error': 'Unable to complete review, due date has not passed'}
+
         old_progress = row['progress']
         old_level = levels.index(row['level'])
         old_step = row['interval_step']
