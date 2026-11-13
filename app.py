@@ -25,13 +25,6 @@ limiter = Limiter(get_remote_address, app=app)
 def home():
     return render_template('index.html')
 
-@app.route('/debug-ip')
-def debug_ip():
-    return jsonify({
-        "remote_addr": request.remote_addr,
-        "x_forwarded_for": request.headers.get('X-Forwarded-For'),
-    })
-
 @app.route('/api/me')
 def whoami():
     return jsonify({"logged_in": 'user_id' in session})
