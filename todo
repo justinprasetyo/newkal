@@ -3,7 +3,13 @@ in progress: make complete_review reject reviews where next_review > user_today(
 
 progress note: i already made it reject. i just need a safer and better way to show that rejection to the user.
 
-Add a temp route that returns request.remote_addr and request.headers.get('X-Forwarded-For'), look at it on Render, then add ProxyFix(app.wsgi_app, x_for=N) with N set to the real number of proxy hops. Remove the temp route afterward.
+IN PROGRESS: refactor fetch calls in js to a single api(url, options){} function that takes api url and method, header, body as args.
+
+fix loadReviews() in app.js it keeps throwing errors sometimes when pages recently refreshed or the first time u call a certain api.
+*** PERCENTAGE AND STREAK ARE SUPER SLOW. it drags down time the most.
+
+
+
 
 LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 

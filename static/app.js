@@ -100,12 +100,30 @@ function cacheElements() {
 
 }
 
+async function api(url, options) {
+    let response;
+    showLoading()
+    try {
+        response = await fetch(url, options);
+    } catch {
+        throw new Error("can't reach the server");
+    } finally {
+        hideLoading();
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+        const err = new Error(data?.error || `request failed (${response.status})`);
+        err.status = response.status;
+        throw err;
+    }
+    return data;
+}
+
 async function initializeApp() {
     currentDate = new Date();
     userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     console.log(userTimeZone)
-    try {
-        const response = await fetch('/api/timezone', {
+    await api('/api/timezone', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -114,10 +132,7 @@ async function initializeApp() {
             'timezone': userTimeZone
             })
         })
-    } finally {
-        loadReviews();
-    }
-    
+    await loadReviews();
 }
 
 function checkSession() {
@@ -258,12 +273,8 @@ logoutConfirmBtn.addEventListener('click', async () => {
 })
 
 async function getInput(input, dailylog) {
-    if (input == "") {
-        return "Invalid input", 400
-    }
-    showLoading()
-    try {
-        const response = await fetch('/api/topics', {
+    if (input == "") return "Invalid input", 400;
+    await api('/api/topics', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -273,28 +284,14 @@ async function getInput(input, dailylog) {
             'daily_log': dailylog
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-    } finally {
-        hideLoading() 
-    }
-    loadReviews()
-    
+    await loadReviews()
 };
 
 async function updateReviewById(id, rating) {
-    let ratingInt = parseInt(rating)
-    if (Number.isNaN(ratingInt)) {
-        return 'Invalid rating', 400
-    }
-    showLoading()
-    try {
-        const response = await fetch('/api/topics/update', {
+    let ratingInt = parseInt(rating);
+    if (Number.isNaN(ratingInt)) return 'Invalid rating', 400;
+
+    const result = await api('/api/topics/update', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -304,23 +301,8 @@ async function updateReviewById(id, rating) {
             'rating': ratingInt
             })
         })
-        
-        if (!response.ok) {
-            //const message = await response.text();
-            //console.log(message);
-            return
-            throw new Error('Failed');
-        }
-        
-        const result = await response.json()
-        console.log(result)
-        await loadReviews()
-        return result
-        
-    } finally {
-        hideLoading()
-    }
-    
+    await loadReviews()
+    return result
 };
 
 async function loadReviews() {
@@ -340,8 +322,7 @@ async function loadReviews() {
 };
 
 async function getStatsById(id) {
-    try {
-        const response = await fetch('/api/topics/stats', {
+    const topicObj = await api('/api/topics/stats', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -350,35 +331,11 @@ async function getStatsById(id) {
             'id': id
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-        const topicObj = await response.json()
-        console.log(topicObj)
-        return topicObj
-    } catch(error) {
-
-    }
-    
-};
-
-function formatSkills(list) {
-    for (const skill of list) {
-        if (skill['next_review'] in exampleReviews) {
-            exampleReviews[skill['next_review']].push(skill);
-        } else {
-            exampleReviews[skill['next_review']] = [skill];
-        }
-    }
+    return topicObj
 };
 
 async function getLogById(id) {
-    try {
-        const response = await fetch('/api/daily_logs/content', {
+    const logObj = await api('/api/daily_logs/content', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -387,25 +344,11 @@ async function getLogById(id) {
             'id': id
             })
         })
-
-        if (!response.ok) {
-                const message = await response.text();
-                console.log(message);
-                throw new Error('Failed');
-        }
-
-        const logObj = await response.json()
-        return logObj
-    } catch(error) {
-
-    }
-    
+    return logObj
 };
 
 async function editLogDesc(id, desc) {
-    showLoading()
-    try {
-        const response = await fetch('/api/daily_logs/update/description', {
+    await api('/api/daily_logs/update/description', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -415,17 +358,6 @@ async function editLogDesc(id, desc) {
             'description': desc
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-    } finally {
-        hideLoading()
-    }
-    
 }
 
 function getMonthGrid(year, month) {  //0 = January
@@ -625,49 +557,40 @@ nextMonthBtn.addEventListener('click', async () => {
         logsResponse.json()
     ]);
 
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
-    }
-);
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
+});
 
 todayMonthBtn.addEventListener('click', async () => {
-        const response = await fetch('/api/topics')
-        const reviewsList = await response.json()
-
-        const responseLogs = await fetch('/api/daily_logs')
-        const daily_logsList = await responseLogs.json()
-        const today = new Date()
-        currentDate.setMonth(today.getMonth())
-        currentDate.setFullYear(today.getFullYear())
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
-    }
-);
+    const reviewsList = await api('/api/topics')
+    const daily_logsList = await api('/api/daily_logs')
+    const today = new Date()
+    currentDate.setMonth(today.getMonth())
+    currentDate.setFullYear(today.getFullYear())
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
+});
 
 userSubjectBtn.addEventListener('click', async () => {
-        topicTermConfirmation.classList.add('active')
-    }
-);
+    topicTermConfirmation.classList.add('active')
+});
 
 longTermTopicBtn.addEventListener('click', async () => {
-        getInput(userSubject.value, false)
-        topicTermConfirmation.classList.remove('active')
-    }
-);
+    getInput(userSubject.value, false)
+    topicTermConfirmation.classList.remove('active')
+});
 
 shortTermTopicBtn.addEventListener('click', async () => {
-        getInput(userSubject.value, true)
-        topicTermConfirmation.classList.remove('active')
-    }
-);
+    getInput(userSubject.value, true)
+    topicTermConfirmation.classList.remove('active')
+});
 
 allTopicsBtn.addEventListener('click', async () => { //testing button
-        const response = await fetch('/api/test')
-        //const result = await response.json()
-        //console.log(result)
-        skillLevelBadge.style.borderColor = LEVEL_COLORS["Mastered"];
-        replay(skillLevelBadge, 'stamp');
-    }
-);
+    const response = await api('/api/test')
+    //const result = await response.json()
+    //console.log(result)
+    skillLevelBadge.style.borderColor = LEVEL_COLORS["Mastered"];
+    replay(skillLevelBadge, 'stamp');
+});
 
 function switchTab(activeBtn, inactiveBtn, activePanel, inactivePanel) {
     activeBtn.classList.add('active');
@@ -685,24 +608,20 @@ tabDailyBtn.addEventListener('click', () =>
     switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2))
 
 skillsPanelCloseBtn.addEventListener('click', () => {
-        skillsPanel.classList.remove('active')
-    }
-);
+    skillsPanel.classList.remove('active')
+});
 
 statsPanelCloseBtn.addEventListener('click', () => {
-        statsPanel.classList.remove('active')
-    }
-);
+    statsPanel.classList.remove('active')
+});
 
 logContentPanelCloseBtn.addEventListener('click', () => {
-        logContentPanel.classList.remove('active')
-    }
-);
+    logContentPanel.classList.remove('active')
+});
 
 completeReviewCancel.addEventListener('click', () => {
-        completeReviewConfirmation.classList.remove('active')
-    }
-);
+    completeReviewConfirmation.classList.remove('active')
+});
 
 deleteSkillReviewBtn.addEventListener('click', async () => {
     const topicName = document.getElementById('skill-name');
@@ -715,9 +634,8 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
 });
 
 deleteReviewConfirmBtn.addEventListener('click', async () => {
-    showLoading()
-    try {
-        const response = await fetch('/api/topics/delete', {
+    deleteReviewConfirmation.classList.remove('active')
+    await api('/api/topics/delete', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -726,18 +644,7 @@ deleteReviewConfirmBtn.addEventListener('click', async () => {
             'id': deleteSkillReviewBtn.value
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-        await loadReviews()
-        deleteReviewConfirmation.classList.remove('active')
-    } finally {
-        hideLoading()
-    }
+    await loadReviews()
 });
 
 deleteReviewCancelBtn.addEventListener('click', async () => {
@@ -767,9 +674,8 @@ undoReviewCancelBtn.addEventListener('click', async () => {
 });
 
 undoReviewConfirmBtn.addEventListener('click', async () => {
-    showLoading()
-    try {
-        const response = await fetch('/api/topics/undo', {
+    undoReviewConfirmation.classList.remove('active')
+    const result = await api('/api/topics/undo', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -778,27 +684,11 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
             'id': undoReviewBtn.value
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-        const result = await response.json();
-        undoReviewConfirmation.classList.remove('active')
-        skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
-        await openStatsPanel(undoReviewBtn.value)
-        const topicRetRate = document.getElementById('skill-retention-rate');
-        tween(topicRetRate, Math.min(Math.round(result['old_progress']), 100), Math.min(Math.round(result['progress']), 100), 800)
-
-        await loadReviews()
-    
-    } finally {
-        hideLoading()
-    }
-        
-    
+    skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
+    await openStatsPanel(undoReviewBtn.value)
+    const topicRetRate = document.getElementById('skill-retention-rate');
+    tween(topicRetRate, Math.min(Math.round(result['old_progress']), 100), Math.min(Math.round(result['progress']), 100), 800)
+    await loadReviews()
 });
 
 function reviewButtons() { // make skills clickable
@@ -831,7 +721,7 @@ function logButtons() { // make logs clickable
     });
 }
 
-ratingButtons.forEach((btn, index) => {
+ratingButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
         completeReviewConfirmation.classList.remove('active');
         const level_up = await updateReviewById(completeSkillReviewBtn.value, btn.value)
@@ -864,9 +754,8 @@ deleteLogCancelBtn.addEventListener('click', async () => {
 });
 
 deleteLogConfirmBtn.addEventListener('click', async () => {
-    showLoading()
-    try {
-        const response = await fetch('/api/daily_logs/delete', {
+    deleteLogConfirmation.classList.remove('active')
+    await api('/api/daily_logs/delete', {
         method: "POST",
         headers: {
             'Content-type': 'application/json'
@@ -875,18 +764,7 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
             'id': deleteLogBtn.value
             })
         })
-
-    if (!response.ok) {
-        const message = await response.text();
-        console.log(message);
-        throw new Error('Failed');
-    }
-
     await loadReviews()
-    deleteLogConfirmation.classList.remove('active')
-    } finally {
-        hideLoading()
-    }
 });
         
 
