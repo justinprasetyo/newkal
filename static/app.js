@@ -100,15 +100,15 @@ function cacheElements() {
 
 }
 
-async function api(url, options) {
+async function api(url, options, background) {
     let response;
-    showLoading()
+    if (!background) showLoading();
     try {
         response = await fetch(url, options);
     } catch {
         throw new Error("can't reach the server");
     } finally {
-        hideLoading();
+        if (!background) hideLoading();
     }
     const data = await response.json().catch(() => null);
     if (!response.ok) {
@@ -133,6 +133,7 @@ async function initializeApp() {
             })
         })
     await loadReviews();
+    loadUserConsistency()
 }
 
 function checkSession() {
@@ -285,6 +286,7 @@ async function getInput(input, dailylog) {
             })
         })
     await loadReviews()
+    loadUserConsistency()
 };
 
 async function updateReviewById(id, rating) {
@@ -302,23 +304,32 @@ async function updateReviewById(id, rating) {
             })
         })
     await loadReviews()
+    loadUserConsistency()
     return result
 };
 
 async function loadReviews() {
-    const [responseReviews, responseLogs, percentageOnTimeReviews, streakCount] = await Promise.all([
-        fetch('/api/topics'), fetch('/api/daily_logs'), 
+    const [responseReviews, responseLogs] = await Promise.all([
+        fetch('/api/topics'), fetch('/api/daily_logs')
+    ]);
+
+    const [reviewsList, daily_logsList] = await Promise.all([
+        responseReviews.json(), responseLogs.json()
+    ]);
+
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
+};
+
+async function loadUserConsistency() {
+    const [percentageOnTimeReviews, streakCount] = await Promise.all([
         fetch('/api/topics/percentage'), fetch('/api/streak')
     ]);
 
-    const [reviewsList, daily_logsList, percentage, streak] = await Promise.all([
-        responseReviews.json(), responseLogs.json(), 
+    const [percentage, streak] = await Promise.all([
         percentageOnTimeReviews.json(), streakCount.json()
     ]);
-
     percentageOnTime.textContent = percentage + "% reviews done on time"
     streakCounter.textContent = "Daily-learning streak: " + streak
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
 
 async function getStatsById(id) {
@@ -645,6 +656,7 @@ deleteReviewConfirmBtn.addEventListener('click', async () => {
             })
         })
     await loadReviews()
+    loadUserConsistency()
 });
 
 deleteReviewCancelBtn.addEventListener('click', async () => {
@@ -689,6 +701,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
     const topicRetRate = document.getElementById('skill-retention-rate');
     tween(topicRetRate, Math.min(Math.round(result['old_progress']), 100), Math.min(Math.round(result['progress']), 100), 800)
     await loadReviews()
+    loadUserConsistency()
 });
 
 function reviewButtons() { // make skills clickable
@@ -765,6 +778,7 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
             })
         })
     await loadReviews()
+    loadUserConsistency()
 });
         
 
