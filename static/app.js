@@ -1,4 +1,4 @@
-import { replay, tween } from "./animation.js";
+import { replay, tween, showLoading, hideLoading } from "./animation.js";
 
 const loginUsername = document.getElementById('login-username');
 const loginPassword = document.getElementById('login-password');
@@ -9,7 +9,7 @@ const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
 const loginWarningTxt = document.getElementById('login-warning-text');
 
-let loadingBar, percentageOnTime, streakCounter
+let percentageOnTime, streakCounter
 
 let userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
@@ -40,7 +40,6 @@ const LEVEL_COLORS = {
 };
 
 function cacheElements() {
-    loadingBar = document.getElementById('loading-bar');
     percentageOnTime = document.getElementById('percentage-ontime');
     streakCounter = document.getElementById('streak-count');
 
@@ -96,11 +95,6 @@ function cacheElements() {
     undoReviewConfirmBtn = document.getElementById('undo-review-confirm');
     undoReviewCancelBtn = document.getElementById('undo-review-cancel');
 
-    logoutBtn = document.getElementById('logout-btn');
-    logoutConfirmation = document.getElementById('logout-confirmation');
-    logoutConfirmBtn = document.getElementById('logout-confirm');
-    logoutCancelBtn = document.getElementById('logout-cancel');
-
 }
 
 async function api(url, options, background, toast) {
@@ -147,7 +141,7 @@ async function initializeApp() {
     loadUserConsistency()
 }
 
-async function checkSession() {
+export async function checkSession() {
     showLoading()
     try {
         await fetch('/api/me')
@@ -166,7 +160,6 @@ async function checkSession() {
     } finally {
         hideLoading()
     }
-    
 }
 
 async function showError(msg) {
@@ -187,116 +180,8 @@ async function showError(msg) {
     
 }
 
-function showLoading() {
-    loadingBar.classList.remove('done');
-    loadingBar.classList.add('active');
-}
-
-function hideLoading() {
-    loadingBar.classList.add('done');
-    setTimeout(() => loadingBar.classList.remove('active', 'done'), 300);
-}
-
-loginBtn.addEventListener('click', async () => { // TODO: switch to api()
-    if (loginUsername.value == "" || loginPassword.value == "") {
-        loginWarningTxt.textContent = 'Invalid login input'
-        return 'Invalid login input', 400
-    } 
-    showLoading()
-    try {
-        const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            'username': loginUsername.value,
-            'password': loginPassword.value
-            })
-        })
-        if (!response.ok) {
-            const result = await response.json()
-            console.log(result)
-            loginWarningTxt.textContent = result.status
-            throw new Error('Failed');
-        }
-        checkSession()
-    } catch {
-        
-    } finally {
-        hideLoading()
-    }
-})
-
-registerBtn.addEventListener('click', async () => { // TODO: switch to api()
-    if (loginUsername.value == "" || loginPassword.value == "") {
-        loginWarningTxt.textContent = 'Invalid login input'
-        return 'Invalid login input', 400
-    } 
-    showLoading()
-    try {
-        const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            'username': loginUsername.value,
-            'password': loginPassword.value
-            })
-        })
-
-        if (!response.ok) {
-            const result = await response.json();
-            loginWarningTxt.textContent = result.status
-            throw new Error('Failed');
-        }
-        checkSession()
-    } catch {
-
-    } finally {
-        hideLoading()
-    }
-})
-
 cacheElements();   // safe to run immediately, needs the DOM to exist, not login state
 checkSession();    // decides whether initializeApp() runs
-
-logoutBtn.addEventListener('click', async () => {
-    logoutConfirmation.classList.add('active')
-})
-
-logoutCancelBtn.addEventListener('click', async () => {
-    logoutConfirmation.classList.remove('active')
-})
-
-logoutConfirmBtn.addEventListener('click', async () => {
-    showLoading()
-    try {
-        const response = await fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            })
-        })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
-        logoutConfirmation.classList.remove('active')
-        checkSession()
-
-    } finally {
-        hideLoading()
-    }
-    
-    
-})
 
 async function getInput(input, dailylog) {
     if (input == "") return "Invalid input", 400;

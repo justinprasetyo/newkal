@@ -22,3 +22,15 @@ export function tween(el, from, to, ms) {
     }
     requestAnimationFrame(step);
 }
+
+export function showLoading() {
+    const loadingBar = document.getElementById('loading-bar');
+    loadingBar.classList.remove('done');
+    loadingBar.classList.add('active');
+}
+
+export function hideLoading() {
+    const loadingBar = document.getElementById('loading-bar');
+    loadingBar.classList.add('done');
+    setTimeout(() => loadingBar.classList.remove('active', 'done'), 300);
+}
