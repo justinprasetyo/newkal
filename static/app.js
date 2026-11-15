@@ -147,10 +147,10 @@ async function initializeApp() {
     loadUserConsistency()
 }
 
-function checkSession() {
+async function checkSession() {
     showLoading()
     try {
-        fetch('/api/me')
+        await fetch('/api/me')
         .then(r => r.json())
         .then(data => {
             if (data.logged_in) {
