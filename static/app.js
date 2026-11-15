@@ -9,7 +9,9 @@ const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
 const loginWarningTxt = document.getElementById('login-warning-text');
 
-let loadingBar, percentageOnTime, streakCounter, userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
+let loadingBar, percentageOnTime, streakCounter
+
+let userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
 let monthLabel, prevMonthBtn, nextMonthBtn, todayMonthBtn 
 
@@ -41,6 +43,7 @@ function cacheElements() {
     loadingBar = document.getElementById('loading-bar');
     percentageOnTime = document.getElementById('percentage-ontime');
     streakCounter = document.getElementById('streak-count');
+
     userSubject = document.getElementById('daily-subject');
     userSubjectBtn = document.getElementById('daily-subject-btn');
     topicTermConfirmation = document.getElementById('topic-term-confirmation');
@@ -118,7 +121,7 @@ async function api(url, options, background, toast) {
         return data;
     } catch (err) {
         if (toast && !background) {
-            //showError(err.message);
+            showError(err.message);
             err.shown = true;   // so global listener can skip it
         }
         throw err;
@@ -163,6 +166,23 @@ function checkSession() {
     } finally {
         hideLoading()
     }
+    
+}
+
+async function showError(msg) {
+    const errorPopup = document.createElement("div");
+    errorPopup.id = 'error-popup';
+    errorPopup.classList.add('error-popup');
+
+    const text = document.createElement("h4");
+    text.id = 'error-popup-text';
+    text.textContent = msg;
+
+    errorPopup.append(text)
+    document.body.append(errorPopup);
+    errorPopup.classList.add('active');
+    setTimeout(() => errorPopup.classList.remove('active'), 3000);
+    setTimeout(() => errorPopup.remove(), 3500);
     
 }
 
@@ -604,6 +624,7 @@ shortTermTopicBtn.addEventListener('click', async () => {
 });
 
 allTopicsBtn.addEventListener('click', async () => { //testing button
+    showError('test test error lol')
     const response = await api('/api/test')
     //const result = await response.json()
     //console.log(result)
