@@ -1,14 +1,13 @@
 import { showLoading, hideLoading } from "./animation.js";
 import { checkSession } from "./app.js";
+import { api } from "./api.js";
+
+const loginWarningTxt = document.getElementById('login-warning-text');
 
 const loginUsername = document.getElementById('login-username');
 const loginPassword = document.getElementById('login-password');
 const loginBtn = document.getElementById('login-btn');
 const registerBtn = document.getElementById('register-btn');
-
-const loggedInView = document.getElementById('logged-in-view');
-const loggedOutView = document.getElementById('logged-out-view');
-const loginWarningTxt = document.getElementById('login-warning-text');
 
 const logoutBtn = document.getElementById('logout-btn');
 const logoutConfirmation = document.getElementById('logout-confirmation');

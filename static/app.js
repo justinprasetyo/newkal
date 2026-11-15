@@ -1,13 +1,8 @@
 import { replay, tween, showLoading, hideLoading } from "./animation.js";
-
-const loginUsername = document.getElementById('login-username');
-const loginPassword = document.getElementById('login-password');
-const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
+import { api } from "./api.js";
 
 const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
-const loginWarningTxt = document.getElementById('login-warning-text');
 
 let percentageOnTime, streakCounter
 
@@ -95,33 +90,6 @@ function cacheElements() {
     undoReviewConfirmBtn = document.getElementById('undo-review-confirm');
     undoReviewCancelBtn = document.getElementById('undo-review-cancel');
 
-}
-
-async function api(url, options, background, toast) {
-    if (!background) showLoading();
-    try {
-        let response;
-        try {
-            response = await fetch(url, options);
-        } catch {
-            throw new Error("can't reach the server");
-        } 
-        const data = await response.json().catch(() => null);
-        if (!response.ok) {
-            const err = new Error(data?.error || `request failed (${response.status})`);
-            err.status = response.status;
-            throw err;
-        }
-        return data;
-    } catch (err) {
-        if (toast && !background) {
-            showError(err.message);
-            err.shown = true;   // so global listener can skip it
-        }
-        throw err;
-    } finally {
-        if (!background) hideLoading();
-    }
 }
 
 async function initializeApp() {
