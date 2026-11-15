@@ -197,7 +197,7 @@ function hideLoading() {
     setTimeout(() => loadingBar.classList.remove('active', 'done'), 300);
 }
 
-loginBtn.addEventListener('click', async () => {
+loginBtn.addEventListener('click', async () => { // TODO: switch to api()
     if (loginUsername.value == "" || loginPassword.value == "") {
         loginWarningTxt.textContent = 'Invalid login input'
         return 'Invalid login input', 400
@@ -214,23 +214,21 @@ loginBtn.addEventListener('click', async () => {
             'password': loginPassword.value
             })
         })
-
         if (!response.ok) {
-            const message = await response.text();
-            loginWarningTxt.textContent = message
+            const result = await response.json()
+            console.log(result)
+            loginWarningTxt.textContent = result.status
             throw new Error('Failed');
         }
-
-        const result = await response.json()
-        loginWarningTxt.textContent = result[0]?.status
         checkSession()
-
+    } catch {
+        
     } finally {
         hideLoading()
     }
 })
 
-registerBtn.addEventListener('click', async () => {
+registerBtn.addEventListener('click', async () => { // TODO: switch to api()
     if (loginUsername.value == "" || loginPassword.value == "") {
         loginWarningTxt.textContent = 'Invalid login input'
         return 'Invalid login input', 400
@@ -249,14 +247,12 @@ registerBtn.addEventListener('click', async () => {
         })
 
         if (!response.ok) {
-            const message = await response.text();
-            loginWarningTxt.textContent = message
+            const result = await response.json();
+            loginWarningTxt.textContent = result.status
             throw new Error('Failed');
         }
-
-        const result = await response.json()
-        loginWarningTxt.textContent = result[0]?.status
         checkSession()
+    } catch {
 
     } finally {
         hideLoading()

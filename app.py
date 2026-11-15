@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 
-from security import login, register, login_required, user_today, VALID_TIMEZONES
+from security import login, register, logout, login_required, user_today, VALID_TIMEZONES
 from database import create_topic, get_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
@@ -42,20 +42,20 @@ def get_timezone():
 def register_user():
     data = request.get_json()
     result = register(data)
-    return jsonify(result)
+    return result
 
 @app.route('/api/login', methods=['POST'])
 @limiter.limit("5 per 5 minutes")
 def login_user():
     data = request.get_json()
     result = login(data)
-    return jsonify(result)
+    return result
 
 @app.route('/api/logout', methods=['POST'])
 @login_required
 def logout_user():
-    session.pop('user_id', None)
-    return jsonify({"status": "logged out"})
+    result = logout()
+    return result
 
 @app.route('/api/topics', methods=['POST'])
 @login_required

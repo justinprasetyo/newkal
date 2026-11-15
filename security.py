@@ -30,13 +30,13 @@ def register(data):
             cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s) RETURNING id", (username, hashed))
         except psycopg2.errors.UniqueViolation:
             conn.rollback()
-            return {"status": "error: username already taken"}, 409
+            return jsonify({"status": "error: username already taken"}), 409
         
         user_id = cur.fetchone()[0]
         conn.commit()
 
         session['user_id'] = user_id   # logs them in immediately after registering
-        return {"status": "account registered"}
+        return jsonify({"status": "account registered"})
 
 def login(data):
     with get_db() as conn, conn.cursor() as cur:
@@ -44,12 +44,12 @@ def login(data):
         user = cur.fetchone()
 
         if user is None or not check_password_hash(user[1], data['password']):
-            return {"status": "error: invalid username or password"}, 401
+            return jsonify({"status": "error: invalid username or password"}), 401
 
         session['user_id'] = user[0]
-        return {"status": "logged in"}
+        return jsonify({"status": "logged in"})
 
 def logout():
     session.pop('user_id', None)
     session.pop('tz', None)
-    return {"status": "logged out"}
+    return jsonify({"status": "logged out"})
