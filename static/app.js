@@ -100,23 +100,31 @@ function cacheElements() {
 
 }
 
-async function api(url, options, background) {
-    let response;
+async function api(url, options, background, toast) {
     if (!background) showLoading();
     try {
-        response = await fetch(url, options);
-    } catch {
-        throw new Error("can't reach the server");
+        let response;
+        try {
+            response = await fetch(url, options);
+        } catch {
+            throw new Error("can't reach the server");
+        } 
+        const data = await response.json().catch(() => null);
+        if (!response.ok) {
+            const err = new Error(data?.error || `request failed (${response.status})`);
+            err.status = response.status;
+            throw err;
+        }
+        return data;
+    } catch (err) {
+        if (toast && !background) {
+            //showError(err.message);
+            err.shown = true;   // so global listener can skip it
+        }
+        throw err;
     } finally {
         if (!background) hideLoading();
     }
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-        const err = new Error(data?.error || `request failed (${response.status})`);
-        err.status = response.status;
-        throw err;
-    }
-    return data;
 }
 
 async function initializeApp() {
@@ -131,7 +139,7 @@ async function initializeApp() {
         body: JSON.stringify({
             'timezone': userTimeZone
             })
-        })
+        }, false, false)
     await loadReviews();
     loadUserConsistency()
 }
@@ -284,7 +292,7 @@ async function getInput(input, dailylog) {
             'input': input,
             'daily_log': dailylog
             })
-        })
+        }, false, true)
     await loadReviews()
     loadUserConsistency()
 };
@@ -302,7 +310,7 @@ async function updateReviewById(id, rating) {
             'id': id,
             'rating': ratingInt
             })
-        })
+        }, false, true)
     await loadReviews()
     loadUserConsistency()
     return result
@@ -341,7 +349,7 @@ async function getStatsById(id) {
         body: JSON.stringify({
             'id': id
             })
-        })
+        }, true, true)
     return topicObj
 };
 
@@ -354,7 +362,7 @@ async function getLogById(id) {
         body: JSON.stringify({
             'id': id
             })
-        })
+        }, true, true)
     return logObj
 };
 
@@ -368,7 +376,7 @@ async function editLogDesc(id, desc) {
             'id': id,
             'description': desc
             })
-        })
+        }, false, true)
 }
 
 function getMonthGrid(year, month) {  //0 = January
@@ -573,8 +581,8 @@ nextMonthBtn.addEventListener('click', async () => {
 });
 
 todayMonthBtn.addEventListener('click', async () => {
-    const reviewsList = await api('/api/topics')
-    const daily_logsList = await api('/api/daily_logs')
+    const reviewsList = await api('/api/topics', {}, true, true)
+    const daily_logsList = await api('/api/daily_logs', {}, true, true)
     const today = new Date()
     currentDate.setMonth(today.getMonth())
     currentDate.setFullYear(today.getFullYear())
@@ -654,7 +662,7 @@ deleteReviewConfirmBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             'id': deleteSkillReviewBtn.value
             })
-        })
+        }, false, true)
     await loadReviews()
     loadUserConsistency()
 });
@@ -695,7 +703,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             'id': undoReviewBtn.value
             })
-        })
+        }, false, true)
     skillLevelBadge.style.borderColor = LEVEL_COLORS[result.level];
     await openStatsPanel(undoReviewBtn.value)
     const topicRetRate = document.getElementById('skill-retention-rate');
@@ -776,7 +784,7 @@ deleteLogConfirmBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             'id': deleteLogBtn.value
             })
-        })
+        }, false, true)
     await loadReviews()
     loadUserConsistency()
 });

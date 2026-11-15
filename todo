@@ -3,11 +3,11 @@ in progress: make complete_review reject reviews where next_review > user_today(
 
 progress note: i already made it reject. i just need a safer and better way to show that rejection to the user.
 
-IN PROGRESS: refactor fetch calls in js to a single api(url, options){} function that takes api url and method, header, body as args.
+**IN PROGRESS**: refactor fetch calls in js to a single api(url, options){} function that takes api url and method, header, body as args.
 
-fix loadReviews() in app.js it keeps throwing errors sometimes when pages recently refreshed or the first time u call a certain api.
-*** PERCENTAGE AND STREAK ARE SUPER SLOW. it drags down time the most.
+*[might be fixed?]* fix loadReviews() in app.js it keeps throwing errors sometimes when pages recently refreshed or the first time u call a certain api.
 
+***TODO***: make showError(err.message) popup func in app.js (toaster) AND make an error listener for any remaining errors (skip if err.shown == true)
 
 
 
