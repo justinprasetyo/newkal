@@ -170,6 +170,7 @@ function checkSession() {
 }
 
 async function showError(msg) {
+    const errorDiv = document.getElementById('error-messages');
     const errorPopup = document.createElement("div");
     errorPopup.id = 'error-popup';
     errorPopup.classList.add('error-popup');
@@ -179,7 +180,7 @@ async function showError(msg) {
     text.textContent = msg;
 
     errorPopup.append(text)
-    document.body.append(errorPopup);
+    errorDiv.append(errorPopup);
     errorPopup.classList.add('active');
     setTimeout(() => errorPopup.classList.remove('active'), 3000);
     setTimeout(() => errorPopup.remove(), 3500);
