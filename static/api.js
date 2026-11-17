@@ -1,4 +1,5 @@
 import { showLoading, hideLoading } from "./animation.js";
+import { showError } from "./app.js"
 
 export async function api(url, options, background, toast) {
     if (!background) showLoading();
@@ -17,6 +18,7 @@ export async function api(url, options, background, toast) {
         }
         return data;
     } catch (err) {
+        if (background) err.quiet = true;
         if (toast && !background) {
             showError(err.message);
             err.shown = true;   // so global listener can skip it

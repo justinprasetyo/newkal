@@ -122,7 +122,7 @@ export async function checkSession() {
     }
 }
 
-async function showError(msg) {
+export async function showError(msg) {
     const errorDiv = document.getElementById('error-messages');
     const errorPopup = document.createElement("div");
     errorPopup.id = 'error-popup';
@@ -139,6 +139,28 @@ async function showError(msg) {
     setTimeout(() => errorPopup.remove(), 3500);
     
 }
+
+//UNHANDLED ERRORS HANDLING
+window.addEventListener('unhandledrejection', (event) => {
+    const err = event.reason;
+    if (err.status === 401) {
+        checkSession();
+        showError("Please log in again. Your session has expired");
+    }
+
+    if (err?.shown || err?.quiet) return;
+    if (err?.status) {
+        showError(err?.message);
+        return;
+    };
+    showError("Something went wrong");
+    console.error(err);
+});
+
+window.addEventListener('error', (event) => { 
+    console.error(event.error || event.message);
+    showError("Something went wrong");
+});
 
 cacheElements();   // safe to run immediately, needs the DOM to exist, not login state
 checkSession();    // decides whether initializeApp() runs
