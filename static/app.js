@@ -1,5 +1,6 @@
 import { replay, tween, showLoading, hideLoading } from "./animation.js";
 import { api } from "./api.js";
+import { renderCalendar } from "./calendar.js";
 
 const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
@@ -8,11 +9,9 @@ let percentageOnTime, streakCounter
 
 let userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
-let monthLabel, prevMonthBtn, nextMonthBtn, todayMonthBtn 
+let skillsList, skillsPanelCloseBtn, skillsTable 
 
-let skillsPanel, skillsPanelCloseBtn, skillsTable 
-
-let tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel, dailyTable
+let tabSkillsBtn, tabDailyBtn, skillsPanel, dailyPanel, dailyTable
 
 let statsPanel, statsPanelCloseBtn, deleteSkillReviewBtn, completeSkillReviewBtn, completeReviewConfirmation, completeReviewConfirmationTxt, completeReviewCancel, ratingButtons, skillLevelBadge 
 
@@ -22,11 +21,9 @@ let deleteReviewConfirmation, deleteReviewConfirmBtn, deleteReviewCancelBtn
 
 let undoReviewBtn, undoReviewConfirmation, undoReviewConfirmBtn, undoReviewCancelBtn 
 
-let logoutBtn, logoutConfirmation, logoutConfirmBtn, logoutCancelBtn
+export let currentDate, userTimeZone
 
-let currentDate, userTimeZone
-
-const LEVEL_COLORS = {
+export const LEVEL_COLORS = {
     'Beginner': 'var(--level-0)',
     'Washed': 'var(--level-1)',
     'Intermediate': 'var(--level-2)',
@@ -46,18 +43,13 @@ function cacheElements() {
 
     allTopicsBtn = document.getElementById('all-topics-btn');
 
-    monthLabel = document.getElementById('month-label');
-    prevMonthBtn = document.getElementById('prev-month-btn');
-    nextMonthBtn = document.getElementById('next-month-btn');
-    todayMonthBtn = document.getElementById('today-month-btn');
-
-    skillsPanel = document.getElementById('skills-list');
+    skillsList = document.getElementById('skills-list');
     skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
     skillsTable = document.getElementById('skills-table');
 
     tabSkillsBtn = document.getElementById('tab-skills-btn');
     tabDailyBtn = document.getElementById('tab-daily-btn');
-    skillsPanel2 = document.getElementById('skills-panel');
+    skillsPanel = document.getElementById('skills-panel');
     dailyPanel = document.getElementById('daily-panel');
     dailyTable = document.getElementById('daily-table');
 
@@ -249,98 +241,7 @@ async function editLogDesc(id, desc) {
         }, false, true)
 }
 
-function getMonthGrid(year, month) {  //0 = January
-    const firstDay = new Date(year, month, 1).getDay(); //0 = Sunday
-    const daysInMonth = new Date(year, month + 1, 0).getDate(); // day 0 = last day of last month
-
-    const cells = [];
-    for (let i = 0; i < firstDay; i++) cells.push(null); // skipping w/ blank padding before first actual day (if 0, no padding cuz calendar starts at sunday anyway)
-    for (let day = 1; day <= daysInMonth; day++) cells.push(day);
-    return cells;
-};
-
-function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
-    const grid = getMonthGrid(year, month);
-    const container = document.getElementById("calendar");
-    container.innerHTML = "";
-    const date = new Date(year, month);
-    const actualCurrentDate = new Date();
-    monthLabel.textContent = date.toLocaleDateString('default', { month: 'long', year: 'numeric', timeZone: userTimeZone })
-
-    for (const day of grid) {
-        //<span class="due-tick" style="background: var(--level-${levelIndex})"></span>
-        const cell = document.createElement("div");
-        if (day === null) {
-            cell.className = "day-cell empty";
-        } else {
-            cell.className = "day-cell";
-            cell.textContent = day;
-            const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            if (dateKey == actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
-                    cell.style.border = '2px solid #4a89dc';
-                    cell.style.borderRadius = '5px';
-            } //make today's date special yayyy
-            if (reviewsByDate[dateKey] && dailylogByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
-                    cell.style.background = "#d2d8e7"; 
-                } else {
-                    cell.style.background = "#dbeafe"; 
-                } // highlight days with a scheduled review
-                cell.addEventListener("click", () => {
-                    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
-                    openSkillsPanel(reviewsByDate[dateKey], dateKey)
-                    openLogsPanel(dailylogByDate[dateKey])
-                });
-                const tickContainer = document.createElement("div")
-                tickContainer.className = "due-ticks"
-
-                for (const topic of reviewsByDate[dateKey]) {
-                    const tick = document.createElement("span")
-                    tick.className = "due-tick"
-                    tick.style.background = LEVEL_COLORS[topic.level] || LEVEL_COLORS['Beginner'];
-                    tickContainer.append(tick)
-                }
-                cell.append(tickContainer)
-            } else if (reviewsByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
-                    cell.style.background = "#d2d8e7"; 
-                } else {
-                    cell.style.background = "#dbeafe"; 
-                } // highlight days with a scheduled review
-                cell.addEventListener("click", () => {
-                    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel)
-                    openSkillsPanel(reviewsByDate[dateKey], dateKey)
-                    openLogsPanel([])
-                });
-                const tickContainer = document.createElement("div")
-                tickContainer.className = "due-ticks"
-
-                for (const topic of reviewsByDate[dateKey]) {
-                    const tick = document.createElement("span")
-                    tick.className = "due-tick"
-                    tick.style.background = LEVEL_COLORS[topic.level] || LEVEL_COLORS['Beginner'];
-                    tickContainer.append(tick)
-                }
-                cell.append(tickContainer)
-            } else if (dailylogByDate[dateKey]) {
-                if (dateKey < actualCurrentDate.toLocaleDateString('en-CA', {timeZone: userTimeZone})) {
-                    cell.style.background = "rgb(212, 229, 218)";
-                } else {
-                    cell.style.background = "#dbfee7"
-                }
-                cell.addEventListener("click", () => {
-                    openSkillsPanel([], dateKey)
-                    openLogsPanel(dailylogByDate[dateKey])
-                    switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2)
-                });
-                
-            }
-        } 
-        container.appendChild(cell);
-    }
-};
-
-function openLogsPanel(logs_list) {
+export function openLogsPanel(logs_list) {
     dailyTable.innerHTML = ""
     logEditTools.classList.remove('active');
 
@@ -372,10 +273,10 @@ async function openLogContent(log_id) {
     deleteLogBtn.value = obj['id']
 }
 
-function openSkillsPanel(skills_list, dateKey) {
+export function openSkillsPanel(skills_list, dateKey) {
     statsPanel.classList.remove('active')
     logContentPanel.classList.remove('active')
-    skillsPanel.classList.add('active')
+    skillsList.classList.add('active')
     skillsTable.innerHTML = ""
 
     for (const skill of skills_list) {
@@ -419,46 +320,6 @@ async function openStatsPanel(skill_id) {
     undoReviewBtn.value = obj['id']
 }
 
-prevMonthBtn.addEventListener('click', async () => {
-    const [topicsResponse, logsResponse] = await Promise.all([
-        fetch('/api/topics'),
-        fetch('/api/daily_logs')
-    ]);
-
-    const [topics, logs] = await Promise.all([
-        topicsResponse.json(),
-        logsResponse.json()
-    ]);
-
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
-    }
-);
-
-nextMonthBtn.addEventListener('click', async () => {
-    const [topicsResponse, logsResponse] = await Promise.all([
-        fetch('/api/topics'),
-        fetch('/api/daily_logs')
-    ]);
-
-    const [topics, logs] = await Promise.all([
-        topicsResponse.json(),
-        logsResponse.json()
-    ]);
-
-    currentDate.setMonth(currentDate.getMonth() + 1);
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), topics, logs)
-});
-
-todayMonthBtn.addEventListener('click', async () => {
-    const reviewsList = await api('/api/topics', {}, true, true)
-    const daily_logsList = await api('/api/daily_logs', {}, true, true)
-    const today = new Date()
-    currentDate.setMonth(today.getMonth())
-    currentDate.setFullYear(today.getFullYear())
-    renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
-});
-
 userSubjectBtn.addEventListener('click', async () => {
     topicTermConfirmation.classList.add('active')
 });
@@ -482,7 +343,7 @@ allTopicsBtn.addEventListener('click', async () => { //testing button
     replay(skillLevelBadge, 'stamp');
 });
 
-function switchTab(activeBtn, inactiveBtn, activePanel, inactivePanel) {
+export function switchTab(activeBtn, inactiveBtn, activePanel, inactivePanel) {
     activeBtn.classList.add('active');
     activeBtn.setAttribute('aria-selected', 'true');
     inactiveBtn.classList.remove('active');
@@ -492,13 +353,13 @@ function switchTab(activeBtn, inactiveBtn, activePanel, inactivePanel) {
 }
 
 tabSkillsBtn.addEventListener('click', () =>
-    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel2, dailyPanel))
+    switchTab(tabSkillsBtn, tabDailyBtn, skillsPanel, dailyPanel))
 
 tabDailyBtn.addEventListener('click', () =>
-    switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel2))
+    switchTab(tabDailyBtn, tabSkillsBtn, dailyPanel, skillsPanel))
 
 skillsPanelCloseBtn.addEventListener('click', () => {
-    skillsPanel.classList.remove('active')
+    skillsList.classList.remove('active')
 });
 
 statsPanelCloseBtn.addEventListener('click', () => {
@@ -520,7 +381,7 @@ deleteSkillReviewBtn.addEventListener('click', async () => {
 
     deleteReviewConfirmation.classList.add('active')
     statsPanel.classList.remove('active')
-    skillsPanel.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
+    skillsList.classList.remove('active') // i need to fix it, make it update after deletion, it only updates when i click again for now.
 });
 
 deleteReviewConfirmBtn.addEventListener('click', async () => {
@@ -544,7 +405,7 @@ deleteReviewCancelBtn.addEventListener('click', async () => {
 
 completeSkillReviewBtn.addEventListener('click', async () => {
     //you can add a blocker here to disallow users from clicking done if next review > today
-    skillsPanel.classList.remove('active')
+    skillsList.classList.remove('active')
 
     const topicName = document.getElementById('skill-name');
     completeReviewConfirmationTxt.textContent = topicName.textContent
@@ -557,7 +418,7 @@ undoReviewBtn.addEventListener('click', async () => {
     undoReviewConfirmationTxt.textContent = topicName.textContent
 
     undoReviewConfirmation.classList.add('active')
-    skillsPanel.classList.remove('active')
+    skillsList.classList.remove('active')
 });
 
 undoReviewCancelBtn.addEventListener('click', async () => {
@@ -638,7 +499,7 @@ deleteLogBtn.addEventListener('click', async () => {
 
     deleteLogConfirmation.classList.add('active')
     logContentPanel.classList.remove('active')
-    skillsPanel.classList.remove('active')
+    skillsList.classList.remove('active')
 });
 
 deleteLogCancelBtn.addEventListener('click', async () => {
