@@ -11,11 +11,11 @@ let userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longT
 
 let skillsList, skillsPanelCloseBtn, skillsTable 
 
-let tabSkillsBtn, tabDailyBtn, skillsPanel, dailyPanel, dailyTable
+let tabSkillsBtn, tabDailyBtn, skillsPanel, dailyPanel
 
 let statsPanel, statsPanelCloseBtn, deleteSkillReviewBtn, completeSkillReviewBtn, completeReviewConfirmation, completeReviewConfirmationTxt, completeReviewCancel, ratingButtons, skillLevelBadge 
 
-let logContentPanel, logDescriptionEditBtn, logContentPanelCloseBtn, deleteLogBtn, deleteLogConfirmation, deleteLogConfirmBtn, deleteLogCancelBtn, logEditTools, logEditConfirmBtn
+let logContentPanel
 
 let deleteReviewConfirmation, deleteReviewConfirmBtn, deleteReviewCancelBtn 
 
@@ -51,7 +51,6 @@ function cacheElements() {
     tabDailyBtn = document.getElementById('tab-daily-btn');
     skillsPanel = document.getElementById('skills-panel');
     dailyPanel = document.getElementById('daily-panel');
-    dailyTable = document.getElementById('daily-table');
 
     statsPanel = document.getElementById('stats');
     statsPanelCloseBtn = document.getElementById('stats-close-btn');
@@ -64,14 +63,6 @@ function cacheElements() {
     skillLevelBadge = document.getElementById('skill-level');
 
     logContentPanel = document.getElementById('log');
-    logDescriptionEditBtn = document.getElementById('log-description-edit-btn');
-    logContentPanelCloseBtn = document.getElementById('log-close-btn');
-    deleteLogBtn = document.getElementById('delete-log');
-    deleteLogConfirmation = document.getElementById('delete-log-confirmation');
-    deleteLogConfirmBtn = document.getElementById('delete-log-confirm');
-    deleteLogCancelBtn = document.getElementById('delete-log-cancel');
-    logEditTools = document.getElementById('log-description-edit-tools');
-    logEditConfirmBtn = document.getElementById('log-description-edit-confirm-btn');
 
     deleteReviewConfirmation = document.getElementById('delete-review-confirmation');
     deleteReviewConfirmBtn = document.getElementById('delete-review-confirm');
@@ -200,7 +191,7 @@ async function updateReviewById(id, rating) {
     return result
 };
 
-async function loadReviews() {
+export async function loadReviews() {
     const [responseReviews, responseLogs] = await Promise.all([
         fetch('/api/topics'), fetch('/api/daily_logs')
     ]);
@@ -212,7 +203,7 @@ async function loadReviews() {
     renderCalendar(currentDate.getFullYear(), currentDate.getMonth(), reviewsList, daily_logsList)
 };
 
-async function loadUserConsistency() {
+export async function loadUserConsistency() {
     const [percentageOnTimeReviews, streakCount] = await Promise.all([
         fetch('/api/topics/percentage'), fetch('/api/streak')
     ]);
@@ -236,64 +227,6 @@ async function getStatsById(id) {
         }, true, true)
     return topicObj
 };
-
-async function getLogById(id) {
-    const logObj = await api('/api/daily_logs/content', {
-        method: "POST",
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            'id': id
-            })
-        }, true, true)
-    return logObj
-};
-
-async function editLogDesc(id, desc) {
-    await api('/api/daily_logs/update/description', {
-        method: "POST",
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            'id': id,
-            'description': desc
-            })
-        }, false, true)
-}
-
-export function openLogsPanel(logs_list) {
-    dailyTable.innerHTML = ""
-    logEditTools.classList.remove('active');
-
-    for (const log of logs_list) {
-        const newRow = document.createElement("tr")
-        newRow.id = log['id'] 
-        newRow.classList.add('log-row-btn')
-        newRow.role = 'button'
-        newRow.tabIndex = '0'
-
-        const name_col = document.createElement("th")
-        name_col.textContent = log["name"]
-        newRow.append(name_col)
-        dailyTable.append(newRow)
-    }
-
-    logButtons()
-}
-
-async function openLogContent(log_id) {
-    const topicName = document.getElementById('log-name');
-    const topicStartDate = document.getElementById('log-start-date');
-    const topicDescription = document.getElementById('log-description');
-    const obj = await getLogById(log_id)
-    topicName.textContent = obj['name']
-    topicStartDate.textContent = obj['created_at']
-    topicDescription.textContent = obj['description']
-    logDescriptionEditBtn.value = obj['id']
-    deleteLogBtn.value = obj['id']
-}
 
 export function openSkillsPanel(skills_list, dateKey) {
     statsPanel.classList.remove('active')
@@ -388,10 +321,6 @@ statsPanelCloseBtn.addEventListener('click', () => {
     statsPanel.classList.remove('active')
 });
 
-logContentPanelCloseBtn.addEventListener('click', () => {
-    logContentPanel.classList.remove('active')
-});
-
 completeReviewCancel.addEventListener('click', () => {
     completeReviewConfirmation.classList.remove('active')
 });
@@ -481,21 +410,6 @@ function reviewButtons() { // make skills clickable
     });
 }
 
-function logButtons() { // make logs clickable
-    const buttons = document.querySelectorAll('.log-row-btn');
-
-    buttons.forEach((btn, index) => {
-        if (!btn.classList.value.includes('button')) {
-            btn.classList.add('button')
-            btn.addEventListener('click', async () => {
-                logContentPanel.classList.add('active'); // am i sure?
-                await openLogContent(btn.id)
-            });
-        }
-            
-    });
-}
-
 ratingButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
         completeReviewConfirmation.classList.remove('active');
@@ -512,49 +426,4 @@ ratingButtons.forEach((btn) => {
         tween(topicRetRate, Math.min(Math.round(level_up['old_progress']), 100), Math.min(Math.round(level_up['progress']), 100), 800)
         
     });     
-});
-
-deleteLogBtn.addEventListener('click', async () => {
-    const topicName = document.getElementById('log-name');
-    const deleteLogConfirmationTxt = document.getElementById('delete-log-confirmation-text')
-    deleteLogConfirmationTxt.textContent = topicName.textContent
-
-    deleteLogConfirmation.classList.add('active')
-    logContentPanel.classList.remove('active')
-    skillsList.classList.remove('active')
-});
-
-deleteLogCancelBtn.addEventListener('click', async () => {
-    deleteLogConfirmation.classList.remove('active')
-});
-
-deleteLogConfirmBtn.addEventListener('click', async () => {
-    deleteLogConfirmation.classList.remove('active')
-    await api('/api/daily_logs/delete', {
-        method: "POST",
-        headers: {
-            'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-            'id': deleteLogBtn.value
-            })
-        }, false, true)
-    await loadReviews()
-    loadUserConsistency()
-});
-        
-
-logDescriptionEditBtn.addEventListener('click', () => {
-    const topicDescription = document.getElementById('log-description');
-    const topicDescriptionEdit = document.getElementById('log-description-edit');
-    logEditTools.classList.add('active');
-    topicDescriptionEdit.value = topicDescription.textContent;
-});
-
-logEditConfirmBtn.addEventListener('click', async () => {
-    const topicDescription = document.getElementById('log-description');
-    const topicDescriptionEdit = document.getElementById('log-description-edit');
-    await editLogDesc(logDescriptionEditBtn.value, topicDescriptionEdit.value);
-    topicDescription.textContent = topicDescriptionEdit.value;
-    logEditTools.classList.remove('active');
 });
