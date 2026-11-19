@@ -1,6 +1,7 @@
-import { openSkillsPanel, switchTab, currentDate, userTimeZone, LEVEL_COLORS } from "./app.js";
+import { switchTab, currentDate, userTimeZone, LEVEL_COLORS } from "./app.js";
 import { api } from "./api.js";
 import { openLogsPanel } from "./daily-logs.js";
+import { openSkillsPanel } from "./topics.js";
 
 const monthLabel = document.getElementById('month-label');
 const prevMonthBtn = document.getElementById('prev-month-btn');

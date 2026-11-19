@@ -9,7 +9,7 @@ progress note: i already made it reject. i just need a safer and better way to s
 
 ***TODO***: make showError(err.message) popup func in app.js (toaster) AND make an error listener for any remaining errors (skip if err.shown == true)
 
-
+**FIX**: i can undo review even if its the only review. ret-rate becomes NaN%
 
 LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 
