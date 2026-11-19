@@ -5,6 +5,7 @@ import json
 
 from database import intervals, levels, get_db, get_alltopics
 from security import user_today
+from errors import Conflict
 
 def complete_review(id, rating):
     if type(rating) is not int or rating not in [0, 25, 50, 75, 100]:
@@ -22,7 +23,7 @@ def complete_review(id, rating):
             return None, 404
 
         if user_today() < row['next_review']: 
-            return {'error': 'Unable to complete review, due date has not passed'}
+            raise Conflict(f"This review isn't due until {row['next_review']}.")
 
         old_progress = row['progress']
         old_level = levels.index(row['level'])
@@ -94,8 +95,11 @@ def undo_review(id):
 
         cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
         row = cur.fetchone()
-        if row is None or len(row['review_log']) == 0:
+        if row is None:
             return None, 404  # nothing to undo
+        
+        if len(row['review_log']) == 0: # nothing to undo
+            raise Conflict(f"This topic does not have past reviews.")
 
         old_progress = row['progress']
         old_level = levels.index(row['level'])
