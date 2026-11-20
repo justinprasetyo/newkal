@@ -12,7 +12,7 @@ from database import create_topic, get_alltopics, load_topics, get_topicById, de
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
 from datetime import date
-from errors import AppError
+from errors import AppError, Invalid
 
 load_dotenv()
 app = Flask(__name__)
@@ -31,8 +31,8 @@ def whoami():
 @app.route('/api/timezone', methods=['POST'])
 def get_timezone():
     data = request.get_json()
-    if data['timezone'] not in VALID_TIMEZONES:
-        return {"status": "not valid timezone"}
+    if ('timezone' not in data) or ('timezone' in data and data['timezone'] not in VALID_TIMEZONES):
+        raise Invalid("Invalid user timezone.")
     session['tz'] = data['timezone']
     return jsonify({"status": 'recieved'})
 
