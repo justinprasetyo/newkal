@@ -5,14 +5,13 @@ import json
 
 from database import intervals, levels, get_db, get_alltopics
 from security import user_today
-from errors import Conflict
+from errors import Conflict, Invalid, NotFound
 
 def complete_review(id, rating):
     if type(rating) is not int or rating not in [0, 25, 50, 75, 100]:
-        return "Invalid rating", 400
+        raise Invalid("Invalid input.")
     
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
-
         cur.execute("""
             SELECT interval_step, next_review, review_log, level, progress
             FROM topics
@@ -20,7 +19,7 @@ def complete_review(id, rating):
         """, (id, session['user_id'],))
         row = cur.fetchone()
         if row is None:
-            return None, 404
+            raise NotFound("Review does not exist.")
 
         if user_today() < row['next_review']: 
             raise Conflict(f"This review isn't due until {row['next_review']}.")
@@ -96,10 +95,10 @@ def undo_review(id):
         cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
         row = cur.fetchone()
         if row is None:
-            return None, 404  # nothing to undo
+            raise NotFound("Review does not exist.")  # nothing to undo
         
         if len(row['review_log']) == 0: # nothing to undo
-            raise Conflict(f"This topic does not have past reviews.")
+            raise Conflict("This topic does not have past reviews.")
 
         old_progress = row['progress']
         old_level = levels.index(row['level'])
@@ -175,7 +174,7 @@ def get_streak(): #700-800ms
         ))
         rows = cur.fetchall()
         if rows is None:
-            return None, 404
+            return None
         active_days = {row[0] for row in rows}
 
         streak = 0
