@@ -9,8 +9,6 @@ let percentageOnTime, streakCounter
 
 let userSubject, userSubjectBtn, topicTermConfirmation, shortTermTopicBtn, longTermTopicBtn, allTopicsBtn 
 
-let skillsList, skillsPanelCloseBtn, skillsTable 
-
 let tabSkillsBtn, tabDailyBtn, skillsPanel, dailyPanel
 
 let skillLevelBadge 
@@ -36,10 +34,6 @@ function cacheElements() {
     longTermTopicBtn = document.getElementById('long-term-confirm');
 
     allTopicsBtn = document.getElementById('all-topics-btn');
-
-    skillsList = document.getElementById('skills-list');
-    skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
-    skillsTable = document.getElementById('skills-table');
 
     tabSkillsBtn = document.getElementById('tab-skills-btn');
     tabDailyBtn = document.getElementById('tab-daily-btn');
@@ -108,7 +102,7 @@ export async function showError(msg) {
 //UNHANDLED ERRORS HANDLING
 window.addEventListener('unhandledrejection', (event) => {
     const err = event.reason;
-    if (err.status === 401) {
+    if (err?.status === 401) {
         checkSession();
         showError("Please log in again. Your session has expired");
     }

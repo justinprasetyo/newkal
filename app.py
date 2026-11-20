@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, render_template, session
-from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_limiter.errors import RateLimitExceeded
@@ -18,7 +17,6 @@ from errors import AppError
 load_dotenv()
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=3)
-CORS(app)
 app.secret_key = os.environ["SECRET_KEY"]
 limiter = Limiter(get_remote_address, app=app)
 
