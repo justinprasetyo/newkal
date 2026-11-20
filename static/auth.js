@@ -1,5 +1,5 @@
 import { showLoading, hideLoading } from "./animation.js";
-import { checkSession } from "./app.js";
+import { checkSession, showError } from "./app.js";
 import { api } from "./api.js";
 
 const loginWarningTxt = document.getElementById('login-warning-text');
@@ -21,7 +21,7 @@ loginBtn.addEventListener('click', async () => { // TODO: switch to api()
     } 
     showLoading()
     try {
-        const response = await fetch('/api/login', {
+        await api('/api/login', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -31,15 +31,11 @@ loginBtn.addEventListener('click', async () => { // TODO: switch to api()
             'password': loginPassword.value
             })
         })
-        if (!response.ok) {
-            const result = await response.json()
-            console.log(result)
-            loginWarningTxt.textContent = result.status
-            throw new Error('Failed');
-        }
         checkSession()
-    } catch {
         
+    } catch(error) {
+        if (error?.status == 429) loginWarningTxt.textContent = error?.message;
+        if (error?.status == 401) loginWarningTxt.textContent = "Invalid username or password, " + error?.message;
     } finally {
         hideLoading()
     }
@@ -52,7 +48,7 @@ registerBtn.addEventListener('click', async () => { // TODO: switch to api()
     } 
     showLoading()
     try {
-        const response = await fetch('/api/register', {
+        await api('/api/register', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -62,15 +58,11 @@ registerBtn.addEventListener('click', async () => { // TODO: switch to api()
             'password': loginPassword.value
             })
         })
-
-        if (!response.ok) {
-            const result = await response.json();
-            loginWarningTxt.textContent = result.status
-            throw new Error('Failed');
-        }
         checkSession()
-    } catch {
 
+    } catch(error) {
+        if (error?.status == 429) loginWarningTxt.textContent = error?.message;
+        if (error?.status == 409) loginWarningTxt.textContent = "Username already taken, " + error?.message;
     } finally {
         hideLoading()
     }
@@ -87,7 +79,7 @@ logoutCancelBtn.addEventListener('click', async () => {
 logoutConfirmBtn.addEventListener('click', async () => {
     showLoading()
     try {
-        const response = await fetch('/api/logout', {
+        await api('/api/logout', {
         method: 'POST',
         headers: {
             'Content-type': 'application/json'
@@ -95,16 +87,12 @@ logoutConfirmBtn.addEventListener('click', async () => {
         body: JSON.stringify({
             })
         })
-
-        if (!response.ok) {
-            const message = await response.text();
-            console.log(message);
-            throw new Error('Failed');
-        }
-
         logoutConfirmation.classList.remove('active')
         checkSession()
 
+    } catch(error) {
+        console.error(error.message)
+        showError("Something went wrong.")
     } finally {
         hideLoading()
     }

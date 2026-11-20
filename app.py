@@ -183,7 +183,7 @@ def handle_app_error(e):
 
 @app.errorhandler(RateLimitExceeded)
 def handle_rate_limit(error):
-    return {"status": "Too many attempts. Please wait before trying again."}, 429
+    return jsonify({"error": "Too many attempts. Please wait before trying again."}), 429
 
 
 if __name__ == '__main__':

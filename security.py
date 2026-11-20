@@ -17,7 +17,7 @@ def login_required(f):
     return decorated
 
 def user_today():
-    user_tz = ZoneInfo(session.get("tz", "UTC"))
+    user_tz = ZoneInfo(session.get("tz", "UTC")) # defaults to UTC tz
     return datetime.now(user_tz).date()
 
 def register(data):
