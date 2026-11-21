@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from zoneinfo import ZoneInfo, available_timezones
 from datetime import datetime
+from errors import NotFound, Invalid
 
 VALID_TIMEZONES = frozenset(available_timezones())
 
@@ -53,3 +54,16 @@ def logout():
     session.pop('user_id', None)
     session.pop('tz', None)
     return jsonify({"status": "logged out"})
+
+def get_username():
+    if 'user_id' not in session:
+        raise Invalid("Please log in.")
+    with get_db() as conn, conn.cursor() as cur:
+        cur.execute("SELECT username FROM users WHERE id = %s", (session['user_id'],))
+        username = cur.fetchone()
+
+        if username is None:
+            raise NotFound("username not found")
+        
+        return username
+        

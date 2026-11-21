@@ -1,14 +1,20 @@
-******
 in progress (not high priority): grey out Done button for those reviews in css
 
 **SAFETY**: Disable submit buttons while loading
 
 **BUG**: i can undo review even if its the only review. ret-rate becomes NaN%
 
+***
 ***BUILDING***: checkbox/inbox for today's reviews + optional daily-log challenge? already started in html class = "inbox-table"
 
 also: make it say Hey, <username>! instead of the generic Hey, user!
 
+if theres nothing due that day, show “Nothing due today. Next up: Sliding window on Thursday.” not a celebration of completion.
+
+A bar (“3 of 5 done today”) is for while you’re working, and inbox zero is for when you’re finished
+
+*Brand new account*: no topics yet, so show the onboarding prompt, “Add something you want to still know in 3 months.”
+***
 
 
 

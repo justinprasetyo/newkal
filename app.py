@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 
-from security import login, register, logout, login_required, user_today, VALID_TIMEZONES
+from security import login, register, logout, login_required, user_today, get_username, VALID_TIMEZONES
 from database import create_topic, get_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
@@ -26,7 +26,8 @@ def home():
 
 @app.route('/api/me')
 def whoami():
-    return jsonify({"logged_in": 'user_id' in session})
+    username = get_username()
+    return jsonify({"logged_in": 'user_id' in session, 'username': username})
 
 @app.route('/api/timezone', methods=['POST'])
 def get_timezone():
