@@ -1,10 +1,13 @@
 ******
 in progress (not high priority): grey out Done button for those reviews in css
 
-** SAFETY **:  Disable submit buttons while loading
-**FIX**: i can undo review even if its the only review. ret-rate becomes NaN%
+**SAFETY**: Disable submit buttons while loading
 
-***BUILDING***: checkbox for today's reviews + optional daily-log challenge? + nav bar to hoist streaks & on-time %
+**BUG**: i can undo review even if its the only review. ret-rate becomes NaN%
+
+***BUILDING***: checkbox/inbox for today's reviews + optional daily-log challenge? already started in html class = "inbox-table"
+
+also: make it say Hey, <username>! instead of the generic Hey, user!
 
 
 

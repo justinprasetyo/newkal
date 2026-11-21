@@ -24,8 +24,8 @@
 
     <div class="logged-in-view" id="logged-in-view">
         <div class="nav-bar" id="nav-bar">
-            <img class="menu_logo" src="/static/menu_logo.png" alt="Menu">
-            <img class="logo" src="/static/newkal_logo_slim.png" alt="NewKal">
+            <img class="menu-logo" id="menu-logo" src="/static/menu_logo.png" alt="Menu">
+            <img class="logo" id="logo" src="/static/newkal_logo_slim.png" alt="NewKal">
 
             <div class="nav-bar-stats">
                 <div class="streak">
@@ -38,8 +38,6 @@
                     <img class="percent-logo" src="/static/percent_logo.png" alt="Percent">
                 </div>
             </div>
-            
-            
         </div>
         
         <div class="calendar-nav">
@@ -50,6 +48,14 @@
         </div>
         
         <div class="calendar" id="calendar">
+        </div>
+
+        <div class="inbox">
+            <h1>Hey, user!</h1>
+            <table class="inbox-table" id="inbox-table">
+                <thead><tr><th></th></tr></thead>
+                <tbody id="inbox-content"></tbody>
+            </table>
         </div>
 
         <div class="skills-list" id="skills-list">
@@ -195,6 +201,7 @@
     <script src="/static/calendar.js" type="module"></script>
     <script src="/static/topics.js" type="module"></script>
     <script src="/static/daily-logs.js" type="module"></script>
+    <script src="/static/navbar.js" type="module"></script>
     <script src="/static/animation.js" type="module"></script>
 </body>
 </html>
