@@ -160,8 +160,8 @@ export async function loadUserConsistency() {
     const [percentage, streak] = await Promise.all([
         percentageOnTimeReviews.json(), streakCount.json()
     ]);
-    percentageOnTime.textContent = percentage + "% reviews done on time"
-    streakCounter.textContent = "Daily-learning streak: " + streak
+    percentageOnTime.textContent = percentage //+ "% reviews done on time"
+    streakCounter.textContent = streak
 };
 
 userSubjectBtn.addEventListener('click', async () => {

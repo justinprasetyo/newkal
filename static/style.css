@@ -27,12 +27,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
   margin: 0;
-  padding: 32px 24px;
-}
-
-.logged-in-view .logo {
-    height: auto;
-    width: 250px;
+  padding: 100px 24px;
 }
 
 h1 {

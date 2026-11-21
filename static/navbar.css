@@ -1,0 +1,46 @@
+.nav-bar {
+    border-bottom: solid 1px #0000007f;
+    background-color: var(--bg);
+    display: flex;
+    align-items: center;
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    
+}
+
+.nav-bar-stats {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 0 24px; 
+    box-sizing: border-box; 
+    width: 100%;
+}
+
+.streak, .percent {
+    display: flex;
+    align-items: center;
+}
+
+.logged-in-view .logo {
+    height: auto;
+    width: 175px;
+}
+
+.logged-in-view .menu_logo {
+    height: auto;
+    width: 70px;
+}
+
+.logged-in-view .streak-logo {
+    height: auto;
+    width: 80px;
+}
+.logged-in-view .percent-logo {
+    height: auto;
+    width: 70px;
+}

@@ -1,19 +1,13 @@
 ******
-in progress: make complete_review reject reviews where next_review > user_today(). Also, grey out Done button for those reviews in css
-
-progress note: i already made it reject. i just need a safer and better way to show that rejection to the user.
-
-**IN PROGRESS**: refactor fetch calls in js to a single api(url, options){} function that takes api url and method, header, body as args.
-
-*[might be fixed?]* fix loadReviews() in app.js it keeps throwing errors sometimes when pages recently refreshed or the first time u call a certain api.
-
-***TODO***: make showError(err.message) popup func in app.js (toaster) AND make an error listener for any remaining errors (skip if err.shown == true)
-
+in progress (not high priority): grey out Done button for those reviews in css
 
 ** SAFETY **:  Disable submit buttons while loading
-
-
 **FIX**: i can undo review even if its the only review. ret-rate becomes NaN%
+
+***BUILDING***: checkbox for today's reviews + optional daily-log challenge? + nav bar to hoist streaks & on-time %
+
+
+
 
 LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 

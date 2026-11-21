@@ -6,6 +6,7 @@
     <title>NewKal: A spaced repetition reminder app.</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/login.css">
+    <link rel="stylesheet" href="/static/navbar.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -22,10 +23,25 @@
     </div>
 
     <div class="logged-in-view" id="logged-in-view">
-        <img class="logo" src="/static/newkal_logo_slim.png" alt="NewKal">
-        <h2 id="streak-count">0</h2>
-        <h2 id="percentage-ontime">%</h2>
+        <div class="nav-bar" id="nav-bar">
+            <img class="menu_logo" src="/static/menu_logo.png" alt="Menu">
+            <img class="logo" src="/static/newkal_logo_slim.png" alt="NewKal">
 
+            <div class="nav-bar-stats">
+                <div class="streak">
+                <h2 id="streak-count">-</h2>
+                <img class="streak-logo" src="/static/streak_logo.png" alt="Streak">
+                </div>
+                
+                <div class="percent">
+                    <h2 id="percentage-ontime">%</h2>
+                    <img class="percent-logo" src="/static/percent_logo.png" alt="Percent">
+                </div>
+            </div>
+            
+            
+        </div>
+        
         <div class="calendar-nav">
             <h2 id="month-label"></h2>
             <button id="prev-month-btn"><</button>
