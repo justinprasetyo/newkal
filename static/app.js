@@ -66,7 +66,6 @@ export async function checkSession() {
         await fetch('/api/me')
         .then(r => r.json())
         .then(data => {
-            console.log()
             if (data.logged_in && data?.username) {
                 loggedOutView.classList.remove('active');
                 loggedInView.classList.add('active');

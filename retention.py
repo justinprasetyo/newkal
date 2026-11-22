@@ -49,7 +49,7 @@ def complete_review(id, rating):
         offset_days = (today - row['next_review']).days #we still have the 'next_review' data point for easy access
 
         entry = {"date": str(new_next_review), "rating": rating, #'date' meaning next review date that completion created
-                "interval_step": new_step, "offset_days": offset_days}    
+                "interval_step": new_step, "offset_days": offset_days, "completed_on": str(user_today())}    
         
         cur.execute("""
             UPDATE topics
@@ -157,7 +157,7 @@ def get_ontime_percentage(): #700-800ms
             if review['offset_days'] > 0:
                 late_reviews += 1
     if all_reviews_count == 0:
-        return 0
+        return '-' #if none at all (just starting out)
     percentage = ((all_reviews_count - late_reviews) / all_reviews_count) * 100
     return round(percentage, 2)
 

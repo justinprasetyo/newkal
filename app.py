@@ -26,8 +26,11 @@ def home():
 
 @app.route('/api/me')
 def whoami():
-    username = get_username()
-    return jsonify({"logged_in": 'user_id' in session, 'username': username})
+    if 'user_id' in session:
+        username = get_username()
+        return jsonify({"logged_in": 'user_id' in session, 'username': username})
+    else:
+        return jsonify({"logged_in": 'user_id' in session})
 
 @app.route('/api/timezone', methods=['POST'])
 def get_timezone():
@@ -175,7 +178,7 @@ def delete_log():
 @app.route('/api/test', methods=['GET'])
 @login_required
 def test():
-    print(load_daily_logs())
+    #print(str(user_today()))
     return '', 204
 
 @app.errorhandler(AppError)
