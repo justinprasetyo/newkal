@@ -1,0 +1,82 @@
+/* ---- Inbox ---- */
+.inbox {
+  max-width: 750px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 2px 12px rgba(43, 42, 39, 0.06);
+  padding: 20px 24px 8px;
+  margin-bottom: 32px;
+}
+
+#inbox-greeting {
+  font-size: 1.25rem;
+  margin: 0 0 12px;
+}
+
+.inbox-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inbox-table thead {
+  display: none;   /* the empty header row is only there for valid markup */
+}
+
+.inbox-table tbody tr {
+  border-bottom: 1px solid var(--line);
+  transition: background 0.15s ease;
+}
+
+.inbox-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.inbox-table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+.inbox-table td,
+.inbox-table th {
+  font-family: 'Lora', serif;
+  font-weight: 500;
+  font-size: 1rem;
+  text-align: left;
+  vertical-align: middle;
+  padding: 12px 8px;
+  color: var(--ink);
+}
+
+/* optional hooks, add these classes from your JS when you want them */
+.inbox-table tbody tr.done td,
+.inbox-table tbody tr.done th {
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--line);
+}
+
+.inbox-rating {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-left: 3px solid var(--c, var(--level-0));
+  background: var(--accent-soft);
+}
+
+.inbox-rating[data-rating="0"]   { --c: var(--level-0); }
+.inbox-rating[data-rating="25"]  { --c: var(--level-1); }
+.inbox-rating[data-rating="50"]  { --c: var(--level-2); }
+.inbox-rating[data-rating="75"]  { --c: var(--level-3); }
+.inbox-rating[data-rating="100"] { --c: var(--level-4); }
+
+.inbox-empty {
+  padding: 16px 8px;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .inbox { padding: 16px 16px 4px; }
+}

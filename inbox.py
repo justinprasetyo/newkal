@@ -13,7 +13,7 @@ def completed_reviews_today():
 def get_allreviews_today():
     today = user_today()
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT id, name, review_log FROM topics WHERE user_id = %s AND (next_review <= %s OR review_log -> -1 ->> 'completed_on' = %s)", (session['user_id'], today, str(today)))
+        cur.execute("SELECT id, name, next_review, review_log FROM topics WHERE user_id = %s AND (next_review <= %s OR review_log -> -1 ->> 'completed_on' = %s) ORDER BY next_review", (session['user_id'], today, str(today)))
         return cur.fetchall()
 
 def load_inbox(reviews_arr):
