@@ -20,8 +20,8 @@ export async function loadInbox() {
         newRow.id = rev?.id;
 
         const due_col = document.createElement("th");
-        due_col.textContent = rev?.next_review.slice(0, 16); //idk if this is consistent LOL but hey
-        if (rev?.next_review > todayStr) console.log(rev?.next_review) //change next_review to ISOformat string in backend
+        due_col.textContent = 'today!';
+        if (rev?.next_review > todayStr) due_col.textContent = '(DONE)';
         newRow.append(due_col);
 
         const name_col = document.createElement("th");
