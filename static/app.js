@@ -1,6 +1,7 @@
 import { replay, tween, showLoading, hideLoading } from "./animation.js";
 import { api } from "./api.js";
 import { renderCalendar } from "./calendar.js";
+import { loadInbox } from  "./inbox.js"
 
 const loggedInView = document.getElementById('logged-in-view');
 const loggedOutView = document.getElementById('logged-out-view');
@@ -183,7 +184,8 @@ shortTermTopicBtn.addEventListener('click', async () => {
 });
 
 allTopicsBtn.addEventListener('click', async () => { //testing button
-    showError('test test error lol')
+    //showError('test test error lol')
+    loadInbox()
     const response = await api('/api/test')
     //const result = await response.json()
     //console.log(result)

@@ -13,6 +13,7 @@ from retention import complete_review, undo_review, get_ontime_percentage, get_s
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
 from datetime import date
 from errors import AppError, Invalid
+from inbox import completed_reviews_today, get_allreviews_today
 
 load_dotenv()
 app = Flask(__name__)
@@ -60,11 +61,15 @@ def logout_user():
     result = logout()
     return result
 
+@app.route('/api/inbox', methods=['GET'])
+@login_required
+def update_inbox():
+    return jsonify(get_allreviews_today())
+
 @app.route('/api/topics', methods=['POST'])
 @login_required
 def uploadInput():
     data = request.get_json() 
-
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
@@ -178,6 +183,7 @@ def delete_log():
 @app.route('/api/test', methods=['GET'])
 @login_required
 def test():
+    print(get_allreviews_today())
     #print(str(user_today()))
     return '', 204
 
