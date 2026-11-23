@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { openStatsPanel } from "./topics.js"
 
 const RATINGS_LIST = {
     100: 'perfect!!!',
@@ -10,20 +11,22 @@ const RATINGS_LIST = {
 
 const inboxTable = document.getElementById('inbox-content');
 const inboxTasks = document.getElementById('inbox-tasks');
+const statsPanel = document.getElementById('stats');
 
 export async function loadInbox() {
     const todayStr = new Date().toLocaleDateString('en-CA');
     inboxTable.innerHTML = "";
 
-    
     const response = await api('/api/inbox');
-    if (response.length == 0) {
+    if (!response.length) {
         inboxTasks.textContent = "nothing due today.";
+        return;
     }
 
     let completed = 0;
     for (const rev of response) {
         const newRow = document.createElement("tr");
+        newRow.classList.add('inbox-task');
         newRow.id = rev?.id;
 
         const due_col = document.createElement("th");
@@ -52,4 +55,19 @@ export async function loadInbox() {
         inboxTasks.textContent = `${completed}/${response.length} tasks completed.`;
         if (completed == response.length) inboxTasks.textContent = "all tasks completed today. YAYYY!";
     }
+    inboxTaskButtons();
+}
+
+function inboxTaskButtons() {
+    const buttons = document.querySelectorAll('.inbox-task');
+
+    buttons.forEach((btn) => {
+        if (!btn.classList.value.includes('button')) {
+            btn.classList.add('button')
+            btn.addEventListener('click', async () => {
+                statsPanel.classList.add('active');
+                await openStatsPanel(btn.id)
+            });
+        }
+    });
 }

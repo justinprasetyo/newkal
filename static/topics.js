@@ -1,6 +1,7 @@
 import { api } from "./api.js";
 import { loadReviews, loadUserConsistency, LEVEL_COLORS } from "./app.js";
 import { replay, tween } from "./animation.js";
+import { loadInbox } from "./inbox.js";
 
 const skillsList = document.getElementById('skills-list');
 const skillsPanelCloseBtn = document.getElementById('skills-list-close-btn');
@@ -43,6 +44,7 @@ async function updateReviewById(id, rating) {
         }, false, true)
     await loadReviews()
     loadUserConsistency()
+    loadInbox()
     return result
 };
 
@@ -89,7 +91,7 @@ export function openSkillsPanel(skills_list, dateKey) {
     reviewButtons()
 }
 
-async function openStatsPanel(skill_id) {
+export async function openStatsPanel(skill_id) {
     const topicName = document.getElementById('skill-name');
     const topicStartDate = document.getElementById('skill-start-date');
     const topicRetRate = document.getElementById('skill-retention-rate');
@@ -141,6 +143,7 @@ deleteReviewConfirmBtn.addEventListener('click', async () => {
         }, false, true)
     await loadReviews()
     loadUserConsistency()
+    loadInbox()
 });
 
 deleteReviewCancelBtn.addEventListener('click', async () => {
@@ -186,6 +189,7 @@ undoReviewConfirmBtn.addEventListener('click', async () => {
     tween(topicRetRate, Math.min(Math.round(result['old_progress']), 100), Math.min(Math.round(result['progress']), 100), 800)
     await loadReviews()
     loadUserConsistency()
+    loadInbox()
 });
 
 function reviewButtons() { // make skills clickable
