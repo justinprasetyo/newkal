@@ -4,6 +4,10 @@ in progress (not high priority): grey out Done button for those reviews in css
 
 **BUG**: i can undo review even if its the only review. ret-rate becomes NaN%
 
+**OPTIMIZATION**: make streak, percentage, and inbox use the same get_db() conn so it doesnt need to go back and forth 3 times. 
+
+ALSO, percentage uses getallreviews() which should be a cur.execute() isntead, its faster and cleaner
+
 ***
 ***BUILDING***: checkbox/inbox for today's reviews + optional daily-log challenge? already started in html class = "inbox-table"
 
@@ -22,11 +26,9 @@ LIMIT sql queries for RealDictCursor cuz it has to scan like so much (if havent)
 
 navigation bar on top of screen for profile purposes/ settings and so we can contain logo better
 
-lateness score?
-
 make skill names and log names editable.
 
-streaks feature update for review completions?
+streaks for review completions?
 
 reward UI for coompletion AND for leveling up
 skills leaderboard for most rating

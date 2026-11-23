@@ -58,6 +58,7 @@ async function initializeApp() {
             })
         }, false, false)
     await loadReviews();
+    await loadInbox();
     loadUserConsistency()
 }
 
