@@ -8,6 +8,8 @@ in progress (not high priority): grey out Done button for those reviews in css
 
 ALSO, percentage uses getallreviews() which should be a cur.execute() isntead, its faster and cleaner
 
+**REFACTOR**: some funcs still use fetch() instead of api().
+
 ***
 ***BUILDING***: checkbox/inbox for today's reviews + optional daily-log challenge? already started in html class = "inbox-table"
 
@@ -19,6 +21,8 @@ add a first-run class when the user has zero topics, with a slightly thicker bor
 
 • Use position: relative on the parent button/container and position: absolute on the tooltip bubble with a subtle @keyframes bounce or pulse animation so it draws the eye naturally without blocking clicks.
 • Dismiss on click or creation: Have it hide immediately as soon as they click the input/button or submit their first topic (no manual "Got it" button required!).
+
+-----DO AN 'review up until' feature so it stops after a certain time.
 ***
 
 

@@ -1,13 +1,12 @@
-from flask import session
 from psycopg2.extras import RealDictCursor
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 import json
 
 from database import intervals, levels, get_db, get_alltopics
 from security import user_today
 from errors import Conflict, Invalid, NotFound
 
-def complete_review(id, rating):
+def complete_review(user_id, id, rating):
     if type(rating) is not int or rating not in [0, 25, 50, 75, 100]:
         raise Invalid("Invalid input.")
     
@@ -16,7 +15,7 @@ def complete_review(id, rating):
             SELECT interval_step, next_review, review_log, level, progress
             FROM topics
             WHERE id = %s AND user_id = %s
-        """, (id, session['user_id'],))
+        """, (id, user_id,))
         row = cur.fetchone()
         if row is None:
             raise NotFound("Review does not exist.")
@@ -58,7 +57,7 @@ def complete_review(id, rating):
                 next_review = %s
             WHERE id = %s AND user_id = %s
             RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-        """, (json.dumps([entry]), new_step, new_next_review, id, session['user_id']))
+        """, (json.dumps([entry]), new_step, new_next_review, id, user_id))
         
         result = cur.fetchone()
 
@@ -81,7 +80,7 @@ def complete_review(id, rating):
             SET level = %s, progress = %s
             WHERE id = %s AND user_id = %s
             RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-        """, (levels[level], mastery, id, session['user_id']))
+        """, (levels[level], mastery, id, user_id))
 
         final_result = cur.fetchone()
         conn.commit()
@@ -89,10 +88,10 @@ def complete_review(id, rating):
             return {'leveled_up': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
         return {'leveled_up': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
 
-def undo_review(id):
+def undo_review(user_id, id):
      with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
 
-        cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, session['user_id'],))
+        cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, user_id,))
         row = cur.fetchone()
         if row is None:
             raise NotFound("Review does not exist.")  # nothing to undo
@@ -135,7 +134,7 @@ def undo_review(id):
                 progress = %s, level = %s
             WHERE id = %s AND user_id = %s
             RETURNING id, name, progress, created_at, interval_step, next_review, level, review_log
-        """, (json.dumps(log), new_step, new_next_review, mastery, levels[level], id, session['user_id']))
+        """, (json.dumps(log), new_step, new_next_review, mastery, levels[level], id, user_id))
 
         result = cur.fetchone()
         conn.commit()
@@ -143,8 +142,8 @@ def undo_review(id):
             return {'level_down': True, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
         return {'level_down': False, 'level': levels[level], 'progress': mastery, 'old_progress': old_progress}
 
-def get_ontime_percentage(): #700-800ms
-    all_topics = get_alltopics()
+def get_ontime_percentage(user_id): #700-800ms
+    all_topics = get_alltopics(user_id)
     today = user_today()
     late_reviews = 0
     all_reviews_count = 0
@@ -161,7 +160,7 @@ def get_ontime_percentage(): #700-800ms
     percentage = ((all_reviews_count - late_reviews) / all_reviews_count) * 100
     return round(percentage, 2)
 
-def get_streak(): #700-800ms
+def get_streak(user_id): #700-800ms
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             SELECT created_at::date AS activity_date FROM topics
@@ -170,7 +169,7 @@ def get_streak(): #700-800ms
             SELECT created_at::date FROM daily_log
             WHERE user_id = %s
         """, (
-            session['user_id'], session['user_id'],
+            user_id, user_id,
         ))
         rows = cur.fetchall()
         if rows is None:

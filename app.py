@@ -11,9 +11,8 @@ from security import login, register, logout, login_required, user_today, get_us
 from database import create_topic, get_alltopics, load_topics, get_topicById, delete_topicById
 from retention import complete_review, undo_review, get_ontime_percentage, get_streak
 from dailylog import create_daily_log, load_daily_logs, get_daily_logById, delete_logById, edit_log_description
-from datetime import date
 from errors import AppError, Invalid
-from inbox import completed_reviews_today, get_allreviews_today
+from inbox import get_allreviews_today
 
 load_dotenv()
 app = Flask(__name__)
@@ -64,7 +63,7 @@ def logout_user():
 @app.route('/api/inbox', methods=['GET'])
 @login_required
 def update_inbox():
-    return jsonify(get_allreviews_today())
+    return jsonify(get_allreviews_today(session['user_id']))
 
 @app.route('/api/topics', methods=['POST'])
 @login_required
@@ -76,30 +75,30 @@ def uploadInput():
     today = user_today()
     if data['daily_log'] and data['daily_log'] == True:
         obj = {'name': data['input'], 'created_at': today, 'description': ''}
-        create_daily_log(obj)
+        create_daily_log(session['user_id'], obj)
         print('short term topic created')
-        return jsonify(get_alltopics())
+        return jsonify(get_alltopics(session['user_id']))
 
     obj = {'name': data['input'], 'progress': 0, 'created_at': today, 'interval_step': 0, 
            'next_review': today, 'level': 'Beginner', 'review_log': Json([])}
     
-    create_topic(obj)
-    return jsonify(get_alltopics())
+    create_topic(session['user_id'], obj)
+    return jsonify(get_alltopics(session['user_id']))
 
 @app.route('/api/topics', methods=['GET'])
 @login_required
 def list_topics():
-    return jsonify(load_topics())
+    return jsonify(load_topics(session['user_id']))
 
 @app.route('/api/topics/percentage', methods=['GET'])
 @login_required
 def update_review_percentage():
-    return jsonify(get_ontime_percentage())
+    return jsonify(get_ontime_percentage(session['user_id']))
 
 @app.route('/api/streak', methods=['GET'])
 @login_required
 def update_streak():
-    return jsonify(get_streak())
+    return jsonify(get_streak(session['user_id']))
 
 @app.route('/api/topics/stats', methods=['POST'])
 @login_required
@@ -108,7 +107,7 @@ def load_topicStats():
     
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
-    return jsonify(get_topicById(data['id']))
+    return jsonify(get_topicById(session['user_id'], data['id']))
 
 @app.route('/api/topics/update', methods=['POST'])
 @login_required
@@ -118,7 +117,7 @@ def update_topicInterval():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
-    leveled_up = complete_review(data['id'], data['rating'])
+    leveled_up = complete_review(session['user_id'], data['id'], data['rating'])
     return jsonify(leveled_up)
 
 @app.route('/api/topics/undo', methods=['POST'])
@@ -129,7 +128,7 @@ def undo_topicReview():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
-    level_down = undo_review(data['id'])
+    level_down = undo_review(session['user_id'], data['id'])
     return jsonify(level_down)
 
 @app.route('/api/topics/delete', methods=['POST'])
@@ -140,13 +139,13 @@ def delete_topicReview():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
     
-    delete_topicById(data['id'])
+    delete_topicById(session['user_id'], data['id'])
     return '', 204
 
 @app.route('/api/daily_logs', methods=['GET'])
 @login_required
 def list_daily_logs():
-    return jsonify(load_daily_logs())
+    return jsonify(load_daily_logs(session['user_id']))
 
 @app.route('/api/daily_logs/content', methods=['POST'])
 @login_required
@@ -156,7 +155,7 @@ def load_logContent():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
     
-    return jsonify(get_daily_logById(data['id']))
+    return jsonify(get_daily_logById(session['user_id'], data['id']))
 
 @app.route('/api/daily_logs/update/description', methods=['POST'])
 @login_required
@@ -166,7 +165,7 @@ def update_description():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
 
-    edit_log_description(data['id'], data['description'])
+    edit_log_description(session['user_id'], data['id'], data['description'])
     return '', 204
 
 @app.route('/api/daily_logs/delete', methods=['POST'])
@@ -177,7 +176,7 @@ def delete_log():
     if data is None:
         return jsonify({"error": "No valid data received"}), 400
     
-    delete_logById(data['id'])
+    delete_logById(session['user_id'], data['id'])
     return '', 204
 
 @app.route('/api/test', methods=['GET'])

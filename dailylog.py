@@ -1,19 +1,17 @@
-from flask import session
 from psycopg2.extras import RealDictCursor
-from datetime import date, datetime, timedelta
-from database import intervals, levels, get_db, formatDates
+from database import get_db, formatDates
 
-def create_daily_log(topic_obj):
+def create_daily_log(user_id, topic_obj):
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             INSERT INTO daily_log (name, created_at, description, user_id)
             VALUES (%s, %s, %s, %s)
         """, (
-            topic_obj['name'], topic_obj['created_at'], topic_obj['description'], session['user_id']
+            topic_obj['name'], topic_obj['created_at'], topic_obj['description'], user_id
         ))
         conn.commit()
 
-def get_allDaily_logs():
+def get_allDaily_logs(user_id):
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             SELECT id, name, created_at, description
@@ -21,7 +19,7 @@ def get_allDaily_logs():
             WHERE user_id = %s
             ORDER BY created_at
         """, (
-            session['user_id'],
+            user_id,
         ))
 
         rows = cur.fetchall()
@@ -31,8 +29,8 @@ def get_allDaily_logs():
             arr.append(dict(row))
         return arr
 
-def load_daily_logs():
-    arr = get_allDaily_logs()
+def load_daily_logs(user_id):
+    arr = get_allDaily_logs(user_id)
     all_logsByDate = {}
     for obj in arr:
         dateKey = obj['created_at']
@@ -42,14 +40,14 @@ def load_daily_logs():
             all_logsByDate[str(dateKey)] = [obj]
     return all_logsByDate
 
-def get_daily_logById(id):
+def get_daily_logById(user_id, id):
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             SELECT id, name, created_at, description
             FROM daily_log
             WHERE id = %s AND user_id = %s
         """, (
-            id, session['user_id'],
+            id, user_id,
         ))
 
         topic = cur.fetchone()
@@ -57,25 +55,25 @@ def get_daily_logById(id):
         formatDates(dict(topic))
         return dict(topic)
 
-def delete_logById(id):
+def delete_logById(user_id, id):
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             DELETE FROM daily_log
             WHERE id = %s AND user_id = %s
         """, (
-            id, session['user_id'],
+            id, user_id,
         ))
         print(f"DELETED {id}")
         conn.commit()
 
-def edit_log_description(id, desc):
+def edit_log_description(user_id, id, desc):
      with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             UPDATE daily_log
             SET description = %s
             WHERE id = %s AND user_id = %s
         """, (
-            desc, id, session['user_id']
+            desc, id, user_id
         ))
         conn.commit()
         return '', 204

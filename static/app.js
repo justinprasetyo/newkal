@@ -63,28 +63,21 @@ async function initializeApp() {
 }
 
 export async function checkSession() {
-    showLoading()
-    try {
-        await fetch('/api/me')
-        .then(r => r.json())
-        .then(data => {
-            if (data.logged_in && data?.username) {
-                loggedOutView.classList.remove('active');
-                loggedInView.classList.add('active');
-                initializeApp();
+    const data = await api('/api/me')
+        if (data.logged_in && data?.username) {
+            loggedOutView.classList.remove('active');
+            loggedInView.classList.add('active');
+            initializeApp();
 
-                //greeting, soon we can make it say Goodmorning, afternoon or night depending on time in tz
-                const inboxGreeting = document.getElementById('inbox-greeting');
-                inboxGreeting.textContent = `Hey, ${data.username}!`;
-            } else {
-                loggedInView.classList.remove('active');
-                loggedOutView.classList.add('active');
-            }
-        });
+            //greeting, soon we can make it say Goodmorning, afternoon or night depending on time in tz
+            const inboxGreeting = document.getElementById('inbox-greeting');
+            inboxGreeting.textContent = `Hey, ${data.username}!`;
+        } else {
+            loggedInView.classList.remove('active');
+            loggedOutView.classList.add('active');
+        }
 
-    } finally {
-        hideLoading()
-    }
+
 }
 
 export async function showError(msg) {

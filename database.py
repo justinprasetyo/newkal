@@ -1,4 +1,3 @@
-from flask import session
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
@@ -78,25 +77,25 @@ def formatDates(obj):
     if 'next_review' in obj:
         obj['next_review'] = obj['next_review'].isoformat()
 
-def create_topic(topic_obj):
+def create_topic(user_id, topic_obj):
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             INSERT INTO topics (name, progress, created_at, interval_step, next_review, level, review_log, user_id)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             topic_obj['name'], topic_obj['progress'], topic_obj['created_at'], topic_obj['interval_step'],
-            topic_obj['next_review'], topic_obj['level'], topic_obj['review_log'], session['user_id']
+            topic_obj['next_review'], topic_obj['level'], topic_obj['review_log'], user_id
         ))
         conn.commit()
 
-def get_topicById(id):
+def get_topicById(user_id, id):
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
             FROM topics
             WHERE id = %s AND user_id = %s
         """, (
-            id, session['user_id']
+            id, user_id
         ))
 
         topic = cur.fetchone()
@@ -104,7 +103,7 @@ def get_topicById(id):
         formatDates(dict(topic))
         return dict(topic) if topic else None
 
-def get_alltopics():
+def get_alltopics(user_id):
     with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("""
             SELECT id, name, progress, created_at, interval_step, next_review, level, review_log
@@ -112,7 +111,7 @@ def get_alltopics():
             WHERE user_id = %s
             ORDER BY next_review
         """, (
-            session['user_id'],
+            user_id,
         ))
 
         rows = cur.fetchall()
@@ -122,8 +121,8 @@ def get_alltopics():
             arr.append(dict(row))
         return arr
 
-def load_topics():
-    arr = get_alltopics()
+def load_topics(user_id):
+    arr = get_alltopics(user_id)
     all_reviewsByDate = {}
     for obj in arr:
         for review in obj['review_log']:
@@ -140,23 +139,23 @@ def load_topics():
             all_reviewsByDate[str(obj['created_at'])] = [obj]
     return all_reviewsByDate
 
-def delete_topicById(id):
+def delete_topicById(user_id, id):
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             DELETE FROM topics
             WHERE id = %s AND user_id = %s
         """, (
-            id, session['user_id'],
+            id, user_id,
         ))
         print(f"DELETED {id}")
         conn.commit()
 
-def delete_alltopics():
+def delete_alltopics(user_id):
     with get_db() as conn, conn.cursor() as cur:
         cur.execute("""
             DELETE FROM topics
             WHERE user_id = %s
         """, (
-            session['user_id'],
+            user_id,
         ))
         conn.commit()

@@ -106,8 +106,7 @@ export function renderCalendar(year, month, reviewsByDate, dailylogByDate) {
 
 prevMonthBtn.addEventListener('click', async () => {
     const [topicsResponse, logsResponse] = await Promise.all([
-        fetch('/api/topics'),
-        fetch('/api/daily_logs')
+        fetch('/api/topics'), fetch('/api/daily_logs')
     ]);
 
     const [topics, logs] = await Promise.all([
@@ -122,8 +121,7 @@ prevMonthBtn.addEventListener('click', async () => {
 
 nextMonthBtn.addEventListener('click', async () => {
     const [topicsResponse, logsResponse] = await Promise.all([
-        fetch('/api/topics'),
-        fetch('/api/daily_logs')
+        fetch('/api/topics'), fetch('/api/daily_logs')
     ]);
 
     const [topics, logs] = await Promise.all([
