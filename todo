@@ -14,6 +14,8 @@ ALSO, percentage uses getallreviews() which should be a cur.execute() isntead, i
 if theres nothing due that day, show “Nothing due today. Next up: Sliding window on Thursday.” not a celebration of completion.
 
 *Brand new account*: no topics yet, so show the onboarding prompt, “Add something you want to still know in 3 months.”
+
+add a first-run class when the user has zero topics, with a slightly thicker border or a soft pulse that plays once. Remove it after the first topic so it doesn't become noise. Keep motion for moments like that and avoid anything that loops.
 ***
 
 

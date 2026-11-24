@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/login.css">
     <link rel="stylesheet" href="/static/navbar.css">
     <link rel="stylesheet" href="/static/inbox.css">
+    <link rel="stylesheet" href="/static/prompt.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -148,8 +149,8 @@
 
         <div class="prompt">
             <label for="daily-subject">What did you learn today? </label>
-            <input id="daily-subject">
-            <button id="daily-subject-btn">ok!</button>
+            <input id="daily-subject" placeholder="e.g. Binary search on sorted arrays" maxlength="120" autocomplete="off">
+            <button id="daily-subject-btn">LOCK THAT SHI IN!</button>
         </div>
 
         <div class="topic-term-confirmation" id="topic-term-confirmation">
@@ -171,7 +172,7 @@
         </div>
 
         <div class="undo-review-confirmation" id="undo-review-confirmation">
-            <h4>r u sure u want to undo this topic's last completed review?</h4>
+            <h4>r u sure u want to undo this topic's last completed review? (this action can break streaks!)</h4>
             <p id="undo-review-confirmation-text"></p>
             <button id="undo-review-confirm">undooo</button>
             <button id="undo-review-cancel">nah</button>

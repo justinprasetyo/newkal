@@ -139,29 +139,7 @@ h1 {
   border-radius: 50%;
 }
 
-/* ---- Daily prompt ---- */
-label[for="daily-subject"] {
-  font-family: 'Lora', serif;
-  color: var(--ink);
-  display: block;
-  margin-bottom: 8px;
-}
-
-#daily-subject {
-  font-family: 'Inter', sans-serif;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 8px 10px;
-  width: 280px;
-  color: var(--ink);
-}
-
-#daily-subject:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-#daily-subject-btn, #all-topics-btn {
+#all-topics-btn {
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   background: var(--accent);
@@ -170,13 +148,6 @@ label[for="daily-subject"] {
   padding: 8px 16px;
   cursor: pointer;
   transition: background 0.15s ease;
-}
-
-#daily-subject-btn:hover, #all-topics-btn:hover {
-  background: var(--ink);
-}
-
-#all-topics-btn {
   margin-top: 24px;
 }
 
