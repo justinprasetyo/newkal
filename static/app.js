@@ -144,6 +144,7 @@ async function getInput(input, dailylog) {
         }, false, true)
     await loadReviews()
     loadUserConsistency()
+    loadInbox()
 };
 
 export async function loadReviews() {

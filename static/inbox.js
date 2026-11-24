@@ -27,6 +27,7 @@ export async function loadInbox() {
     for (const rev of response) {
         const newRow = document.createElement("tr");
         newRow.classList.add('inbox-task');
+        newRow.classList.remove('completed');
         newRow.id = rev?.id;
 
         const due_col = document.createElement("th");
@@ -44,10 +45,11 @@ export async function loadInbox() {
         newRow.append(name_col);
 
         const rating_col = document.createElement("th");
-        rating_col.classList.add('inbox-rating'); //if u want
-        rating_col.textContent = ':/'; //default no completion state.
-        if (rev?.review_log.length > 0 && rev?.review_log[rev?.review_log.length - 1]?.completed_on == todayStr) { //if its completed today, grey out
-            rating_col.textContent = RATINGS_LIST[rev?.review_log[rev?.review_log.length - 1]?.rating] ?? ':/';
+        const ratingNum = rev?.review_log[rev?.review_log.length - 1]?.rating
+        rating_col.textContent = ':/';              //default no completion state.
+        if (RATINGS_LIST?.[ratingNum]) {
+            rating_col.textContent = RATINGS_LIST[ratingNum];
+            newRow.classList.add('done');
         } 
         newRow.append(rating_col);
         inboxTable.append(newRow);
