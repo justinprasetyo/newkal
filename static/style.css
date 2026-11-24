@@ -140,6 +140,7 @@ h1 {
 }
 
 #all-topics-btn {
+  visibility: hidden;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
   background: var(--accent);

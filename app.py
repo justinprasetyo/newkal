@@ -183,8 +183,6 @@ def delete_log():
 @app.route('/api/test', methods=['GET'])
 @login_required
 def test():
-    print(get_allreviews_today())
-    #print(str(user_today()))
     return '', 204
 
 @app.errorhandler(AppError)

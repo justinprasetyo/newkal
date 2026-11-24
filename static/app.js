@@ -131,7 +131,10 @@ cacheElements();   // safe to run immediately, needs the DOM to exist, not login
 checkSession();    // decides whether initializeApp() runs
 
 async function getInput(input, dailylog) {
-    if (input == "") return "Invalid input", 400;
+    if (input == "") {
+        showError("Please type a valid topic name.");
+        return;
+    }
     await api('/api/topics', {
         method: "POST",
         headers: {

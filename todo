@@ -16,6 +16,9 @@ if theres nothing due that day, show “Nothing due today. Next up: Sliding wind
 *Brand new account*: no topics yet, so show the onboarding prompt, “Add something you want to still know in 3 months.”
 
 add a first-run class when the user has zero topics, with a slightly thicker border or a soft pulse that plays once. Remove it after the first topic so it doesn't become noise. Keep motion for moments like that and avoid anything that loops.
+
+• Use position: relative on the parent button/container and position: absolute on the tooltip bubble with a subtle @keyframes bounce or pulse animation so it draws the eye naturally without blocking clicks.
+• Dismiss on click or creation: Have it hide immediately as soon as they click the input/button or submit their first topic (no manual "Got it" button required!).
 ***
 
 
