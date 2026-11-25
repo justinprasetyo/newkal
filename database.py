@@ -5,6 +5,7 @@ from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 from contextlib import contextmanager
 import os
+from errors import NotFound
 
 load_dotenv()
 DATABASE_URL = os.environ["DATABASE_URL"]
@@ -99,7 +100,8 @@ def get_topicById(user_id, id):
         ))
 
         topic = cur.fetchone()
-        if topic is None: return None
+        if topic is None: 
+            raise NotFound("Topic is not found.")
         formatDates(dict(topic))
         return dict(topic) if topic else None
 
