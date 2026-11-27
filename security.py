@@ -55,9 +55,9 @@ def logout():
     session.pop('tz', None)
     return jsonify({"status": "logged out"})
 
-def get_username():
+def get_username(user_id):
     with get_db() as conn, conn.cursor() as cur:
-        cur.execute("SELECT username FROM users WHERE id = %s", (session['user_id'],))
+        cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
         username = cur.fetchone()
 
         if username is None:

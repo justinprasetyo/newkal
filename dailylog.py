@@ -1,5 +1,6 @@
 from psycopg2.extras import RealDictCursor
 from database import get_db, formatDates
+from errors import NotFound
 
 def create_daily_log(user_id, topic_obj):
     with get_db() as conn, conn.cursor() as cur:
@@ -51,7 +52,8 @@ def get_daily_logById(user_id, id):
         ))
 
         topic = cur.fetchone()
-        if topic is None: return None
+        if topic is None:
+            raise NotFound("Daily log is not found.")
         formatDates(dict(topic))
         return dict(topic)
 
@@ -60,9 +62,13 @@ def delete_logById(user_id, id):
         cur.execute("""
             DELETE FROM daily_log
             WHERE id = %s AND user_id = %s
+            RETURNING id
         """, (
             id, user_id,
         ))
+        topic = cur.fetchone()
+        if topic is None:
+            raise NotFound("Daily log is not found.")
         print(f"DELETED {id}")
         conn.commit()
 

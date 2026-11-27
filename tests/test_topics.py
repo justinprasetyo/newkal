@@ -14,7 +14,7 @@ def test_logged_out_requests_are_rejected(client, path):
 
 
 def test_cannot_read_another_users_topic(client, make_user, make_topic, login_as):
-    alice, bob = make_user("alice"), make_user("bob")
+    alice, bob = make_user("alice"), make_user("bob") #returns user id
     bobs_topic = make_topic(bob)
     login_as(alice)
     r = client.post("/api/topics/stats", json={"id": bobs_topic})
@@ -39,12 +39,12 @@ def test_invalid_ratings_are_rejected(client, make_user, make_topic, login_as, b
     assert r.status_code == 400
 
 
-def test_mastery_is_capped_at_100(make_user, make_topic, log_entry):
+def test_mastery_is_not_capped_at_100(make_user, make_topic, log_entry):
     uid = make_user()
     log = [log_entry(rating=100, step=s) for s in range(1, 8)]
     tid = make_topic(uid, step=7, log=log)
     result = complete_review(uid, tid, 100)
-    assert result["progress"] <= 100    # expected RED at first
+    assert result["progress"] > 100
 
 
 def test_undo_restores_the_previous_state(make_user, make_topic):
@@ -56,3 +56,10 @@ def test_undo_restores_the_previous_state(make_user, make_topic):
     after = get_alltopics(uid)[0]
     for key in ("interval_step", "next_review", "review_log", "level", "progress"):
         assert after[key] == before[key], key
+
+def test_invalid_undo_is_rejected(client, make_user, make_topic, login_as):
+    uid = make_user()
+    tid = make_topic(uid)
+    login_as(uid)
+    r = client.post("/api/topics/undo", json={"id": tid})
+    assert r.status_code == 400

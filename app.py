@@ -27,7 +27,7 @@ def home():
 @app.route('/api/me')
 def whoami():
     if 'user_id' in session:
-        username = get_username()
+        username = get_username(session['user_id'])
         return jsonify({"logged_in": 'user_id' in session, 'username': username})
     else:
         return jsonify({"logged_in": 'user_id' in session})

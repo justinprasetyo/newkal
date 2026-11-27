@@ -79,3 +79,17 @@ def log_entry():
         return {"date": due, "rating": rating, "interval_step": step,
                 "offset_days": offset, "completed_on": completed_on}
     return _entry
+
+
+@pytest.fixture
+def make_daily_Log(today):
+    def _make(user_id, name="Binary search", desc="cut sorted array in half until value found."):
+        with get_db() as conn, conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO daily_log
+                       (name, created_at, description, user_id)
+                   VALUES ( %s, %s, %s, %s) RETURNING id""",
+                (name, today, desc, user_id),
+            )
+            return cur.fetchone()[0]
+    return _make

@@ -90,14 +90,13 @@ def complete_review(user_id, id, rating):
 
 def undo_review(user_id, id):
      with get_db() as conn, conn.cursor(cursor_factory=RealDictCursor) as cur:
-
         cur.execute("SELECT review_log, created_at, level, progress FROM topics WHERE id = %s AND user_id = %s", (id, user_id,))
         row = cur.fetchone()
         if row is None:
             raise NotFound("Review does not exist.")  # nothing to undo
         
         if len(row['review_log']) == 0: # nothing to undo
-            raise Conflict("This topic does not have past reviews.")
+            raise Invalid("This topic does not have past reviews.")
 
         old_progress = row['progress']
         old_level = levels.index(row['level'])
